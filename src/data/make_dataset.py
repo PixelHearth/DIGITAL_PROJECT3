@@ -1,30 +1,34 @@
 # -*- coding: utf-8 -*-
-import click
-import logging
-from pathlib import Path
-from dotenv import find_dotenv, load_dotenv
 
 
-@click.command()
-@click.argument('input_filepath', type=click.Path(exists=True))
-@click.argument('output_filepath', type=click.Path())
-def main(input_filepath, output_filepath):
-    """ Runs data processing scripts to turn raw data from (../raw) into
-        cleaned data ready to be analyzed (saved in ../processed).
+
+
+def generate_property_data(num_rows):
+    """génération d'un dataset crée aléatoirement pour commencer les modèles 
     """
-    logger = logging.getLogger(__name__)
-    logger.info('making final data set from raw data')
+    import pandas as pd
+    import random
+    property_types = ['Maison', 'Appartement']
+    surface = [random.randint(20, 250) for _ in range(num_rows)]
+    num_rooms = [random.randint(1, 8) for _ in range(num_rows)]
+    energy_consumption = [random.randint(70, 250) for _ in range(num_rows)]
+    emissions = [random.randint(15, 60) for _ in range(num_rows)]
+    roof_types = ['Plat', '2 Pans', 'Mansardé', 'Monopente', '4 pans', 'toit pavillon']
+    roof_material = ["Tuiles en terre cuite","Tuiles en terre cuite","Ardoises artificielles","Ardoises naturelles","Toiture en chaume","Toiture en zinc"]
+    siding_types = ['Brique', 'Enduit', 'Bois', 'Béton', 'Pierre']
+    insulation_types = ['Laine de verre', 'Polystyrène expansé', 'Laine de roche', 'Laine de bois', 'Polyuréthane']
 
+    data = {
+        'Type': [random.choice(property_types) for _ in range(num_rows)],
+        'Surface (m²)': surface,
+        'Nombre de pièces': num_rooms,
+        'Consommation énergétique (kWh/m²/an)': energy_consumption,
+        'Émissions de gaz à effet de serre (kgCO2/m²/an)': emissions,
+        'Type de toiture': [random.choice(roof_types) for _ in range(num_rows)],
+        'type de revêtement toiture' : [random.choice(roof_material) for _ in range(num_rows)],
+        'Type de revêtement': [random.choice(siding_types) for _ in range(num_rows)],
+        'Type d\'isolation': [random.choice(insulation_types) for _ in range(num_rows)]
+    }
 
-if __name__ == '__main__':
-    log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    logging.basicConfig(level=logging.INFO, format=log_fmt)
-
-    # not used in this stub but often useful for finding various files
-    project_dir = Path(__file__).resolve().parents[2]
-
-    # find .env automagically by walking up directories until it's found, then
-    # load up the .env entries as environment variables
-    load_dotenv(find_dotenv())
-
-    main()
+    dataframe_property = pd.DataFrame(data)
+    return dataframe_property
