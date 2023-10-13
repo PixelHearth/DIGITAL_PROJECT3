@@ -8,6 +8,7 @@ def generate_property_data(num_rows):
     """
     import pandas as pd
     import random
+    dpe = ["A","B","C","D","E","F","G"]
     property_types = ['Maison', 'Appartement']
     surface = [random.randint(20, 250) for _ in range(num_rows)]
     num_rooms = [random.randint(1, 8) for _ in range(num_rows)]
@@ -19,6 +20,7 @@ def generate_property_data(num_rows):
     insulation_types = ['Laine de verre', 'Polystyrène expansé', 'Laine de roche', 'Laine de bois', 'Polyuréthane']
 
     data = {
+        "Dpe" : [random.choice(dpe) for _ in range(num_rows)],
         'Type': [random.choice(property_types) for _ in range(num_rows)],
         'Surface (m²)': surface,
         'Nombre de pièces': num_rooms,
