@@ -1,8 +1,4 @@
 # -*- coding: utf-8 -*-
-
-
-
-
 def generate_property_data(num_rows):
     """génération d'un dataset crée aléatoirement pour commencer les modèles 
     """
@@ -36,7 +32,3 @@ def generate_property_data(num_rows):
     return dataframe_property
 
 
-# def nettoyage(dataframe):
-#     #début d'un création de nettoyage pour transformer les variables catégorielles en variables ordinales avec une boucle pour tout nettoyer
-#     for element in dataframe.columns:
-#         if
