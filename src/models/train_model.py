@@ -12,7 +12,7 @@ def k_neighbors(dataframe,new_variable):
     neigh.fit(independent_variable,Dependent_variable)
 
     #création d'un individu afin de déterminer son dpe à remplir avec le formulaire vba
-    new_variable = new_variable.iloc[:,1:].values
-    prediction = neigh.predict(new_variable)
+    to_predict = new_variable.iloc[:,1:].values
+    prediction = neigh.predict(to_predict)
 
     return prediction
