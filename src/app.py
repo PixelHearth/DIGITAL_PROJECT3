@@ -1,22 +1,28 @@
 from data.make_dataset import generate_property_data
+from data.preprocessing import CustomPreprocessor
 from models.train_model import k_neighbors
 import random
-
+import pandas as pd
+import numpy as np
 def app():
     properties = generate_property_data(100)
-    new_variable = { 
-        'Type': "Maison",
-        'Surface (m²)': 50,
-        'Nombre de pièces': 2,
-        'Consommation énergétique (kWh/m²/an)': 80,
-        'Émissions de gaz à effet de serre (kgCO2/m²/an)': 30,
-        'Type de toiture': "2 Pans",
-        'type de revêtement toiture' : "Tuiles en terre cuite",
-        'Type de revêtement': 'Béton',
-        'Type d\'isolation': 'Laine de verre'
-    }
+    
+    cpp = CustomPreprocessor()
+    cpp.fit(properties)
+    cpp.transform(properties)
+    
+    new_variable = generate_property_data(1)
+    print(new_variable)
+    cpp.transform(new_variable)
     #! trouver un moyen de convertir les variables string en variables ordinal avec Ordinal encoder
     predict = k_neighbors(properties,new_variable)
-    print(predict)
+    independante_variable =new_variable.iloc[:,1:].values.flatten()
+    reel =new_variable.values.flatten()
+    result = np.concatenate([predict, independante_variable])
+    print(reel)
+    print(result)
+    cpp.encoder.inverse_transform(result)
+    
 if __name__ == "__main__":
     app()
+
