@@ -6,11 +6,13 @@ def k_neighbors(dataframe,new_variable):
     """
     neigh = KNeighborsClassifier(n_neighbors=5)
     
-    Dependent_variable = dataframe.iloc[0].values
-    independent_variable = dataframe.iloc[:,[0,1]].values
+    Dependent_variable = dataframe.iloc[:,0].values
+    independent_variable = dataframe.iloc[:, 1:].values
     #entrainement des données
     neigh.fit(independent_variable,Dependent_variable)
 
     #création d'un individu afin de déterminer son dpe à remplir avec le formulaire vba
+    new_variable = new_variable.iloc[:,1:].values
     prediction = neigh.predict(new_variable)
 
+    return prediction
