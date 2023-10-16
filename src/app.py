@@ -8,7 +8,7 @@ def app():
     properties = generate_property_data(100)
     new_variable = generate_property_data(1)
     cpp_p = CustomPreprocessor(properties)
-    cpp_p.fit_transform()
+    cpp_p.fit()
     cpp_p.transform(new_variable)
     cpp_p.transform(properties)
     # ! trouver un moyen de convertir les variables string en variables ordinal avec Ordinal encoder
