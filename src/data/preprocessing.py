@@ -1,24 +1,26 @@
 from sklearn.preprocessing import OrdinalEncoder    
 import numpy as np
 class CustomPreprocessor:
-    def __init__(self):
+    def __init__(self,dataframe):
         self.encoder = OrdinalEncoder()
+        self.dataframe = dataframe
+        self.indices = [i for i, column in enumerate(dataframe.columns) if column in dataframe.select_dtypes(include=['object']).columns]
+        self.object_columns = dataframe.select_dtypes(include=['object']).columns
 
-    def fit(self, dataframe):
-        object_columns = dataframe.select_dtypes(include=['object']).columns
-        self.encoder.fit(dataframe[object_columns])
-        unique_values = [sorted(list(set(dataframe[col])) ) for col in object_columns]
-        # à modifier pour que les clés du dictionnaires soit les valeurs des colonnes "objet"
-        self.inverse_encoder = {i: {j: v for j, v in enumerate(values)} for i, (col, values) in enumerate(zip(dataframe.columns, unique_values))}
-        print(self.inverse_encoder)
+    def fit_transform(self):
+        self.unique_values = [sorted(list(set(self.dataframe[col])) ) for col in self.object_columns]
+        self.encoder.fit(self.dataframe[self.object_columns])
 
-    def transform(self, dataframe):
-        object_columns = dataframe.select_dtypes(include=['object']).columns
-        dataframe[object_columns] = self.encoder.transform(dataframe[object_columns])
-        return dataframe
+    def transform(self,df_to_transform):
+        df_to_transform[self.object_columns] = self.encoder.transform(df_to_transform[self.object_columns])
+        return df_to_transform
     
-    def inverse_transform(self, data):
+    def inverse_transform(self,df_test):
+        indices = [i for i, column in enumerate(self.dataframe.columns) if column in self.object_columns]
+        {index: {j: v for j, v in enumerate(values)} for index, values in zip(indices, self.unique_values)}
+        self.inverse_encoder = {index: {j: v for j, v in enumerate(values)} for (index, values) in zip(indices, self.unique_values)}
         if self.inverse_encoder is not None:
-            for col in self.inverse_encoder:
-                data[:, col] = np.vectorize(lambda val: self.inverse_encoder[col][int(val)])
-        return data
+            for column_index in self.indices:
+                df_test[column_index] = df_test[column_index].map(self.inverse_encoder[column_index])
+        return df_test
+                
