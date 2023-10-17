@@ -1,18 +1,29 @@
 from sklearn.neighbors import KNeighborsClassifier
+import numpy as np
+import pandas as pd
 
-def k_neighbors(dataframe,new_variable):
-    """ création d'un algorithme de k_neighbors sur les données properties
-    parameter "dataframe", est le dataframe de l'ademe nettoyé
-    """
-    neigh = KNeighborsClassifier(n_neighbors=5)
+class KNN_MODEL:
+    def __init__(self,dataframe,individual_features):
+        self.dataframe =dataframe
+        self.individual_feature = individual_features
+        self.dependent_variable = self.dataframe.iloc[:,0].values
+        self.independent_variable = self.dataframe.iloc[:, 1:].values
+        self.individual_features  = individual_features.iloc[:,1:].values
+    def k_neighbors(self):
+        """ création d'un algorithme de k_neighbors sur les données properties
+        parameter "dataframe", est le dataframe de l'ademe nettoyé
+        """
+        #entrainement
+        neigh = KNeighborsClassifier(n_neighbors=5)
+        #entrainement des données
+        neigh.fit(self.independent_variable,self.dependent_variable)
+        #prédiction
+        prediction = neigh.predict(self.individual_features)
     
-    Dependent_variable = dataframe.iloc[:,0].values
-    independent_variable = dataframe.iloc[:, 1:].values
-    #entrainement des données
-    neigh.fit(independent_variable,Dependent_variable)
-
-    #création d'un individu afin de déterminer son dpe à remplir avec le formulaire vba
-    new_variable = new_variable.iloc[:,1:].values
-    prediction = neigh.predict(new_variable)
-
-    return prediction
+        #restitution d'un dataframe
+        self.independante_variable = self.individual_features.flatten()
+        result = np.concatenate([prediction, self.independante_variable])
+        dataframe_decoded = pd.DataFrame(result).transpose()
+        return dataframe_decoded
+        
+    # def trans_dataframe(prediction):
