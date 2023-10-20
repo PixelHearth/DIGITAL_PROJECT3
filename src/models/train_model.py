@@ -25,5 +25,4 @@ class KNN_MODEL:
         result = np.concatenate([prediction, self.independante_variable])
         dataframe_decoded = pd.DataFrame(result).transpose()
         return dataframe_decoded
-        
-    # def trans_dataframe(prediction):
+
