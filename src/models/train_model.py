@@ -19,6 +19,8 @@ class KNN_MODEL:
         neigh.fit(self.independent_variable,self.dependent_variable)
         #prédiction
         prediction = neigh.predict(self.individual_features)
+        score = neigh.score(self.independent_variable, self.dependent_variable)
+        print(f"Précision du modèle : {score}")
     
         #restitution d'un dataframe
         self.independante_variable = self.individual_features.flatten()
