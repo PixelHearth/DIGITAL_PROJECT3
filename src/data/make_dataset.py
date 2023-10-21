@@ -1,6 +1,30 @@
 # -*- coding: utf-8 -*-
 def generate_property_data(num_rows):
-    """génération d'un dataset crée aléatoirement pour commencer les modèles 
+    """
+    Génère un ensemble de données aléatoires pour simuler les caractéristiques de biens immobiliers.
+
+    Args:
+        num_rows (int): Le nombre de lignes (observations) à générer dans le jeu de données.
+
+    Returns:
+        pandas.DataFrame: Un DataFrame contenant des données simulées sur les biens immobiliers.
+
+    Le jeu de données simulé comprend les caractéristiques suivantes :
+    - DPE (Diagnostic de Performance Énergétique) : Notation de A à G.
+    - Type de propriété : Maison ou Appartement.
+    - Surface en mètres carrés.
+    - Nombre de pièces.
+    - Consommation énergétique en kWh/m²/an.
+    - Émissions de gaz à effet de serre en kgCO2/m²/an.
+    - Type de toiture : Plat, 2 Pans, Mansardé, Monopente, 4 pans, toit pavillon.
+    - Type de revêtement de toiture.
+    - Type de revêtement : Brique, Enduit, Bois, Béton, Pierre.
+    - Type d'isolation : Laine de verre, Polystyrène expansé, Laine de roche, Laine de bois, Polyuréthane.
+
+    Chaque caractéristique est générée de manière aléatoire pour chaque ligne du jeu de données.
+
+    Exemple d'utilisation:
+    generate_property_data(10)  # Génère un jeu de données de 10 biens immobiliers simulés.
     """
     import pandas as pd
     import random
