@@ -55,4 +55,24 @@ def generate_property_data(num_rows):
     dataframe_property = pd.DataFrame(data)
     return dataframe_property
 
+# @staticmethod
+# def clean():
+#     bdd = pd.read_csv("../data/processed/bdd_clean.csv", encoding = "utf-8",)
+#     colonne_a_deplacer = bdd.pop('classe_bilan_dpe')
+#     bdd.insert(0, 'classe_bilan_dpe', colonne_a_deplacer)
+#     na_count = bdd.isna().sum()
 
+#     # Créez un DataFrame pour afficher les résultats
+#     result_df = pd.DataFrame({
+#         'Nom de la Colonne': na_count.index,
+#         'Nombre de NA': na_count.values
+#     })
+
+#     result_df = result_df.sort_values(by= "Nombre de NA", ascending = False)
+#     colonnes_a_supprimer = result_df[(result_df['Nombre de NA'] > 5000)]['Nom de la Colonne']
+
+#     # Supprimez les colonnes sélectionnées
+#     bdd_withooutna = bdd.drop(columns=colonnes_a_supprimer)
+#     bdd_withooutna.dropna(inplace = True)
+
+#     bdd_withooutna.to_csv("../data/processed/bdd_model.csv")
