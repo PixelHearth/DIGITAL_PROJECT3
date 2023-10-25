@@ -324,4 +324,4 @@ data <- supprimer_lignes_na("surface_habitable_logement", data) #5 NA
 data <- supprimer_lignes_na("type_installation_chauffage", data) #1942 NA qui se retrouvent dans plusieurs colonnes importantes
 data <- supprimer_lignes_na("type_installation_ecs", data) #23 NA qui se retrouvent dans plusieurs colonnes importantes
 
-write.csv(data, "C:/Users/Guillaume/Documents/DIGITAL_PROJECT3/data/processed/bdd_clean.csv", row.names = FALSE)
+write.csv(data, "C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/data/processed/bdd_clean.csv", row.names = FALSE)
