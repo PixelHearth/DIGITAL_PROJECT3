@@ -1,5 +1,6 @@
 import pandas as pd
 import ast
+import numpy as np
 
 def supprimer_lignes_na(df, nom_colonne):
     # Vérifiez si la colonne spécifiée est dans le DataFrame
@@ -29,33 +30,32 @@ def scinde_colonnes(df, nom_colonne, noms_colonnes_personnalisees):
     if nom_colonne in df.columns:
         # Créez de nouvelles colonnes vides avec les noms spécifiés dans la liste
         for nom in noms_colonnes_personnalisees:
-            df[nom_colonne + ' ' + nom] = df[nom_colonne].apply(lambda x: 1 if isinstance(x, list) and nom in x else (0 if pd.isna(x) else None))
+            df[nom_colonne + ' ' + nom] = df[nom_colonne].apply(lambda x: 1 if isinstance(x, str) and nom in x else (0 if not pd.isna(x) else None))
+        df = df.drop(columns=[nom_colonne])
     else:
         print(f"La colonne '{nom_colonne}' n'est pas présente dans le DataFrame.")
 
     return df
 
+def compter_virgules(chaine):
+        if pd.notna(chaine):
+            return chaine.count(',')+1 if isinstance(chaine, str) else 0
+        else:
+            return np.nan
+        
 def convertir_listes_en_nombre(df, nom_colonne):
-    # Vérifiez si la colonne spécifiée est dans le DataFrame
     if nom_colonne in df.columns:
-        # Utilisez la méthode 'apply' pour appliquer la fonction lambda à chaque élément de la colonne
-        df[nom_colonne] = df[nom_colonne].apply(lambda x: len(x) if isinstance(x, list) else None)
+        df[nom_colonne] = df[nom_colonne].apply(compter_virgules)
     else:
         print(f"La colonne '{nom_colonne}' n'est pas présente dans le DataFrame.")
-    
     return df
 
 def selectionner_colonnes(df, colonnes_a_garder):
     # Vérifiez si toutes les colonnes spécifiées sont présentes dans le DataFrame
     colonnes_presentes = [col for col in colonnes_a_garder if col in df.columns]
+    df_selectionne = df[colonnes_presentes]
+    return df_selectionne
 
-    if colonnes_presentes:
-        # Utilisez l'opérateur [] pour sélectionner les colonnes spécifiées
-        df_selectionne = df[colonnes_presentes]
-        return df_selectionne
-    else:
-        print("Aucune des colonnes spécifiées n'est présente dans le DataFrame.")
-        return df
 
 
 
@@ -84,19 +84,14 @@ def remplacer_na_par_valeur(df, nom_colonne, valeur_remplacement):
         return df
 
 
-def convertir_en_liste(chaine):
-    try:
-        return ast.literal_eval(chaine)
-    except (ValueError, SyntaxError):
-        return chaine
+def count_na_per_column(df):
+    # Utilisez la méthode isna() pour obtenir un DataFrame booléen où True représente les valeurs manquantes.
+    is_na_df = df.isna()
     
+    # Utilisez la méthode sum() sur le DataFrame booléen pour compter le nombre de valeurs manquantes par colonne.
+    na_count_series = is_na_df.sum()
     
-def convertir_modalites_en_listes(df, nom_colonne):
-    # Vérifiez si la colonne spécifiée existe dans le DataFrame
-    if nom_colonne in df.columns:
-        # Appliquez la fonction de conversion à la colonne spécifiée
-        df[nom_colonne] = df[nom_colonne].apply(convertir_en_liste)
-        return df
-    else:
-        print(f"La colonne '{nom_colonne}' n'existe pas dans le DataFrame.")
-        return df
+    # Créez un nouveau DataFrame à partir de la série de comptage des valeurs manquantes.
+    result_df = pd.DataFrame({'Column': na_count_series.index, 'NA_Count': na_count_series.values})
+    
+    return result_df
