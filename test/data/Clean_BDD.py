@@ -1,176 +1,241 @@
 import pandas as pd
-import numpy as np
+import fonctions_filtrage as ff
 
 
-#################supprimer_lignes_na################################
-#Entrée :
-#Un dataframe et un nom de colonne 
-#Sortie :
-#Un dataframe
-#Utilitée :
-#Supprime toutes les lignes du dataframe qui renvoient NaN sur la 
-#colonne selectionée 
-
-def supprimer_lignes_na(df, nom_colonne):
-    # Vérifiez si la colonne spécifiée est dans le DataFrame
-    if nom_colonne in df.columns:
-        # Utilisez la méthode dropna pour supprimer les lignes contenant des NA dans la colonne spécifiée
-        df_sans_na = df.dropna(subset=[nom_colonne])
-        return df_sans_na
-    else:
-        print(f"La colonne '{nom_colonne}' n'est pas présente dans le DataFrame.")
-        return df
-
-#######################remplacer_valeurs################################
-#Entrée :
-#Un dataframe, un nom de colonne, une valeur a et une valeur b (str, float ou int)
-#Sortie :
-#Un dataframe
-#Utilitée :
-#Remplace dans la colonne selectionnée, toutes les cases qui prennent la valeur a
-#par la valeur b
-
-def remplacer_valeurs(df, nom_colonne, valeur_a, valeur_b):
-    # Vérifiez si la colonne spécifiée est dans le DataFrame
-    if nom_colonne in df.columns:
-        # Utilisez la méthode 'replace' pour remplacer les valeurs dans la colonne spécifiée
-        df[nom_colonne] = df[nom_colonne].replace({valeur_a: valeur_b})
-    else:
-        print(f"La colonne '{nom_colonne}' n'est pas présente dans le DataFrame.")
-
-    return df
-
-#######################scinde_colonnes###############################
-#Entrée :
-#Un dataframe, un nom de colonne, une liste de str
-#Sortie :
-#Un dataframe
-#Utilitée :
-#Dans notre base, certaines colonnes renvoient une liste de modalitées
-#(nord, sud, est, ouest par exemple pour les murs exposés), on va alors 
-#scinder cette colonne en 4 colonnes nommées par exemple "nom_colonne nord"
-#qui renvera 1 si la ligne contient "nord" dans la colonne "nom_colonne", Nan
-#si la colonne renvoie un NaN, 0 sinon
-#La colonne initiale "nom_colonne" est alors supprimée
+###IMPORTATION DE LA BASE###
+chemin_fichier_excel = 'BDD.xlsx'
+Base = pd.read_excel(chemin_fichier_excel)
 
 
-def scinde_colonnes(df, nom_colonne, noms_colonnes_personnalisees):
-    # Vérifiez si la colonne spécifiée est dans le DataFrame
-    if nom_colonne in df.columns:
-        # Créez de nouvelles colonnes vides avec les noms spécifiés dans la liste
-        for nom in noms_colonnes_personnalisees:
-            df[nom_colonne + ' ' + nom] = df[nom_colonne].apply(lambda x: 1 if isinstance(x, str) and nom in x else (0 if not pd.isna(x) else None))
-        df = df.drop(columns=[nom_colonne])
-    else:
-        print(f"La colonne '{nom_colonne}' n'est pas présente dans le DataFrame.")
+###SELECTION DES COLONNES A GARDER ET DE COMMENT LES TRAITER###
+Colonnes= ['annee_construction_dpe', 'version', 'surface_habitable_logement',
+       'conso_5_usages_ep_m2', 'conso_5_usages_ef_m2',
+       'emission_ges_5_usages_m2', 'classe_bilan_dpe',
+       'type_installation_chauffage', 'type_energie_chauffage',
+       'type_generateur_chauffage', 'type_generateur_chauffage_anciennete',
+       'nb_generateur_chauffage', 'nb_installation_chauffage',
+       'type_generateur_climatisation',
+       'type_generateur_climatisation_anciennete', 'type_installation_ecs',
+       'type_energie_ecs', 'type_generateur_ecs',
+       'type_generateur_ecs_anciennete', 'ecs_solaire', 'nb_generateur_ecs',
+       'nb_installation_ecs', 'plusieurs_facade_exposee', 'type_ventilation',
+       'type_production_energie_renouvelable', 'type_vitrage',
+       'type_materiaux_menuiserie', 'type_gaz_lame', 'type_fermeture',
+       'vitrage_vir', 'surface_vitree_nord', 'surface_vitree_sud',
+       'surface_vitree_ouest', 'surface_vitree_est', 'traversant',
+       'u_baie_vitree', 'facteur_solaire_baie_vitree', 'presence_balcon',
+       'l_orientation_baie_vitree', 'type_isolation_mur_exterieur',
+       'materiaux_structure_mur_exterieur',
+       'epaisseur_structure_mur_exterieur', 'surface_mur_totale',
+       'surface_mur_exterieur', 'surface_mur_deperditif',
+       'local_non_chauffe_principal_mur', 'l_orientation_mur_exterieur',
+       'type_isolation_plancher_bas', 'type_plancher_bas_deperditif',
+       'surface_plancher_bas_totale', 'surface_plancher_bas_deperditif',
+       'local_non_chauffe_principal_plancher_bas',
+       'type_adjacence_principal_plancher_bas', 'type_isolation_plancher_haut',
+       'type_plancher_haut_deperditif', 'surface_plancher_haut_totale',
+       'surface_plancher_haut_deperditif',
+       'local_non_chauffe_principal_plancher_haut',
+       'type_adjacence_principal_plancher_haut', 'type_porte', 'surface_porte',
+       'classe_inertie']
+Colonnes_listes="scinde"     #"scinde" pour scinder, "compte" pour compter
 
-    return df
 
-######################compter_virgules##############################
-#Entrée :
-#Une chaine de caractère (de la forme "['modalité1','modalité2','ta capté'])
-#Sortie :
-#Un int (ou None)
-#Utilitée :
-#Pour traiter les colonnes type "liste de modalitées" on peut aussi juste remplacer
-#la liste par le nombre de modalitées qu'elle renvoie, d'ou l'interet de cette
-#fonction qui, en se basant sur le nombre de virgules, renverra NaN ou le nombre 
-#de modalitées
+###NETTOYAGE ET MISE EN FORME DE LA BASE###
 
-def compter_virgules(chaine):
-        if pd.notna(chaine):
-            return chaine.count(',')+1 if isinstance(chaine, str) else 0
-        else:
-            return np.nan
+##On place la variable à prédire en première position
+Base = ff.deplacer_colonne_en_premier(Base, 'classe_bilan_dpe')   
 
-####################convertir_listes_en_nombre#############################
-#Entrée :
-#Un dataframe et un nom de colonne
-#Sortie :
-#Un dataframe
-#Utilitée :
-#A l'aide de la fonction précédente, compte les modalitées de chaque
-#ligne de la colonne selectionnée
-        
-def convertir_listes_en_nombre(df, nom_colonne):
-    if nom_colonne in df.columns:
-        df[nom_colonne] = df[nom_colonne].apply(compter_virgules)
-    else:
-        print(f"La colonne '{nom_colonne}' n'est pas présente dans le DataFrame.")
-    return df
+##On supprime de la base les colonnes qui ne nous servent à rien
+Base = ff.selectionner_colonnes(Base, Colonnes)
 
-#######################selectionner_colonnes###############################
-#Entrée :
-#Un dataframe et une liste de noms de colonnes
-#Sortie :
-#Un dataframe
-#Utilitée :
-#Renvoie un dataframe avec uniquement les colonnes désirées
+##Pour chaque colonne dans la base, on fusionne les modalitées trop proches
 
-def selectionner_colonnes(df, colonnes_a_garder):
-    # Vérifiez si toutes les colonnes spécifiées sont présentes dans le DataFrame
-    colonnes_presentes = [col for col in colonnes_a_garder if col in df.columns]
-    df_selectionne = df[colonnes_presentes]
-    return df_selectionne
+#type_adjacence_principal_plancher_haut
+Base = ff.remplacer_valeurs(Base, "type_adjacence_principal_plancher_haut", "comble faiblement ventilÃ©", "comble")
+Base = ff.remplacer_valeurs(Base, "type_adjacence_principal_plancher_haut", "comble fortement ventilÃ©", "comble")
+Base = ff.remplacer_valeurs(Base, "type_adjacence_principal_plancher_haut", "comble trÃ¨s faiblement ventilÃ©", "comble")
+Base = ff.remplacer_valeurs(Base, "type_adjacence_principal_plancher_haut", "circulation avec ouverture directe sur l'extÃ©rieur", "circulation")
+Base = ff.remplacer_valeurs(Base, "type_adjacence_principal_plancher_haut", "circulation sans ouverture directe sur l'extÃ©rieur", "circulation")
 
-#####################deplacer_colonne_en_premier###########################
-#Entrée :
-#Un dataframe et un nom de colonne
-#Sortie :
-#Un dataframe
-#Utilitée :
-#Déplace une colonne à la première place. Ici le score DPE, pour coller au 
-#programme de Guillaume
+#local_non_chauffe_principal_plancher_haut#
+Base = ff.remplacer_valeurs(Base, "local_non_chauffe_principal_plancher_haut", "hall d'entrÃ©e avec dispositif de fermeture automatique", "hall")
+Base = ff.remplacer_valeurs(Base, "local_non_chauffe_principal_plancher_haut", "hall d'entrÃ©e sans dispositif de fermeture automatique", "hall")
+Base = ff.remplacer_valeurs(Base, "local_non_chauffe_principal_plancher_haut", "circulation avec ouverture directe sur l'extÃ©rieur", "circulation")
+Base = ff.remplacer_valeurs(Base, "local_non_chauffe_principal_plancher_haut", "circulation sans ouverture directe sur l'extÃ©rieur", "circulation")
+Base = ff.remplacer_valeurs(Base, "local_non_chauffe_principal_plancher_haut", "circulation avec bouche ou gaine de dÃ©senfumage ouverte en permanence", "circulation")
+Base = ff.remplacer_valeurs(Base, "local_non_chauffe_principal_plancher_haut", "comble faiblement ventilÃ©", "comble")
+Base = ff.remplacer_valeurs(Base, "local_non_chauffe_principal_plancher_haut", "comble trÃ¨s faiblement ventilÃ©", "comble")
+Base = ff.remplacer_valeurs(Base, "local_non_chauffe_principal_plancher_haut", "comble fortement ventilÃ©", "comble")
 
-def deplacer_colonne_en_premier(df, nom_colonne):
-    if nom_colonne not in df.columns:
-        print(f"La colonne '{nom_colonne}' n'existe pas dans le DataFrame.")
-        return df
+#type_plancher_haut_deperditif
+Base = ff.remplacer_valeurs(Base, "type_plancher_haut_deperditif", "autre type de plafond non rÃ©pertoriÃ©", "autre")
+Base = ff.remplacer_valeurs(Base, "type_plancher_haut_deperditif", "bardeaux et remplissage", "autre")
+Base = ff.remplacer_valeurs(Base, "type_plancher_haut_deperditif", "plafond bois sous solives mÃ©talliques", "autre")
+Base = ff.remplacer_valeurs(Base, "type_plancher_haut_deperditif", "plafond bois sur solives mÃ©talliques", "autre")
+Base = ff.remplacer_valeurs(Base, "type_plancher_haut_deperditif", "plafond entre solives mÃ©talliques avec ou sans remplissage", "autre")
+Base = ff.remplacer_valeurs(Base, "type_plancher_haut_deperditif", "plafond lourd type entrevous terre-cuite, poutrelles bÃ©ton", "autre")
+Base = ff.remplacer_valeurs(Base, "type_plancher_haut_deperditif", "toitures en Bac acier", "autre")
+
+#type_adjacence_principal_plancher_bas
+Base = ff.remplacer_valeurs(Base, "type_adjacence_principal_plancher_bas", "circulation avec bouche ou gaine de désenfumage ouverte en permanence", "circulation")
+Base = ff.remplacer_valeurs(Base, "type_adjacence_principal_plancher_bas", "circulation avec ouverture directe sur l'extérieur", "circulation")
+Base = ff.remplacer_valeurs(Base, "type_adjacence_principal_plancher_bas", "circulation sans ouverture directe sur l'extérieur", "circulation")
+Base = ff.remplacer_valeurs(Base, "type_adjacence_principal_plancher_bas", "hall d'entrée avec dispositif de fermeture automatique", "hall")
+Base = ff.remplacer_valeurs(Base, "type_adjacence_principal_plancher_bas", "hall d'entrée sans dispositif de fermeture automatique", "hall")
+Base = ff.remplacer_valeurs(Base, "type_adjacence_principal_plancher_bas", "espace tampon solarisé (véranda, loggia fermée)", "autres dépendances")
+Base = ff.remplacer_valeurs(Base, "type_adjacence_principal_plancher_bas", "garage privé collectif", "garage")
+Base = ff.remplacer_valeurs(Base, "type_adjacence_principal_plancher_bas", "cellier", "autres dépendances")
+
+#local_non_chauffe_principal_plancher_bas
+Base = ff.remplacer_valeurs(Base, "local_non_chauffe_principal_plancher_bas", "circulation avec bouche ou gaine de désenfumage ouverte en permanence", "circulation")
+Base = ff.remplacer_valeurs(Base, "local_non_chauffe_principal_plancher_bas", "circulation avec ouverture directe sur l'extérieur", "circulation")
+Base = ff.remplacer_valeurs(Base, "local_non_chauffe_principal_plancher_bas", "circulation sans ouverture directe sur l'extérieur", "circulation")
+Base = ff.remplacer_valeurs(Base, "local_non_chauffe_principal_plancher_bas", "hall d'entrée avec dispositif de fermeture automatique", "hall")
+Base = ff.remplacer_valeurs(Base, "local_non_chauffe_principal_plancher_bas", "hall d'entrée sans dispositif de fermeture automatique", "hall")
+Base = ff.remplacer_valeurs(Base, "local_non_chauffe_principal_plancher_bas", "espace tampon solarisé (véranda, loggia fermée)", "autres dépendances")
+Base = ff.remplacer_valeurs(Base, "local_non_chauffe_principal_plancher_bas", "garage privé collectif", "garage")
+Base = ff.remplacer_valeurs(Base, "local_non_chauffe_principal_plancher_bas", "cellier", "autres dépendances")
+
+#materiaux_structure_mur_exterieur
+Base = ff.remplacer_valeurs(Base, "materiaux_structure_mur_exterieur", "murs bois (rondin)", "murs en pan de bois")
+Base = ff.remplacer_valeurs(Base, "materiaux_structure_mur_exterieur", "murs en pan de bois sans remplissage tout venant", "murs en pan de bois")
+Base = ff.remplacer_valeurs(Base, "materiaux_structure_mur_exterieur", "murs en pan de bois avec remplissage tout venant", "murs en pan de bois")
+Base = ff.remplacer_valeurs(Base, "materiaux_structure_mur_exterieur", "murs en ossature bois avec isolant en remplissage <2001", "murs en ossature bois")
+Base = ff.remplacer_valeurs(Base, "materiaux_structure_mur_exterieur", "murs en ossature bois avec isolant en remplissage 2001-2005", "murs en ossature bois")
+Base = ff.remplacer_valeurs(Base, "materiaux_structure_mur_exterieur", "murs en ossature bois avec isolant en remplissage â‰¥ 2006", "murs en ossature bois")
+Base = ff.remplacer_valeurs(Base, "materiaux_structure_mur_exterieur", "murs en ossature bois avec remplissage tout venant", "murs en ossature bois")
+Base = ff.remplacer_valeurs(Base, "materiaux_structure_mur_exterieur", "murs en ossature bois sans remplissage", "murs en ossature bois")
+Base = ff.remplacer_valeurs(Base, "materiaux_structure_mur_exterieur", "bÃ©ton cellulaire", "murs en béton")
+Base = ff.remplacer_valeurs(Base, "materiaux_structure_mur_exterieur", "murs en bÃ©ton banchÃ©", "murs en béton")
+Base = ff.remplacer_valeurs(Base, "materiaux_structure_mur_exterieur", "murs en bÃ©ton de mÃ¢chefer", "murs en béton")
+Base = ff.remplacer_valeurs(Base, "materiaux_structure_mur_exterieur", "brique terre cuite alvÃ©olaire", "autre matÃ©riau non rÃ©pertoriÃ©")
+Base = ff.remplacer_valeurs(Base, "materiaux_structure_mur_exterieur", "cloison de plÃ¢tre", "autre matÃ©riau non rÃ©pertoriÃ©")
+Base = ff.remplacer_valeurs(Base, "materiaux_structure_mur_exterieur", "murs en ossature bois", "autre matÃ©riau non rÃ©pertoriÃ©")
+Base = ff.remplacer_valeurs(Base, "materiaux_structure_mur_exterieur", "murs sandwich bÃ©ton/isolant/bÃ©ton (sans isolation rapportÃ©e)", "autre matÃ©riau non rÃ©pertoriÃ©")
+
+#type_ventilation
+Base = ff.remplacer_valeurs(Base, "type_ventilation", "Ventilation mécanique double flux avec échangeur", "Ventilation mécanique double flux")
+Base = ff.remplacer_valeurs(Base, "type_ventilation", "Ventilation mécanique double flux sans échangeur", "Ventilation mécanique double flux")
+
+#type_generateur_ecs
+Base = ff.remplacer_valeurs(Base, "type_generateur_ecs", "chaudiere fioul basse temperature", "chaudiere fioul")
+Base = ff.remplacer_valeurs(Base, "type_generateur_ecs", "chaudiere fioul condensation", "chaudiere fioul")
+Base = ff.remplacer_valeurs(Base, "type_generateur_ecs", "chaudiere fioul standard", "chaudiere fioul")
+Base = ff.remplacer_valeurs(Base, "type_generateur_ecs", "chaudiere gaz basse temperature", "chaudiere gaz")
+Base = ff.remplacer_valeurs(Base, "type_generateur_ecs", "chaudiere gaz condensation", "chaudiere gaz")
+Base = ff.remplacer_valeurs(Base, "type_generateur_ecs", "chaudiere gaz standard", "chaudiere gaz")
+Base = ff.remplacer_valeurs(Base, "type_generateur_ecs", "chaudiere gpl/butane/propane basse temperature", "chaudiere gpl/butane/propane")
+Base = ff.remplacer_valeurs(Base, "type_generateur_ecs", "chaudiere gpl/butane/propane condensation", "chaudiere gpl/butane/propane")
+Base = ff.remplacer_valeurs(Base, "type_generateur_ecs", "chaudiere gpl/butane/propane standard", "chaudiere gpl/butane/propane")
+Base = ff.remplacer_valeurs(Base, "type_generateur_ecs", "chaudiere gpl/butane/propaneindependant", "chaudiere gpl/butane/propane")
+
+#type_generateur_chauffage
+Base = ff.remplacer_valeurs(Base, "type_generateur_chauffage", "chaudiere fioul basse temperature", "chaudiere fioul")
+Base = ff.remplacer_valeurs(Base, "type_generateur_chauffage", "chaudiere fioul condensation", "chaudiere fioul")
+Base = ff.remplacer_valeurs(Base, "type_generateur_chauffage", "chaudiere fioul standard", "chaudiere fioul")
+Base = ff.remplacer_valeurs(Base, "type_generateur_chauffage", "chaudiere gaz basse temperature", "chaudiere gaz")
+Base = ff.remplacer_valeurs(Base, "type_generateur_chauffage", "chaudiere gaz condensation", "chaudiere gaz")
+Base = ff.remplacer_valeurs(Base, "type_generateur_chauffage", "chaudiere gaz standard", "chaudiere gaz")
+Base = ff.remplacer_valeurs(Base, "type_generateur_chauffage", "chaudiere gpl/butane/propane basse temperature", "chaudiere gpl/butane/propane")
+Base = ff.remplacer_valeurs(Base, "type_generateur_chauffage", "chaudiere gpl/butane/propane condensation", "chaudiere gpl/butane/propane")
+Base = ff.remplacer_valeurs(Base, "type_generateur_chauffage", "chaudiere gpl/butane/propane standard", "chaudiere gpl/butane/propane")
+
+
+
+
+
+
+##Pour les colonnes représentées par des listes de modalitées, on 
+##liste les modalitées à compter
+colonnesliste=["l_orientation_baie_vitree","l_local_non_chauffe_mur",
+               "l_orientation_mur_exterieur","l_local_non_chauffe_plancher_bas",
+               "l_local_non_chauffe_plancher_haut"]
+modcolonneliste=[["nord","sud","est","ouest"],
+                        ["garage","comble","cellier","hall","circulation"],
+                        ["nord","sud","est","ouest"],
+                        ["circulation","autre","hall","cellier","garage"],
+                        ["circulation","locaux","comble","garage"]]
+
+
     
-    # Créez une liste de colonnes en réorganisant la colonne sélectionnée en première position
-    colonnes_reorganisees = [nom_colonne] + [col for col in df.columns if col != nom_colonne]
-    
-    # Utilisez l'opérateur [] pour réorganiser les colonnes du DataFrame
-    df_reorganise = df[colonnes_reorganisees]
-    
-    return df_reorganise
+##Pour les colonnes représentées par des listes de modalitées, on 
+##les scindes/convertit en entier suivant la méthode choisie
+if Colonnes_listes=="scinde" :
+    k=0
+    for i in colonnesliste :
+        Base = ff.scinde_colonnes(Base, i,modcolonneliste[k])
+        k+=1
+else : 
+    for i in colonnesliste :
+        Base = ff.convertir_listes_en_nombre(Base, i)
 
-###################remplacer_na_par_valeur############################
-#Entrée :
-#Un dataframe, un nom de colonne, une valeur
-#Sortie :
-#Un dataframe
-#Utilitée :
-#Remplace tous les NaN d'une colonne par la valeur selectionnée
-#
-
-def remplacer_na_par_valeur(df, nom_colonne, valeur_remplacement):
-    # Vérifiez si la colonne spécifiée est dans le DataFrame
-    if nom_colonne in df.columns:
-        # Utilisez la méthode 'fillna' pour remplacer les valeurs manquantes (NA) dans la colonne spécifiée
-        df[nom_colonne] = df[nom_colonne].fillna(valeur_remplacement)
-        return df
-    else:
-        print(f"La colonne '{nom_colonne}' n'est pas présente dans le DataFrame.")
-        return df
-
-####################count_na_per_column############################
-#Entrée :
-#Un dataframe
-#Sortie :
-#Un dataframe
-#Utilitée :
-#Renvoie un dataframe avec deux colonnes: une contenant le nom de chaque colonne
-#de notre dataframe initiale, l'autre le nombre de nan pour chaque colonne
-
-def count_na_per_column(df):
-    # Utilisez la méthode isna() pour obtenir un DataFrame booléen où True représente les valeurs manquantes.
-    is_na_df = df.isna()
+##On remplace les NA de chaque colonne par la valeur souaitée
+remplace = 'inconnu'
+colonnesaclean = ['type_installation_chauffage',
+            'type_energie_chauffage',
+            'type_generateur_chauffage',
+            'type_installation_ecs',
+            'type_energie_ecs',
+            'type_generateur_ecs',
+            'type_vitrage',
+            'type_materiaux_menuiserie',
+            'type_fermeture',
+            'local_non_chauffe_principal_plancher_haut',
+            'local_non_chauffe_principal_plancher_bas',
+            'type_production_energie_renouvelable',
+            'type_generateur_ecs_anciennete',
+            'type_generateur_chauffage_anciennete',
+            'type_plancher_bas_deperditif',
+            'type_plancher_haut_deperditif',
+            'type_adjacence_principal_plancher_bas',
+            'type_isolation_plancher_bas',
+            'type_adjacence_principal_plancher_haut',
+            'type_isolation_plancher_haut',
+            'type_porte',
+            'type_ventilation',
+            'type_gaz_lame',
+            'annee_construction_dpe',
+            'l_orientation_mur_exterieur nord',
+            'l_orientation_mur_exterieur sud',
+            'l_orientation_mur_exterieur est',
+            'l_orientation_mur_exterieur ouest',
+            'type_isolation_mur_exterieur',
+            'l_orientation_baie_vitree nord',
+            'l_orientation_baie_vitree sud',
+            'l_orientation_baie_vitree est',
+            'l_orientation_baie_vitree ouest',
+            'presence_balcon',
+            'local_non_chauffe_principal_mur']
+for colonne in colonnesaclean:
+    Base=ff.remplacer_na_par_valeur(Base, colonne, remplace)
     
-    # Utilisez la méthode sum() sur le DataFrame booléen pour compter le nombre de valeurs manquantes par colonne.
-    na_count_series = is_na_df.sum()
+remplace = 0
+colonnesaclean = ['surface_vitree_ouest',
+                  'surface_vitree_est',
+                  'surface_plancher_bas_deperditif',
+                  'surface_plancher_haut_deperditif',
+                  'surface_vitree_nord',
+                  'surface_vitree_sud',
+                  'epaisseur_structure_mur_exterieur',
+                  'surface_plancher_bas_totale',
+                  'surface_plancher_haut_totale',
+                  'surface_porte',
+                  ]
+for colonne in colonnesaclean:
+    Base=ff.remplacer_na_par_valeur(Base, colonne, remplace)
+##On supprime les colonnes contenant beaucoup trop de NA
+tropNA=['type_generateur_climatisation',
+        'type_generateur_climatisation_anciennete',
+        ]
+for colonne in tropNA:
+    Base=Base.drop(columns=colonne)
     
-    # Créez un nouveau DataFrame à partir de la série de comptage des valeurs manquantes.
-    result_df = pd.DataFrame({'Column': na_count_series.index, 'NA_Count': na_count_series.values})
     
-    return result_df
+
+na=ff.count_na_per_column(Base)
+##On supprime les lignes contenant des NA
+for colonne in Base.columns :
+    Base=ff.supprimer_lignes_na(Base, colonne)
+##On sauvegarde la base nettoyée au format csv
+Base.to_csv("Base_clean.csv", index=False)
