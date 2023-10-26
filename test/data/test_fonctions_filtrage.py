@@ -2,6 +2,10 @@ import pandas as pd
 import fonctions_filtrage as ff
 import numpy as np
 
+
+
+
+#Crée les deux dataframes qui seront utilisés pour les tests
 def creedfexemple(numéro_test):
     if numéro_test==1:        
         data = pd.DataFrame({'Nom': ['Alice', 'Bob', 'Charlie', 'David', 'Eva'],
@@ -20,12 +24,20 @@ def creedfexemple(numéro_test):
                                           None, 
                                           'sport']})
     return(data)
-nom_colonnefictive = 'Papa'
+
+#Compare deux dataframes 
+def comparedf(df1,df2):
+    compare = (df1 == df2) | (df1.isna() & df2.isna())
+    return(compare.all().all())
+
+#Voulant rendre le script de nettoyage le plus flexible possible, la mention
+#de colonnes n'existant plus risque d'arriver fréquemment. Afin d'éviter d'avoir
+#à modifier le script à chaque fois, chaque programme pouvoir renvoyer le 
+#dataframe initiale si la colonne mentionnée n'existe pas
+nom_colonnefictive = 'mescheveux'
 
 
-#MISE EN FORME                                 9/9
-#AJOUT DES VARIABLES                           3/9
-##TESTER AUSSI SI IL N'Y A PAS LA COLONNES     3/8
+
 
 
 #supprimer_lignes_na
@@ -37,15 +49,13 @@ datasol = pd.DataFrame({'Nom': ['Alice', 'Charlie', 'Eva'],
                      'Ville2': ['Paris', 'Los Angeles', 'Berlin']})
 nom_colonne = 'Salaire'
 data=ff.supprimer_lignes_na(data,nom_colonne).reset_index(drop=True)
-comparison = (data == datasol) | (data.isna() & datasol.isna())
-if comparison.all().all():
+if comparedf(data,datasol):
     print("supprimer_lignes_na OK")
 else:
     print("!!!!supprimer_lignes_na ERREUR!!!!")
 data = creedfexemple(1)
 data1=ff.supprimer_lignes_na(data,nom_colonnefictive).reset_index(drop=True)
-comparison = (data == data1) | (data.isna() & data1.isna())
-if comparison.all().all():
+if comparedf(data,data1):
     print("")
 else:
     print("!!!!supprimer_lignes_na ne gère pas les colonnes fictives!!!!")
@@ -63,15 +73,14 @@ nom_colonne = 'Ville'
 valeur_a = 'New York'
 valeur_b = 'Dunkerque' #miskine
 data=ff.remplacer_valeurs(data, nom_colonne, valeur_a, valeur_b).reset_index(drop=True)
-comparison = (data == datasol) | (data.isna() & datasol.isna())
-if comparison.all().all():
+
+if comparedf(data,datasol):
     print("remplacer_valeurs OK")
 else:
     print("!!!!remplacer_valeurs ERREUR!!!!")
 data = creedfexemple(1)
 data1=ff.remplacer_valeurs(data, nom_colonnefictive, valeur_a, valeur_b).reset_index(drop=True)
-comparison = (data == data1) | (data.isna() & data1.isna())
-if comparison.all().all():
+if comparedf(data,data1):
     print("")
 else:
     print("!!!!remplacer_valeurs ne gère pas les colonnes fictives!!!!")
@@ -96,15 +105,13 @@ noms_colonnes_personnalisees = ['lecture', 'cuisine', 'sport',
 
 
 data=ff.scinde_colonnes(data, nom_colonne, noms_colonnes_personnalisees).reset_index(drop=True)
-comparison = (data == datasol) | (data.isna() & datasol.isna())
-if comparison.all().all():
+if comparedf(data,datasol):
     print("scinde_colonnes OK")
 else:
     print("!!!!scinde_colonnes ERREUR!!!!")
 
 data1=ff.scinde_colonnes(data, nom_colonnefictive, noms_colonnes_personnalisees)
-comparison = (data == data1) | (data.isna() & data1.isna())
-if comparison.all().all():
+if comparedf(data,data1):
     print("")
 else:
     print("!!!!scinde_colonnes ne gère pas les colonnes fictives!!!!")
@@ -142,16 +149,14 @@ datasol = pd.DataFrame({'Nom': ['Alice', 'Bob', 'Charlie', 'David', 'Eva'],
                                   1]})
 nom_colonne = "Passions"
 data=ff.convertir_listes_en_nombre(data, nom_colonne).reset_index(drop=True)
-comparison = (data == datasol) | (data.isna() & datasol.isna())
-if comparison.all().all():
+if comparedf(data,datasol):
     print("convertir_listes_en_nombre OK")
 else:
     print("!!!!convertir_listes_en_nombre ERREUR!!!!")
 
 
 data1=ff.convertir_listes_en_nombre(data, nom_colonnefictive)
-comparison = (data == data1) | (data.isna() & data1.isna())
-if comparison.all().all():
+if comparedf(data,data1):
     print("")
 else:
     print("!!!!convertir_listes_en_nombre ne gère pas les colonnes fictives!!!!")
@@ -166,8 +171,7 @@ datasol = pd.DataFrame({'Nom': ['Alice', 'Bob', 'Charlie', 'David', 'Eva'],
 colonnes_a_garder = ['Nom', 'Ville', 'Salaire']
 
 data=ff.selectionner_colonnes(data, colonnes_a_garder).reset_index(drop=True)
-comparison = (data == datasol) | (data.isna() & datasol.isna())
-if comparison.all().all():
+if comparedf(data,datasol):
     print("selectionner_colonnes OK")
 else:
     print("!!!!selectionner_colonnes ERREUR!!!!")    
@@ -183,8 +187,7 @@ datasol = pd.DataFrame({'Salaire': [50000, None, 60000, None, 75000],
                      'Ville2': ['Paris', 'New York', 'Los Angeles', None, 'Berlin']}) 
 nom_colonne = "Salaire"
 data=ff.deplacer_colonne_en_premier(data, nom_colonne).reset_index(drop=True)
-comparison = (data == datasol) | (data.isna() & datasol.isna())
-if comparison.all().all():
+if comparedf(data,datasol):
     print("deplacer_colonne_en_premier OK")
 else:
     print("!!!!deplacer_colonne_en_premier ERREUR!!!!")    
@@ -192,8 +195,7 @@ else:
 
 
 data1=ff.deplacer_colonne_en_premier(data, nom_colonnefictive)
-comparison = (data == data1) | (data.isna() & data1.isna())
-if comparison.all().all():
+if comparedf(data,data1):
     print("")
 else:
     print("!!!!deplacer_colonne_en_premier ne gère pas les colonnes fictives!!!!")
@@ -210,15 +212,13 @@ datasol = pd.DataFrame({'Nom': ['Alice', 'Bob', 'Charlie', 'David', 'Eva'],
 nom_colonne = 'Âge'
 valeur_remplacement = 'inconnu'
 data=ff.remplacer_na_par_valeur(data, nom_colonne, valeur_remplacement).reset_index(drop=True)
-comparison = (data == datasol) | (data.isna() & datasol.isna())
-if comparison.all().all():
+if comparedf(data,datasol):
     print("remplacer_na_par_valeur OK")
 else:
     print("!!!!remplacer_na_par_valeur ERREUR!!!!")  
     
 data1=ff.remplacer_na_par_valeur(data, nom_colonnefictive, valeur_remplacement).reset_index(drop=True)
-comparison = (data == datasol) | (data.isna() & datasol.isna())
-if comparison.all().all():
+if comparedf(data,data1):
     print("")
 else:
     print("!!!!remplacer_na_par_valeur ne gère pas les colonnes fictives!!!!")    
@@ -232,8 +232,7 @@ datasol = pd.DataFrame({'Column': ['Nom', 'Âge', 'Ville', 'Salaire', 'Ville2'],
 
 
 data=ff.count_na_per_column(data).reset_index(drop=True)
-comparison = (data == datasol) | (data.isna() & datasol.isna())
-if comparison.all().all():
+if comparedf(data,datasol):
     print("count_na_per_column OK")
 else:
     print("!!!!count_na_per_column ERREUR!!!!")  
