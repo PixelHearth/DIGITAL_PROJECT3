@@ -58,8 +58,7 @@ target/
 
 # DotEnv configuration
 .env
-/venv
-venv/
+venv/*
 
 # Database
 *.db
@@ -76,7 +75,7 @@ venv/
 
 # Jupyter NB Checkpoints
 .ipynb_checkpoints/
-
+*.ipynb
 # exclude data from source control by default
 /data/
 
