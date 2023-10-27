@@ -15,7 +15,7 @@ class Models:
         """ création d'un algorithme de k_neighbors sur les données properties
         parameter "dataframe", est le dataframe de l'ademe nettoyé
         """
-        #entrainement
+        #entrainements
         neigh = KNeighborsClassifier(n_neighbors=5)
 
         #entrainement des données
