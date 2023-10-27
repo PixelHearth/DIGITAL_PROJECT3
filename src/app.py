@@ -9,7 +9,7 @@ def app():
     start = time.time()
 
     # import bdd
-    properties = pd.read_csv("C:/Users/Guillaume/Documents/DIGITAL_PROJECT3/bdata/processed/bdd_model.csv", index_col="Unnamed: 0")
+    properties = pd.read_csv("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/data/processed/bdd_model.csv", index_col="Unnamed: 0")
 
     #selection d'une variable pour le test
     new_variable = properties.sample(n=1)
