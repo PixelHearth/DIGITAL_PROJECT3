@@ -20,10 +20,11 @@ class CustomPreprocessor:
         self.encoder = OrdinalEncoder()
         self.dataframe = dataframe
         self.object_columns = dataframe.select_dtypes(include=['object']).columns
-        self.indices = [i for i, column in enumerate(dataframe.columns) if column in self.object_columns]
+        self.indices = [column for column in (dataframe.columns) if column in self.object_columns]
         self.unique_values = [sorted(list(set(self.dataframe[col])) ) for col in self.object_columns]
         self.inverse_encoder = {index: {j: v for j, v in enumerate(values)}
                                  for (index, values) in zip(self.indices, self.unique_values)}
+
 
     def fit(self):
         """
@@ -53,9 +54,22 @@ class CustomPreprocessor:
         Returns:
         pandas.DataFrame: Le DataFrame avec la transformation inverse appliquée.
 
-        """
-        
+        # """
+        # if self.inverse_encoder is not None:
+        #     common_columns = set(df_test.columns).intersection(set(self.object_columns))
+
+        #     for column_name in common_columns:
+        #         column_index = self.dataframe.columns.get_loc(column_name)  # Obtenez l'index de la colonne par le nom
+        #         df_test[column_name] = df_test[column_name].map(self.inverse_encoder[column_index])
+
+        # return df_test
         if self.inverse_encoder is not None:
-            for column_index in self.indices:
-                df_test[column_index] = df_test[column_index].map(self.inverse_encoder[column_index])
+            for index, col_name in enumerate(self.indices):
+                for index in self.inverse_encoder:
+                    print(index)
+                    encoded_column_name = self.inverse_encoder[index]
+                    print(encoded_column_name)
+                    df_test[encoded_column_name] = df_test[col_name].map(self.inverse_encoder[index])
+
         return df_test
+    
