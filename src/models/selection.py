@@ -13,10 +13,6 @@ def select_variables(dataframe,individual_features):
 
     feature_importances = rf_model.feature_importances_
     importances_df = pd.DataFrame({'Feature': dataframe.iloc[:,1:].columns, 'Importance': feature_importances})
-    # print(importances_df)
-    # ind_select_var = [(i,columns) for i, columns in enumerate(importances_df["Feature"])]
-    # print(ind_select_var)
-    # Trier les caractéristiques par importance (du plus important au moins important)
     importances_df = importances_df.sort_values(by='Importance', ascending=False)
     selection_dataframe = importances_df[:10]
 
