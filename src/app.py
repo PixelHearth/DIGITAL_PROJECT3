@@ -14,7 +14,7 @@ def app():
     cpp_p.transform(new_variable)
     cpp_p.transform(properties)
     individual = KNN_MODEL(properties,new_variable).k_neighbors()
-    variable = KNN_MODEL(properties,new_variable).Select_Variables()
+    variable = KNN_MODEL(properties,new_variable).Select_Variables(10)
     cpp_p.inverse_transform(individual)
     print(individual)
     reel =new_variable.values.flatten()
@@ -22,7 +22,7 @@ def app():
     cpp_p.inverse_transform(df_reel)
     print(df_reel)
     end = time.time()
-    print("Temps d'exécution : ",round(end-start,2),"secondes")
+    print("Temps d'exécution : ",round(end-start,2),"secondes") 
     
 if __name__ == "__main__":
     app()
