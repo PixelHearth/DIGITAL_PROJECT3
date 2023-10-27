@@ -19,7 +19,7 @@ class Models:
         neigh = KNeighborsClassifier(n_neighbors=5)
 
         #entrainement des données
-        neigh.fit(self.independent_variable.values,self.dependent_variable.values)
+        neigh.fit(self.independent_variable,self.dependent_variable)
 
         #prédiction
         prediction = neigh.predict(self.individual_features)
@@ -27,7 +27,7 @@ class Models:
         print(f"Précision du modèle : {score}")
     
         #restitution d'un dataframe
-        self.independante_variable = self.individual_features.flatten()
-        result = np.concatenate([prediction, self.independante_variable])
+        self.independant_variable = self.individual_features.flatten()
+        result = np.concatenate([prediction, self.independant_variable])
         dataframe_decoded = pd.DataFrame(result).transpose()
         return dataframe_decoded
