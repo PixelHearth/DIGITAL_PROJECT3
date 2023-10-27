@@ -1,13 +1,13 @@
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-class KNN_MODEL:
+class Models:
     def __init__(self,dataframe,individual_features):
         self.dataframe =dataframe
         self.individual_feature = individual_features
+<<<<<<< HEAD
         self.dependent_variable = self.dataframe.iloc[:,0].values
         self.independent_variable = self.dataframe.iloc[:, 1:].values
         self.individual_features  = individual_features.iloc[:,1:].values
@@ -36,22 +36,33 @@ class KNN_MODEL:
         percentage = (top_features_importance / total_importance) * 100
         plt.annotate(f"Top {nb_feature} Features: {percentage:.2f}%", xy=(0.5, 0.9), xycoords='axes fraction')
         plt.show() 
+=======
+        self.dependent_variable = self.dataframe.iloc[:,0]
+        self.independent_variable = self.dataframe.iloc[:,1:]
+        self.individual_independante_features  = individual_features.iloc[:,1:]
+
+    
+>>>>>>> 3dab4138f715fc89256054f904fd749ac0d69854
     def k_neighbors(self):
         """ création d'un algorithme de k_neighbors sur les données properties
         parameter "dataframe", est le dataframe de l'ademe nettoyé
         """
         #entrainement
         neigh = KNeighborsClassifier(n_neighbors=5)
+
         #entrainement des données
-        neigh.fit(self.independent_variable,self.dependent_variable)
+        neigh.fit(self.independent_variable.values,self.dependent_variable.values)
+
         #prédiction
-        prediction = neigh.predict(self.individual_features)
-        score = neigh.score(self.independent_variable, self.dependent_variable)
+        prediction = neigh.predict(self.individual_independante_features.values)
+        score = neigh.score(self.independent_variable.values, self.dependent_variable.values)
         print(f"Précision du modèle : {score}")
-    
+
         #restitution d'un dataframe
-        self.independante_variable = self.individual_features.flatten()
-        result = np.concatenate([prediction, self.independante_variable])
+        result = np.concatenate([prediction, self.individual_independante_features.values.flatten()])
         dataframe_decoded = pd.DataFrame(result).transpose()
         return dataframe_decoded
+<<<<<<< HEAD
 
+=======
+>>>>>>> 3dab4138f715fc89256054f904fd749ac0d69854
