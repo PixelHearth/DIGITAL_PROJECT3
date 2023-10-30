@@ -2,6 +2,7 @@ from data.make_dataset import generate_property_data
 from data.preprocessing import CustomPreprocessor
 from models.train_model import Models
 from models.selection import select_variables
+from data.CleanBDD import clean
 import pandas as pd
 import time
 def app():
@@ -9,8 +10,9 @@ def app():
     start = time.time()
 
     # import bdd
-    properties = pd.read_csv("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/data/processed/bdd_model.csv", index_col="Unnamed: 0")
-
+    properties = clean("C:/Users/Guillaume/Documents/DIGITAL_PROJECT3/bdata/raw/Bdd_newfiltre.xlsx")
+    # properties = pd.read_csv("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/data/processed/bdd_model.csv", index_col="Unnamed: 0")
+    print(properties)
     #selection d'une variable pour le test
     new_variable = properties.sample(n=1)
     
