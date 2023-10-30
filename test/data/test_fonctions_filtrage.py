@@ -1,5 +1,5 @@
 import pandas as pd
-import fonctions_filtrage as ff
+from ...src.data.fonctions_filtrage import *
 import numpy as np
 
 
@@ -48,13 +48,13 @@ datasol = pd.DataFrame({'Nom': ['Alice', 'Charlie', 'Eva'],
                      'Salaire': [50000, 60000, 75000],
                      'Ville2': ['Paris', 'Los Angeles', 'Berlin']})
 nom_colonne = 'Salaire'
-data=ff.supprimer_lignes_na(data,nom_colonne).reset_index(drop=True)
+data=supprimer_lignes_na(data,nom_colonne).reset_index(drop=True)
 if comparedf(data,datasol):
     print("supprimer_lignes_na OK")
 else:
     print("!!!!supprimer_lignes_na ERREUR!!!!")
 data = creedfexemple(1)
-data1=ff.supprimer_lignes_na(data,nom_colonnefictive).reset_index(drop=True)
+data1=supprimer_lignes_na(data,nom_colonnefictive).reset_index(drop=True)
 if comparedf(data,data1):
     print("")
 else:
@@ -72,14 +72,14 @@ datasol = pd.DataFrame({'Nom': ['Alice', 'Bob', 'Charlie', 'David', 'Eva'],
 nom_colonne = 'Ville'
 valeur_a = 'New York'
 valeur_b = 'Dunkerque' #miskine
-data=ff.remplacer_valeurs(data, nom_colonne, valeur_a, valeur_b).reset_index(drop=True)
+data=remplacer_valeurs(data, nom_colonne, valeur_a, valeur_b).reset_index(drop=True)
 
 if comparedf(data,datasol):
     print("remplacer_valeurs OK")
 else:
     print("!!!!remplacer_valeurs ERREUR!!!!")
 data = creedfexemple(1)
-data1=ff.remplacer_valeurs(data, nom_colonnefictive, valeur_a, valeur_b).reset_index(drop=True)
+data1=remplacer_valeurs(data, nom_colonnefictive, valeur_a, valeur_b).reset_index(drop=True)
 if comparedf(data,data1):
     print("")
 else:
@@ -104,13 +104,13 @@ noms_colonnes_personnalisees = ['lecture', 'cuisine', 'sport',
                                 'manga', 'informatique', 'dessin']
 
 
-data=ff.scinde_colonnes(data, nom_colonne, noms_colonnes_personnalisees).reset_index(drop=True)
+data=scinde_colonnes(data, nom_colonne, noms_colonnes_personnalisees).reset_index(drop=True)
 if comparedf(data,datasol):
     print("scinde_colonnes OK")
 else:
     print("!!!!scinde_colonnes ERREUR!!!!")
 
-data1=ff.scinde_colonnes(data, nom_colonnefictive, noms_colonnes_personnalisees)
+data1=scinde_colonnes(data, nom_colonnefictive, noms_colonnes_personnalisees)
 if comparedf(data,data1):
     print("")
 else:
@@ -126,11 +126,11 @@ chaine3=None
 nb1=6
 nb2=0
 nb3=None
-if ff.compter_virgules(chaine1) != 7:
+if compter_virgules(chaine1) != 7:
     print("!!!!compter_virgule ERREUR1!!!!")
-elif ff.compter_virgules(chaine2) != 1:
+elif compter_virgules(chaine2) != 1:
     print("!!!!compter_virgule ERREUR2!!!!")
-elif not np.isnan(ff.compter_virgules(chaine3)):
+elif not np.isnan(compter_virgules(chaine3)):
     print("!!!!compter_virgule ERREUR3!!!!")
 else:
     print("compter_virgules OK")
@@ -148,14 +148,14 @@ datasol = pd.DataFrame({'Nom': ['Alice', 'Bob', 'Charlie', 'David', 'Eva'],
                                   None, 
                                   1]})
 nom_colonne = "Passions"
-data=ff.convertir_listes_en_nombre(data, nom_colonne).reset_index(drop=True)
+data=convertir_listes_en_nombre(data, nom_colonne).reset_index(drop=True)
 if comparedf(data,datasol):
     print("convertir_listes_en_nombre OK")
 else:
     print("!!!!convertir_listes_en_nombre ERREUR!!!!")
 
 
-data1=ff.convertir_listes_en_nombre(data, nom_colonnefictive)
+data1=convertir_listes_en_nombre(data, nom_colonnefictive)
 if comparedf(data,data1):
     print("")
 else:
@@ -170,7 +170,7 @@ datasol = pd.DataFrame({'Nom': ['Alice', 'Bob', 'Charlie', 'David', 'Eva'],
                      })
 colonnes_a_garder = ['Nom', 'Ville', 'Salaire']
 
-data=ff.selectionner_colonnes(data, colonnes_a_garder).reset_index(drop=True)
+data=selectionner_colonnes(data, colonnes_a_garder).reset_index(drop=True)
 if comparedf(data,datasol):
     print("selectionner_colonnes OK")
 else:
@@ -186,7 +186,7 @@ datasol = pd.DataFrame({'Salaire': [50000, None, 60000, None, 75000],
                      'Ville': ['Paris', 'New York', 'Los Angeles', None, 'Berlin'],
                      'Ville2': ['Paris', 'New York', 'Los Angeles', None, 'Berlin']}) 
 nom_colonne = "Salaire"
-data=ff.deplacer_colonne_en_premier(data, nom_colonne).reset_index(drop=True)
+data=deplacer_colonne_en_premier(data, nom_colonne).reset_index(drop=True)
 if comparedf(data,datasol):
     print("deplacer_colonne_en_premier OK")
 else:
@@ -194,7 +194,7 @@ else:
     
 
 
-data1=ff.deplacer_colonne_en_premier(data, nom_colonnefictive)
+data1=deplacer_colonne_en_premier(data, nom_colonnefictive)
 if comparedf(data,data1):
     print("")
 else:
@@ -211,13 +211,13 @@ datasol = pd.DataFrame({'Nom': ['Alice', 'Bob', 'Charlie', 'David', 'Eva'],
                      'Ville2': ['Paris', 'New York', 'Los Angeles', None, 'Berlin']})
 nom_colonne = 'Âge'
 valeur_remplacement = 'inconnu'
-data=ff.remplacer_na_par_valeur(data, nom_colonne, valeur_remplacement).reset_index(drop=True)
+data=remplacer_na_par_valeur(data, nom_colonne, valeur_remplacement).reset_index(drop=True)
 if comparedf(data,datasol):
     print("remplacer_na_par_valeur OK")
 else:
     print("!!!!remplacer_na_par_valeur ERREUR!!!!")  
     
-data1=ff.remplacer_na_par_valeur(data, nom_colonnefictive, valeur_remplacement).reset_index(drop=True)
+data1=remplacer_na_par_valeur(data, nom_colonnefictive, valeur_remplacement).reset_index(drop=True)
 if comparedf(data,data1):
     print("")
 else:
@@ -231,7 +231,7 @@ datasol = pd.DataFrame({'Column': ['Nom', 'Âge', 'Ville', 'Salaire', 'Ville2'],
                      'NA_Count': [0, 1, 1, 2, 1]})
 
 
-data=ff.count_na_per_column(data).reset_index(drop=True)
+data=count_na_per_column(data).reset_index(drop=True)
 if comparedf(data,datasol):
     print("count_na_per_column OK")
 else:
