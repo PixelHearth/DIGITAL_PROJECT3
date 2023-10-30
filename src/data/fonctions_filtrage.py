@@ -40,6 +40,33 @@ def remplacer_valeurs(df, nom_colonne, valeur_a, valeur_b):
 
     return df
 
+
+def convert_object_columns_to_integers(df):
+    """
+    Convertit les colonnes de type 'object' en entiers.
+    
+    Args:
+        dataframe (pd.DataFrame): Le DataFrame à traiter.
+    
+    Returns:
+        pd.DataFrame: Un nouveau DataFrame avec les colonnes converties en entiers.
+    """
+    object_columns = df.select_dtypes(include=['object']).columns
+    
+
+    for col in object_columns:
+        list_numeric = []
+        for element in df[col]:
+            if isinstance(element, int) or isinstance(element,float) :
+                list_numeric.append(element)
+            else:
+                list_numeric.append(None)
+        if len(list_numeric) == 0:
+            df[col] = col
+        else:
+            df[col] = list_numeric
+
+    return df
 #######################scinde_colonnes###############################
 #Entrée :
 #Un dataframe, un nom de colonne, une liste de str
@@ -123,17 +150,23 @@ def selectionner_colonnes(df, colonnes_a_garder):
 #programme de Guillaume
 
 def deplacer_colonne_en_premier(df, nom_colonne):
-    if nom_colonne not in df.columns:
+    if nom_colonne in df.columns:
+        # Liste des noms de colonnes
+        columns = list(df.columns)
+        
+        # Supprimer la colonne de la liste
+        columns.remove(nom_colonne)
+        
+        # Insérer la colonne au début de la liste
+        columns.insert(0, nom_colonne)
+        
+        # Réorganiser le DataFrame selon la nouvelle séquence de colonnes
+        df = df[columns]
+        
+        return df
+    else:
         print(f"La colonne '{nom_colonne}' n'existe pas dans le DataFrame.")
         return df
-    
-    # Créez une liste de colonnes en réorganisant la colonne sélectionnée en première position
-    colonnes_reorganisees = [nom_colonne] + [col for col in df.columns if col != nom_colonne]
-    
-    # Utilisez l'opérateur [] pour réorganiser les colonnes du DataFrame
-    df_reorganise = df[colonnes_reorganisees]
-    
-    return df_reorganise
 
 ###################remplacer_na_par_valeur############################
 #Entrée :
