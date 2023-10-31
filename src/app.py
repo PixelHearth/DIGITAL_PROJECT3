@@ -5,17 +5,18 @@ from models.selection import select_variables
 from data.CleanBDD import clean
 import pandas as pd
 import time
+from IPython.display import display
 def app():
     # calcul le temps du début
     start = time.time()
 
     # import bdd
-    properties = clean("C:/Users/Guillaume/Documents/DIGITAL_PROJECT3/bdata/raw/Bdd_newfiltre.xlsx")
+    properties = clean("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/data/raw/Bdd_newfiltre.xlsx")
     # properties = pd.read_csv("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/data/processed/bdd_model.csv", index_col="Unnamed: 0")
-    print(properties)
     #selection d'une variable pour le test
     new_variable = properties.sample(n=1)
-    
+    df_reel = new_variable
+     
     #instance du framework de processing et entrainement des données sur properties pour l'encodage
     cpp_p = CustomPreprocessor(properties)
     cpp_p.fit()
@@ -31,12 +32,14 @@ def app():
     individual = Models(properties,new_variable).k_neighbors()
     individual.columns = nv_colonne
     print(individual)
-
     #restitution d'un dataframe compréhensible pour un humain
     cpp_p.inverse_transform(individual)
+    cpp_p.inverse_transform(new_variable)
+
+
     print(individual)
+    print(new_variable)
     #comparaison avec la valeur réelle
-    # print(df_reel)
 
     #calcul du temps d'exécution total
     end = time.time()
