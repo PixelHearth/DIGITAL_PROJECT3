@@ -234,6 +234,9 @@ def clean(chemin):
     for colonne in Base.columns :
         Base=supprimer_lignes_na(Base, colonne)
     Base = convert_object_columns_to_integers(Base)
+    for colonne in Base.columns :
+        Base=supprimer_lignes_na(Base, colonne)
+    Base.drop_duplicates(inplace = False)
     ##On sauvegarde la base nettoyée au format csv
     return Base
-    # Base.to_csv("C:/Users/Guillaume/Documents/DIGITAL_PROJECT3/bdata/processed/bdd_clean.csv")
+    # Base.to_csv("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/data/processed/bdd_clean.csv")
