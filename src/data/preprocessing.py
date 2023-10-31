@@ -17,11 +17,23 @@ class CustomPreprocessor:
         object_columns (Index): Un index répertoriant les noms des colonnes considérées comme des objets (chaînes).
 
         """
+
+        # chargement du modele d'encodage
         self.encoder = OrdinalEncoder()
+
+        #dataframe à convertir, entrainer ou transformer
         self.dataframe = dataframe
+
+        #  on garde les colonnes qui sont types Objets
         self.object_columns = dataframe.select_dtypes(include=['object']).columns
+        
+        # liste des noms des colonnes object
         self.indices = [column for column in (dataframe.columns) if column in self.object_columns]
+
+        # liste ordonnées des valeurs  au sein des colonnes 
         self.unique_values = [sorted(list(set(self.dataframe[col])) ) for col in self.object_columns]
+        
+        #dictionnaires avec titre de la colonnes, les valeurs uniques au sein de la colonne ordonnées avec leur index correspondants
         self.inverse_encoder = {index: {j: v for j, v in enumerate(values)}
                                  for (index, values) in zip(self.indices, self.unique_values)}
 
@@ -53,23 +65,13 @@ class CustomPreprocessor:
 
         Returns:
         pandas.DataFrame: Le DataFrame avec la transformation inverse appliquée.
+        """
 
-        # """
-        # if self.inverse_encoder is not None:
-        #     common_columns = set(df_test.columns).intersection(set(self.object_columns))
-
-        #     for column_name in common_columns:
-        #         column_index = self.dataframe.columns.get_loc(column_name)  # Obtenez l'index de la colonne par le nom
-        #         df_test[column_name] = df_test[column_name].map(self.inverse_encoder[column_index])
-
-        # return df_test
+        # On vérifie que notre dictionnaire inverse_encoder est pas vide, le 
         if self.inverse_encoder is not None:
-            for index, col_name in enumerate(self.indices):
-                for index in self.inverse_encoder:
-                    print(index)
-                    encoded_column_name = self.inverse_encoder[index]
-                    print(encoded_column_name)
-                    df_test[encoded_column_name] = df_test[col_name].map(self.inverse_encoder[index])
+            for col_name in self.indices:
+                if col_name in df_test.columns:
+                    df_test[col_name] = df_test[col_name].map(self.inverse_encoder[col_name])
 
         return df_test
     
