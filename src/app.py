@@ -1,50 +1,49 @@
 from data.make_dataset import generate_property_data
 from data.preprocessing import CustomPreprocessor
-from models.train_model import KNN_MODEL
-import random
+from models.train_model import Models
+from models.selection import select_variables
+from data.CleanBDD import clean
 import pandas as pd
-import numpy as np
 import time
+from IPython.display import display
 def app():
-    # start = time.time()
-    # properties = pd.read_csv("data/processed/bdd_model.csv",index_col="Unnamed: 0")
-    # new_variable = properties.sample(n=1)
-    # # print(new_variable)
-    # cpp_p = CustomPreprocessor(properties)
-    # cpp_p.fit()
-    # cpp_p.transform(new_variable)
-    # cpp_p.transform(properties)
-    # # ! trouver un moyen de convertir les variables string en variables ordinal avec Ordinal encoder
-    # individual = KNN_MODEL(properties,new_variable).k_neighbors()
-    # cpp_p.inverse_transform(individual)
-    # print(individual)
-    # reel =new_variable.values.flatten()
-    # df_reel = pd.DataFrame(reel).transpose()
-    # cpp_p.inverse_transform(df_reel)
-    # print(df_reel)
-    # end = time.time()
-    # print("Temps d'exécution : ",round(end-start,2),"secondes")
-    #!! Ne pas supprimer c'est pour la démo 
-    
+    # calcul le temps du début
     start = time.time()
-    properties = generate_property_data(100)
-    print(properties)
-    new_variable = generate_property_data(1)
-    # print(new_variable)
+
+    # import bdd
+    properties = clean("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/data/raw/Bdd_newfiltre.xlsx")
+    # properties = pd.read_csv("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/data/processed/bdd_model.csv", index_col="Unnamed: 0")
+    #selection d'une variable pour le test
+    new_variable = properties.sample(n=1)
+    df_reel = new_variable
+     
+    #instance du framework de processing et entrainement des données sur properties pour l'encodage
     cpp_p = CustomPreprocessor(properties)
     cpp_p.fit()
+    #encodage des variables dans les deux bases de données
     cpp_p.transform(new_variable)
     cpp_p.transform(properties)
-    # ! trouver un moyen de convertir les variables string en variables ordinal avec Ordinal encoder
-    individual = KNN_MODEL(properties,new_variable).k_neighbors()
-    cpp_p.inverse_transform(individual)
+
+    #selection des variables importantes, il faut avoir fait l'encodage aupréalable
+    properties,new_variable,nv_colonne = select_variables(properties,new_variable)
+    # print(properties,new_variable)
+
+    #instance et entrainement du k_neighbors sur les données encodées 
+    individual = Models(properties,new_variable).k_neighbors()
+    individual.columns = nv_colonne
     print(individual)
-    reel =new_variable.values.flatten()
-    df_reel = pd.DataFrame(reel).transpose()
-    cpp_p.inverse_transform(df_reel)
-    print(df_reel)
+    #restitution d'un dataframe compréhensible pour un humain
+    cpp_p.inverse_transform(individual)
+    cpp_p.inverse_transform(new_variable)
+
+
+    print(individual)
+    print(new_variable)
+    #comparaison avec la valeur réelle
+
+    #calcul du temps d'exécution total
     end = time.time()
-    print("temps d'exécution",end-start,"secondes")
+    print("Temps d'exécution : ",round(end-start,2),"secondes") 
     
 if __name__ == "__main__":
     app()
