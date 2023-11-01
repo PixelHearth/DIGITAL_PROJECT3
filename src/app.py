@@ -1,11 +1,10 @@
-from data.make_dataset import generate_property_data
 from data.preprocessing import CustomPreprocessor
 from models.train_model import Models
 from models.selection import select_variables
+from visualization.importance_feature_graph import plot_feature_importante
 from data.CleanBDD import clean
 import pandas as pd
 import time
-from IPython.display import display
 def app():
     # calcul le temps du début
     start = time.time()
@@ -25,21 +24,22 @@ def app():
     cpp_p.transform(properties)
 
     #selection des variables importantes, il faut avoir fait l'encodage aupréalable
-    properties,new_variable,nv_colonne = select_variables(properties,new_variable)
-    # print(properties,new_variable)
-
+    nb_features = 10
+    properties,new_variable,nv_colonne,importance = select_variables(properties,new_variable,nb_features)
+    
+    #création du graph des importances dans le modèle de selection
+    plot_feature_importante(importance,10)
     #instance et entrainement du k_neighbors sur les données encodées 
     individual = Models(properties,new_variable).k_neighbors()
     individual.columns = nv_colonne
-    print(individual)
+
     #restitution d'un dataframe compréhensible pour un humain
     cpp_p.inverse_transform(individual)
     cpp_p.inverse_transform(new_variable)
 
-
+    #comparaison avec la valeur réelle
     print(individual)
     print(new_variable)
-    #comparaison avec la valeur réelle
 
     #calcul du temps d'exécution total
     end = time.time()
