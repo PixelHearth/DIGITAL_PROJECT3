@@ -1,7 +1,7 @@
 from data.preprocessing import CustomPreprocessor
 from models.train_model import Models
 from models.selection import select_variables
-from visualization.importance_feature_graph import plot_feature_importante
+from visualization.importance_feature_graph import plot_feature_importance
 from data.CleanBDD import clean
 import pandas as pd
 import time
@@ -28,13 +28,16 @@ def app():
     properties,new_variable,nv_colonne,importance = select_variables(properties,new_variable,nb_features)
     
     #création du graph des importances dans le modèle de selection
-    plot_feature_importante(importance,10)
+    plot_feature_importance(importance,10)
     #instance et entrainement du k_neighbors sur les données encodées 
     individual = Models(properties,new_variable).k_neighbors()
     individual.columns = nv_colonne
 
     #restitution d'un dataframe compréhensible pour un humain
+    #valeur prédite du k_neighbors
     cpp_p.inverse_transform(individual)
+
+    #valeur réelle de l'individu testé
     cpp_p.inverse_transform(new_variable)
 
     #comparaison avec la valeur réelle
