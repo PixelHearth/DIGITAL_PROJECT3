@@ -10,7 +10,7 @@ def app():
     start = time.time()
 
     # import bdd
-    properties = clean("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/data/raw/Bdd_newfiltre.xlsx")
+    properties = clean("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/data/processed/Base_clean.csv")
     # properties = pd.read_csv("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/data/processed/bdd_model.csv", index_col="Unnamed: 0")
     #selection d'une variable pour le test
     new_variable = properties.sample(n=1)
