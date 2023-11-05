@@ -3,6 +3,7 @@ from models.train_model import Models
 from models.selection import select_variables
 from visualization.importance_feature_graph import plot_feature_importance
 from data.CleanBDD import clean
+from data.make_dataset import importation_excel
 import pandas as pd
 import time
 def app():
@@ -13,8 +14,7 @@ def app():
     properties = clean("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/data/processed/Base_clean.csv")
     # properties = pd.read_csv("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/data/processed/bdd_model.csv", index_col="Unnamed: 0")
     #selection d'une variable pour le test
-    new_variable = properties.sample(n=1)
-    df_reel = new_variable
+    new_variable = importation_excel("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/essai.xlsm","saisie")
      
     #instance du framework de processing et entrainement des données sur properties pour l'encodage
     cpp_p = CustomPreprocessor(properties)
@@ -47,6 +47,8 @@ def app():
     #calcul du temps d'exécution total
     end = time.time()
     print("Temps d'exécution : ",round(end-start,2),"secondes") 
+
+    return individual
     
 if __name__ == "__main__":
     app()
