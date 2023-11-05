@@ -1,4 +1,5 @@
 from sklearn.preprocessing import OrdinalEncoder   
+import pandas as pd
 class CustomPreprocessor:
     """ 
     fait un encodage des variables string en variables ordinales
@@ -17,7 +18,7 @@ class CustomPreprocessor:
         object_columns (Index): Un index répertoriant les noms des colonnes considérées comme des objets (chaînes).
 
         """
-
+        assert isinstance(dataframe,pd.DataFrame)
         # chargement du modele d'encodage
         self.encoder = OrdinalEncoder()
 
@@ -52,6 +53,7 @@ class CustomPreprocessor:
         Parameters:
         df_to_transform (pandas.DataFrame): Le DataFrame à transformer.
         """
+        assert isinstance(df_to_transform,pd.DataFrame)
 
         df_to_transform[self.object_columns] = self.encoder.transform(df_to_transform[self.object_columns])
         return df_to_transform
@@ -68,6 +70,7 @@ class CustomPreprocessor:
         """
 
         # On vérifie que notre dictionnaire inverse_encoder est pas vide, le 
+        assert isinstance(df_test,pd.DataFrame)
         if self.inverse_encoder is not None:
             for col_name in self.indices:
                 if col_name in df_test.columns:
