@@ -3,7 +3,10 @@ from  .fonctions_filtrage import *
 
 def clean(chemin):
     ###IMPORTATION DE LA BASE###
-    Base = pd.read_excel(chemin)
+    try:
+        Base = pd.read_excel(chemin)
+    except:
+        Base = pd.read_csv(chemin)
 
     ###SELECTION DES COLONNES A GARDER ET DE COMMENT LES TRAITER###
     Colonnes= ['classe_bilan_dpe', 'annee_construction_dpe','version', 'surface_habitable_logement',
@@ -221,11 +224,11 @@ def clean(chemin):
     for colonne in colonnesaclean:
         Base=remplacer_na_par_valeur(Base, colonne, remplace)
     ##On supprime les colonnes contenant beaucoup trop de NA
-    tropNA=['type_generateur_climatisation',
-            'type_generateur_climatisation_anciennete',
-            ]
-    for colonne in tropNA:
-        Base=Base.drop(columns=colonne)
+    # tropNA=['type_generateur_climatisation',
+    #         'type_generateur_climatisation_anciennete',
+    #         ]
+    # for colonne in tropNA:
+    #     Base=Base.drop(columns=colonne)
         
         
 
