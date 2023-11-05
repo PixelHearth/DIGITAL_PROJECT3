@@ -16,6 +16,18 @@ def select_variables(dataframe, individual_features, nb_feature):
     selected_new_variable_col (Index): L'Index des colonnes de selected_new_variable.
     importances_df (DataFrame): Le DataFrame des importances des caractéristiques.
     """
+    #création d'assert préalable 
+    assert isinstance(dataframe,pd.DataFrame)
+    assert isinstance(individual_features,pd.DataFrame)
+    assert individual_features.shape[1] != dataframe.shape[1]
+
+
+    assert isinstance(nb_feature,int)
+    assert nb_feature < len(dataframe.columns) or nb_feature< len(individual_features.columns)
+    assert nb_feature > 0, "nb_feature doit être supérieur à zéro"
+    assert nb_feature <= len(dataframe.columns) - 1, "nb_feature ne doit pas dépasser le nombre de colonnes dans le dataframe - 1"
+   
+
     # Extraction des variables dépendantes et indépendantes
     dependent_variable = dataframe.iloc[:, 0]
     independent_variable = dataframe.iloc[:, 1:]
@@ -31,6 +43,7 @@ def select_variables(dataframe, individual_features, nb_feature):
     importances_df = importances_df.sort_values(by='Importance', ascending=False)
 
     # Sélection des caractéristiques en fonction de nb_feature
+    assert nb_feature <= len(importances_df),"nb_feature doit être inférieur ou égal au nombre de caractéristiques disponibles"
     selection_dataframe = importances_df[:nb_feature]
 
     # Récupération des noms des caractéristiques sélectionnées
