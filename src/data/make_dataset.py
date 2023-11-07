@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+import pandas as pd
+from openpyxl import load_workbook
+import os
+import unittest
 def generate_property_data(num_rows):
     """
     Génère un ensemble de données aléatoires pour simuler les caractéristiques de biens immobiliers.
@@ -59,24 +63,21 @@ def generate_property_data(num_rows):
         print("num_rows doit être supérieur ou égal à 0")
     return dataframe_property
 
-# @staticmethod
-# def clean():
-#     bdd = pd.read_csv("../data/processed/bdd_clean.csv", encoding = "utf-8",)
-#     colonne_a_deplacer = bdd.pop('classe_bilan_dpe')
-#     bdd.insert(0, 'classe_bilan_dpe', colonne_a_deplacer)
-#     na_count = bdd.isna().sum()
 
-#     # Créez un DataFrame pour afficher les résultats
-#     result_df = pd.DataFrame({
-#         'Nom de la Colonne': na_count.index,
-#         'Nombre de NA': na_count.values
-#     })
+def importation_excel(nom_fichier_excel, nom_feuille):
+    assert isinstance(nom_fichier_excel, str), "Le nom du fichier Excel doit être une chaîne de caractères."
+    assert isinstance(nom_feuille, str), "Le nom de la feuille doit être une chaîne de caractères."
+    
+    assert os.path.exists(nom_fichier_excel), f"Le fichier Excel '{nom_fichier_excel}' n'existe pas."
 
-#     result_df = result_df.sort_values(by= "Nombre de NA", ascending = False)
-#     colonnes_a_supprimer = result_df[(result_df['Nombre de NA'] > 5000)]['Nom de la Colonne']
+    classeur = load_workbook(nom_fichier_excel, read_only=True, data_only=True)
+    assert nom_feuille in classeur.sheetnames, f"La feuille '{nom_feuille}' n'existe pas dans le fichier Excel."
 
-#     # Supprimez les colonnes sélectionnées
-#     bdd_withooutna = bdd.drop(columns=colonnes_a_supprimer)
-#     bdd_withooutna.dropna(inplace = True)
+    feuille = classeur[nom_feuille]
 
-#     bdd_withooutna.to_csv("../data/processed/bdd_model.csv")
+    noms_de_colonnes = [cell.value for cell in feuille[1]]
+    assert all(nom is not None for nom in noms_de_colonnes), "Les noms de colonnes ne peuvent pas être vides."
+    ligne_data = [cell.value for cell in feuille[2]]
+
+    df = pd.DataFrame([ligne_data], columns=noms_de_colonnes)
+    return df

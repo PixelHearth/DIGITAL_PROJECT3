@@ -3,7 +3,10 @@ from  .fonctions_filtrage import *
 
 def clean(chemin):
     ###IMPORTATION DE LA BASE###
-    Base = pd.read_excel(chemin)
+    try:
+        Base = pd.read_csv(chemin)
+    except:
+        Base = pd.read_excel(chemin)
 
     ###SELECTION DES COLONNES A GARDER ET DE COMMENT LES TRAITER###
     Colonnes= ['classe_bilan_dpe', 'annee_construction_dpe','version', 'surface_habitable_logement',
@@ -221,22 +224,19 @@ def clean(chemin):
     for colonne in colonnesaclean:
         Base=remplacer_na_par_valeur(Base, colonne, remplace)
     ##On supprime les colonnes contenant beaucoup trop de NA
-    tropNA=['type_generateur_climatisation',
-            'type_generateur_climatisation_anciennete',
-            ]
-    for colonne in tropNA:
-        Base=Base.drop(columns=colonne)
+    # tropNA=['type_generateur_climatisation',
+    #         'type_generateur_climatisation_anciennete',
+    #         ]
+    # for colonne in tropNA:
+    #     Base=Base.drop(columns=colonne)
         
-        
+    Base = convert_object_columns_to_integers(Base)
 
-    na=count_na_per_column(Base)
     ##On supprime les lignes contenant des NA
     for colonne in Base.columns :
         Base=supprimer_lignes_na(Base, colonne)
-    Base = convert_object_columns_to_integers(Base)
-    for colonne in Base.columns :
-        Base=supprimer_lignes_na(Base, colonne)
-    Base.drop_duplicates(inplace = False)
+
+    
     ##On sauvegarde la base nettoyée au format csv
     return Base
-    # Base.to_csv("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/data/processed/bdd_clean.csv")
+    

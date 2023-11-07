@@ -1,12 +1,10 @@
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.ensemble import RandomForestClassifier
 import numpy as np
 import pandas as pd
 
 class Models:
     def __init__(self,dataframe,individual_features):
         self.dataframe =dataframe
-        self.individual_feature = individual_features
         self.dependent_variable = self.dataframe.iloc[:,0].values
         self.independent_variable = self.dataframe.iloc[:, 1:].values
         self.individual_features  = individual_features.iloc[:,1:].values
