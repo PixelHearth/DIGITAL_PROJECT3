@@ -238,16 +238,14 @@ if comparedf(data,datasol):
     print("count_na_per_column OK")
 else:
     print("!!!!count_na_per_column ERREUR!!!!")  
-    
-import unittest
-import pandas as pd
+
 class TestConvertObjectColumnsToIntegers(unittest.TestCase):
 
     def test_conversion(self):
         # Créez un DataFrame de test
         data = {
             'Column1': [1, '2', '3', '4'],
-            'Column2': ['a', 'a', 'c', 'd'],
+            'Column2': ['a', None, 'c', 'd'],
             'Column3': [1.1, 2.2, 3.3, 4.4],
         }
         df = pd.DataFrame(data)
