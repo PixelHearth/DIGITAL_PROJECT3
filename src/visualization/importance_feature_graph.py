@@ -24,7 +24,11 @@ def plot_feature_importance(importances_df, nb_feature):
     """
     # Créer le graphique à barres
     plt.figure(figsize=(10, 6))
-    plt.bar(importances_df['Feature'], importances_df['Importance'], color='b')
+    
+    # Triez le DataFrame par importance et prenez les 10 premières caractéristiques
+    top_importances_df = importances_df.sort_values(by='Importance', ascending=False).head(nb_feature)
+    
+    plt.bar(top_importances_df['Feature'], top_importances_df['Importance'], color='b')
 
     # Titre du graphique, Nom des axes
     plt.xlabel('Caractéristique')
@@ -32,12 +36,12 @@ def plot_feature_importance(importances_df, nb_feature):
     plt.title('Importance des Caractéristiques dans le Modèle Random Forest')
 
     # Lisibilité du graphique
-    plt.xticks(rotation=45)  
+    plt.xticks(rotation=90)
     plt.tight_layout()
 
     # Calcul du pourcentage total d'importance représenté par les caractéristiques les plus importantes
     total_importance = importances_df['Importance'].sum()
-    top_features_importance = importances_df.iloc[:nb_feature]['Importance'].sum()  
+    top_features_importance = top_importances_df['Importance'].sum()
     percentage = (top_features_importance / total_importance) * 100
 
     # Ajout du texte indiquant le pourcentage total d'importance représenté par les caractéristiques les plus importantes
