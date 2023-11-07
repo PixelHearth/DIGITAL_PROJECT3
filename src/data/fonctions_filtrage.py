@@ -63,22 +63,23 @@ def convert_object_columns_to_integers(df):
         list_string = []
 
     # On parcours la colonne 
-        for element in df[col]:
 
-            # Condition 1: si l'element est un élement integer ou float on garde sinon on ajoute None à une liste string
-            if isinstance(element, int) or isinstance(element,float) :
-                count =+1
-                list_numeric.append(element)
+        # Condition 1: si l'element est un élement integer ou float on garde sinon on ajoute None à une liste string
+        for element in df[col]:
+            try:
+                int_value = float(element)
+                count += 1
+                list_numeric.append(int_value)
                 list_string.append(None)
-            # Condition 2 : si l'élement est un élément autre : None, String, Datetype on garde l'éléement dans la liste string et on ajoute un none dans la liste numérique
-            else:
+            except ValueError:
                 list_numeric.append(None)
                 list_string.append(element)
-        # Finalement on compte le nombre d'élement dans la liste (int,float) si cette liste > 1 alors notre colonne est list_numeric sinon on garde les valeurs string
+        # Finalement on compte le nombre d'élement dans la liste (int,float) si cette liste >= 1 alors notre colonne est list_numeric sinon on garde les valeurs string
         if count == 0:
             df[col] = list_string
         else:
             df[col] = list_numeric
+            df[col] = df[col].astype(float)
 
     return df
 
