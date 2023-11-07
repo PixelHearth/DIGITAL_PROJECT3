@@ -1,7 +1,9 @@
 import pandas as pd
-from ...src.data.fonctions_filtrage import *
+import sys
+sys.path.append(".")
+from src.data.fonctions_filtrage import *
 import numpy as np
-
+import unittest
 
 
 
@@ -237,3 +239,26 @@ if comparedf(data,datasol):
 else:
     print("!!!!count_na_per_column ERREUR!!!!")  
     
+import unittest
+import pandas as pd
+class TestConvertObjectColumnsToIntegers(unittest.TestCase):
+
+    def test_conversion(self):
+        # Créez un DataFrame de test
+        data = {
+            'Column1': [1, '2', '3', '4'],
+            'Column2': ['a', 'a', 'c', 'd'],
+            'Column3': [1.1, 2.2, 3.3, 4.4],
+        }
+        df = pd.DataFrame(data)
+
+        # Appelez la fonction que vous testez
+        result_df = convert_object_columns_to_integers(df)
+        print(result_df)
+        # Vérifiez que les colonnes ont été correctement converties
+        self.assertTrue(result_df['Column1'].dtype == 'float64')
+        self.assertTrue(result_df['Column2'].dtype == 'object')  # Non convertie
+        self.assertTrue(result_df['Column3'].dtype == 'float64')  # Non convertie
+
+if __name__ == '__main__':
+    unittest.main()
