@@ -38,7 +38,6 @@ class CustomPreprocessor:
         self.inverse_encoder = {index: {j: v for j, v in enumerate(values)}
                                  for (index, values) in zip(self.indices, self.unique_values)}
 
-
     def fit(self):
         """
         permet d'entrainer l'encodeur sur le dataframe de la classe
@@ -46,17 +45,14 @@ class CustomPreprocessor:
                 
         self.encoder.fit(self.dataframe[self.object_columns])
 
-    def transform(self,df_to_transform):
-        """
-        Transforme un DataFrame en utilisant l'entraînement effectué sur la base de données de la classe.
+    def transform(self, df_to_transform):
+        assert isinstance(df_to_transform, pd.DataFrame)
 
-        Parameters:
-        df_to_transform (pandas.DataFrame): Le DataFrame à transformer.
-        """
-        assert isinstance(df_to_transform,pd.DataFrame)
-
+    
+        # Créez une copie du DataFrame pour éviter de modifier l'original
         df_to_transform[self.object_columns] = self.encoder.transform(df_to_transform[self.object_columns])
         return df_to_transform
+
     
     def inverse_transform(self,df_test):
         """
