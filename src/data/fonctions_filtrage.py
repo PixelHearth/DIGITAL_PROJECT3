@@ -51,13 +51,14 @@ def convert_object_columns_to_integers(df):
     Returns:
         pd.DataFrame: Un nouveau DataFrame avec les colonnes converties en entiers.
     """
-
-    #On selection les colonnes Object (ambigues )
+    assert isinstance(df, pd.DataFrame), "must be a dataframe"
+    assert df.notnull().all().all(), "no NoneType Allowed, use function supprimer_lignes_na"
+    #On selection les colonnes Object (ambigues)
     object_columns = df.select_dtypes(include=['object']).columns
 
     # On crée et cherche dans chaque colonne tout les élements 
     for col in object_columns:
-        #count : calcule de 
+        #count : instancier un compte pour calculer le nombre d'élement int ou float
         count = 0
         list_numeric = []
         list_string = []
