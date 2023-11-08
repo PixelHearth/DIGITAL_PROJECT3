@@ -4,8 +4,6 @@ import sys
 sys.path.append(".")
 from src.data.preprocessing import CustomPreprocessor
 
-# Votre classe CustomPreprocessor (insérée ici)
-
 class TestCustomPreprocessor(unittest.TestCase):
     def setUp(self):
         try:

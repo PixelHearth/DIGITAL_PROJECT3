@@ -75,8 +75,6 @@ def importation_excel(nom_fichier_excel, nom_feuille):
 
     feuille = classeur[nom_feuille]
 
-    assert len(feuille.dimensions) > 0, "La feuille est vide."
-
     noms_de_colonnes = [cell.value for cell in feuille[1]]
     assert all(nom is not None for nom in noms_de_colonnes), "Les noms de colonnes ne peuvent pas être vides."
     ligne_data = [cell.value for cell in feuille[2]]
