@@ -63,6 +63,10 @@ target/
 # Database
 *.db
 *.rdb
+*.csv
+*.txt
+*.xlsx
+
 
 # Pycharm
 .idea
@@ -77,7 +81,7 @@ target/
 .ipynb_checkpoints/
 *.ipynb
 # exclude data from source control by default
-/data/
+
 
 # Mac OS-specific storage files
 .DS_Store
