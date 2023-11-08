@@ -18,15 +18,33 @@ def app():
     #selection d'une variable pour le test
     # new_variable = properties.sample(1)
 
+    # new_variable = properties.sample(1)
+
     #instance du framework de processing et entrainement des données sur properties pour l'encodage
+    cpp_p_selection = CustomPreprocessor(properties)
+    cpp_p_selection.fit()
+
     cpp_p_selection = CustomPreprocessor(properties)
     cpp_p_selection.fit()
 
     #encodage des variables dans les deux bases de données
     cpp_p_selection.transform(properties)
+    cpp_p_selection.transform(properties)
 
     #selection des variables importantes, il faut avoir fait l'encodage aupréalable
     nb_features = 10
+    properties,importance = select_variables(properties,nb_features)
+    cpp_p_selection.inverse_transform(properties)
+
+    #instance du framework de processing et entrainement des données sur properties pour l'encodage après selection
+    cpp_kneigh = CustomPreprocessor(properties)
+    cpp_kneigh.fit()
+
+    cpp_kneigh.transform(properties)
+    
+    cpp_kneigh.transform(new_variable)
+    
+
     properties,importance = select_variables(properties,nb_features)
     cpp_p_selection.inverse_transform(properties)
 
