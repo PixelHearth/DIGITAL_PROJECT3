@@ -41,7 +41,7 @@ def app():
     cpp_kneigh.transform(new_variable)
 
     #création du graph des importances dans le modèle de selection
-    plot_feature_importance(importance,10)
+    # plot_feature_importance(importance,10)
 
     #instance et entrainement du k_neighbors sur les données encodées 
     individual = Models(properties,new_variable).k_neighbors()
