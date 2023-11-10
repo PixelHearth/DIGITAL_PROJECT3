@@ -230,13 +230,14 @@ def clean(chemin):
     # for colonne in tropNA:
     #     Base=Base.drop(columns=colonne)
         
-    Base = convert_object_columns_to_integers(Base)
+    
 
     ##On supprime les lignes contenant des NA
     for colonne in Base.columns :
         Base=supprimer_lignes_na(Base, colonne)
 
-    
+    Base = convert_object_columns_to_integers(Base)
+    Base.dropna(inplace = True)
     ##On sauvegarde la base nettoyée au format csv
     return Base
     
