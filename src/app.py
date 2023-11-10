@@ -58,10 +58,6 @@ def app():
         fichier_texte.write(individual)
 
     print(individual)
-    individual = individual.iloc[:,0]
-    print(individual)
-    individual.to_csv("data/processed/prediction.csv",index=False)
-
     
     #calcul du temps d'exécution total
     end = time.time()
