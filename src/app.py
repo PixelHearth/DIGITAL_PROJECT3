@@ -13,8 +13,8 @@ def app():
     start = time.time()
 
     # import bdd
-    properties = clean("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/data/raw/Base_clean.csv")
-    new_variable = importation_excel("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/essai.xlsm", "saisie")
+    properties = clean("database/raw/Base_clean.csv")
+    new_variable = importation_excel("src/essai2.xlsm", "saisie")
     #selection d'une variable pour le test
     # new_variable = properties.sample(1)
 
@@ -50,7 +50,7 @@ def app():
     #valeur prédite du k_neighbors
     cpp_kneigh.inverse_transform(individual)
     individual = individual.iloc[:,0].values.flatten()[0]
-    chemin_fichier = os.path.join('data/processed', 'prediction.txt')
+    chemin_fichier = os.path.join('database/processed', 'prediction.txt')
 
     # Ouvrez le fichier en mode écriture (w), s'il n'existe pas, il sera créé
     with open(chemin_fichier, 'w') as fichier_texte:
