@@ -6,14 +6,18 @@ from data.CleanBDD import clean
 from data.make_dataset import importation_excel
 import pandas as pd
 import time
+import os
+
 def app():
     # calcul le temps du début
     start = time.time()
 
     # import bdd
-    properties = clean("C:/Users/Guillaume/Documents/DIGITAL_PROJECT3/bdata/raw/Base_clean.csv")
-    new_variable = importation_excel("C:/Users/Guillaume/Documents/DIGITAL_PROJECT3/essai.xlsm", "saisie")
+    properties = clean("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/data/raw/Base_clean.csv")
+    new_variable = importation_excel("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/essai.xlsm", "saisie")
     #selection d'une variable pour le test
+    # new_variable = properties.sample(1)
+
     # new_variable = properties.sample(1)
 
     #instance du framework de processing et entrainement des données sur properties pour l'encodage
@@ -35,7 +39,6 @@ def app():
     cpp_kneigh.transform(properties)
     
     cpp_kneigh.transform(new_variable)
-    
 
     #création du graph des importances dans le modèle de selection
     plot_feature_importance(importance,10)
@@ -43,12 +46,16 @@ def app():
     #instance et entrainement du k_neighbors sur les données encodées 
     individual = Models(properties,new_variable).k_neighbors()
     individual.columns = new_variable.columns
-
     #restitution d'un dataframe compréhensible pour un humain
     #valeur prédite du k_neighbors
     cpp_kneigh.inverse_transform(individual)
-    print(individual.iloc[:,0].values)
-    
+    individual = individual.iloc[:,0].values.flatten()[0]
+    chemin_fichier = os.path.join('data/processed', 'prediction.txt')
+
+    # Ouvrez le fichier en mode écriture (w), s'il n'existe pas, il sera créé
+    with open(chemin_fichier, 'w') as fichier_texte:
+        # Écrivez la chaîne dans le fichier
+        fichier_texte.write(individual)
 
 
     #calcul du temps d'exécution total
