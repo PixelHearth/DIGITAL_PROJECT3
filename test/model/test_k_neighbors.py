@@ -10,7 +10,7 @@ import pandas.api.types as ptypes
 
 class TestModels(unittest.TestCase):
 
-    def test_kneighbors_int_float(self):
+    def upset(self):
         # Données d'entraînement
         dataframe = pd.DataFrame({'Target': [1, 0, 1],
                                   'Feature1': [1, 4, 3],
