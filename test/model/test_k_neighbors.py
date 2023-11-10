@@ -1,5 +1,5 @@
 # Pour tester le K_neighbors algorithmes on doit s'assurer que la variable entrée est bien un dataframe, qu'il est ne contient pas de none, date, ou autre
-import sys
+import sys 
 sys.path.append(".")
 from src.models.train_model import Models
 import pandas as pd
