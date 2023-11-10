@@ -4,18 +4,18 @@ from models.selection import select_variables
 from visualization.importance_feature_graph import plot_feature_importance
 from data.CleanBDD import clean
 from data.make_dataset import importation_excel
+import pandas as pd
 import time
+import os
 
 def app():
     # calcul le temps du début
     start = time.time()
 
     # import bdd
-    properties = clean("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/data/raw/Base_clean.csv")
-    new_variable = importation_excel("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/src/essai2.xlsm", "saisie")
+    properties = clean("database/raw/Base_clean.csv")
+    new_variable = importation_excel("src/essai2.xlsm", "saisie")
     #selection d'une variable pour le test
-    new_variable = properties.sample(1)
-    print(new_variable)
     # new_variable = properties.sample(1)
 
     #instance du framework de processing et entrainement des données sur properties pour l'encodage
@@ -26,7 +26,7 @@ def app():
     cpp_p_selection.transform(properties)
 
     #selection des variables importantes, il faut avoir fait l'encodage aupréalable
-    nb_features = len(new_variable.columns )-1
+    nb_features = 10
     properties,importance = select_variables(properties,nb_features)
     cpp_p_selection.inverse_transform(properties)
 
@@ -39,21 +39,23 @@ def app():
     cpp_kneigh.transform(new_variable)
 
     #création du graph des importances dans le modèle de selection
-    plot_feature_importance(importance,10)
+    # plot_feature_importance(importance,10)
 
     #instance et entrainement du k_neighbors sur les données encodées 
     individual = Models(properties,new_variable).k_neighbors()
     individual.columns = new_variable.columns
-
     #restitution d'un dataframe compréhensible pour un humain
     #valeur prédite du k_neighbors
     cpp_kneigh.inverse_transform(individual)
-    print(individual)
-    individual = individual.iloc[:,0]
-    print(individual)
-    individual.to_csv("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/data/processed/prediction.csv",index=False)
+    individual = individual.iloc[:,0].values.flatten()[0]
+    chemin_fichier = os.path.join('database/processed', 'prediction.txt')
 
-    
+    # Ouvrez le fichier en mode écriture (w), s'il n'existe pas, il sera créé
+    with open(chemin_fichier, 'w') as fichier_texte:
+        # Écrivez la chaîne dans le fichier
+        fichier_texte.write(individual)
+
+
     #calcul du temps d'exécution total
     end = time.time()
     print("Temps d'exécution : ",round(end-start,2),"secondes") 
