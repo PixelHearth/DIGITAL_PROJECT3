@@ -29,7 +29,7 @@ class Models:
         assert isinstance(dataframe, pd.DataFrame), "Les données d'entraînement doivent être sous forme de dataframe"
         assert isinstance(individual_features, pd.DataFrame), "Les données de test doivent être sous forme de dataframe"
         assert (len(dataframe.columns) or len(individual_features.columns)) >0, "votre dataframe est vide"
-        assert len(dataframe.columns) == (len(individual_features.columns)+1), "les bases de données n'ont pas le même nombre de variables,  utiliser l'algorithme de selection des variables"
+        assert len(dataframe.columns) == (len(individual_features.columns)), "les bases de données n'ont pas le même nombre de variables,  utiliser l'algorithme de selection des variables"
 
         assert all(ptypes.is_numeric_dtype(dataframe[col])for col in dataframe.columns), "Les types de données des colonnes du dataframe d'entrainement doivent être int ou float. utiliser l'algorithme de preprocessing"
         assert all(ptypes.is_numeric_dtype(individual_features[col])for col in individual_features.columns), " Les types de données des colonnes du dataframe de test doivent être int ou float. utiliser l'algorithme de preprocessing"
@@ -47,7 +47,7 @@ class Models:
         self.individual_features = individual_features
 
         # Variables explicatives de l'individu test
-        self.np_individual_features = individual_features.values
+        self.np_individual_features = individual_features.iloc[:, 1:].values
 
     def k_neighbors(self):
         """

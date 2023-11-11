@@ -42,7 +42,7 @@ def select_variables(dataframe, nb_feature):
     independent_variable = dataframe.iloc[:, 1:]
 
     # Entraînement d'un modèle Random Forest
-    rf_model = RandomForestClassifier(n_estimators=100, random_state=42)
+    rf_model = RandomForestClassifier(n_estimators=50, random_state=42)
     rf_model.fit(independent_variable.values, dependent_variable.values)
 
     # Calcul des importances des caractéristiques

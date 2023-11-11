@@ -46,7 +46,7 @@ def app():
     #valeur prédite du k_neighbors
     cpp_kneigh.inverse_transform(individual)
     individual = individual.iloc[:,0].values.flatten()[0]
-    chemin_fichier = os.path.join('database/processed', 'prediction.txt')
+    chemin_fichier = os.path.join('src/data/database', 'prediction.txt')
 
     # Ouvrez le fichier en mode écriture (w), s'il n'existe pas, il sera créé
     with open(chemin_fichier, 'w') as fichier_texte:
