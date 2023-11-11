@@ -1,5 +1,6 @@
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
+import pandas.api.types as ptypes
 
 def select_variables(dataframe, nb_feature):
     """
@@ -34,6 +35,8 @@ def select_variables(dataframe, nb_feature):
     assert nb_feature <= len(dataframe.columns) - 1, "Le paramètre 'nb_feature' ne doit pas dépasser le nombre de colonnes dans le dataframe - 1."
     assert len(dataframe.columns) > 0, "Le DataFrame ne peut pas être vide."
 
+    assert all(ptypes.is_numeric_dtype(dataframe[col])for col in dataframe.columns), "Les types de données des colonnes du dataframe d'entrainement doivent être int ou float.\n, utiliser la fonction custompreprocessing"
+
     # Extraction des variables dépendantes et indépendantes
     dependent_variable = dataframe.iloc[:, 0]
     independent_variable = dataframe.iloc[:, 1:]
@@ -56,5 +59,5 @@ def select_variables(dataframe, nb_feature):
 
     # Création du DataFrame résultant avec les caractéristiques sélectionnées
     selected_dataframe = pd.concat([dependent_variable, independent_variable[selected_features]], axis=1)
-    assert isinstance(selected_features,pd.DataFrame)
+    assert isinstance(selected_dataframe,pd.DataFrame), "le résultat doit être un dataframe"
     return selected_dataframe, importances_df

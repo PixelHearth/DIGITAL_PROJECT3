@@ -2,7 +2,7 @@ from data.preprocessing import CustomPreprocessor
 from models.train_model import Models
 from models.selection import select_variables
 from visualization.importance_feature_graph import plot_feature_importance
-from data.CleanBDD import clean
+from data.clean import clean
 from data.make_dataset import importation_excel
 import time
 import os
@@ -12,12 +12,8 @@ def app():
     start = time.time()
 
     # import bdd
-    properties = clean("database/raw/Base_clean.csv")
+    properties = clean("src/data/database/Base_clean.csv")
     new_variable = importation_excel("src/essai2.xlsm", "saisie")
-    #selection d'une variable pour le test
-    new_variable = properties.sample(1)
-    print(new_variable)
-    # new_variable = properties.sample(1)
 
     #instance du framework de processing et entrainement des données sur properties pour l'encodage
     cpp_p_selection = CustomPreprocessor(properties)
@@ -27,7 +23,7 @@ def app():
     cpp_p_selection.transform(properties)
 
     #selection des variables importantes, il faut avoir fait l'encodage aupréalable
-    nb_features = len(new_variable.columns )-1
+    nb_features = 10
     properties,importance = select_variables(properties,nb_features)
     cpp_p_selection.inverse_transform(properties)
 
@@ -40,7 +36,7 @@ def app():
     cpp_kneigh.transform(new_variable)
 
     #création du graph des importances dans le modèle de selection
-    plot_feature_importance(importance,10)
+    plot_feature_importance(importance,nb_features)
 
     #instance et entrainement du k_neighbors sur les données encodées 
     individual = Models(properties,new_variable).k_neighbors()
