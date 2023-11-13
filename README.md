@@ -1,5 +1,5 @@
 # Proposition d'organisation du git basée sur les recommanndations du prof
-/docs
+/docs \n
 	Rapport.docx
 	Notice.docx
 
