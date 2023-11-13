@@ -3,37 +3,37 @@
 	- Rapport.docx
 	- Notice.docx
 
-/src
-	/data
-		BDD.csv
-		Base_clean.pickle
-	/interfaces
-		projet_digital.xlsm
-		essai2.xlsm
-	/tools
-		/data_preparation
-			cleanBDD.py
-			fonctions_filtrage.py
-			make_dataset.py
-			preprocessing.py
-			csv_2_pickle.py
-		/models
-			selection.py
-			train_model.py
-		/visualisation
-			importance_feature_graph.py
+- /src
+	- /data
+		- BDD.csv
+		- Base_clean.pickle
+	- /interfaces
+		- projet_digital.xlsm
+		- essai2.xlsm
+	- /tools
+		- /data_preparation
+			- cleanBDD.py
+			- fonctions_filtrage.py
+			- make_dataset.py
+			- preprocessing.py
+			- csv_2_pickle.py
+		- /models
+			- selection.py
+			- train_model.py
+		- /visualisation
+			- importance_feature_graph.py
 
-/tests
-	/tests_data_preparation
-		test_fonctions_filtrage.py
-		test_make_dataset.py
-		test_preprocessing.py
-	/tests_models
-		test_k_neighbors.py
-	/tests_visualisation
+- /tests
+	- /tests_data_preparation
+		- test_fonctions_filtrage.py
+		- test_make_dataset.py
+		- test_preprocessing.py
+	- /tests_models
+		- test_k_neighbors.py
+	- /tests_visualisation
 
-README.md
-requirements.txt
+- README.md
+- requirements.txt
 
 # Lire le document structure de données 
 - fichier structure.txt
