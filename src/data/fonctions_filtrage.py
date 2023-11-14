@@ -43,13 +43,36 @@ def remplacer_valeurs(df, nom_colonne, valeur_a, valeur_b):
 
 def convert_object_columns_to_integers(df):
     """
-    Convertit les colonnes de type 'object' en entiers s'il y a au moins un élement convertible en integer à l'intérieur sinon renvoie le dataframe.
-    Objectif : permet de supprimer les valeurs non NAN d'une colonne tout en gardant le maximum d'informations
-    Args:
-        dataframe (pd.DataFrame): Le DataFrame à traiter.
+    Convertit les colonnes de type 'object' en entiers s'il y a au moins un élément convertible en integer à l'intérieur, sinon renvoie le DataFrame inchangé.
     
+    Objectif : Permet de supprimer les valeurs non-NaN d'une colonne tout en conservant le maximum d'informations.
+    
+    Args:
+        df (pd.DataFrame): Le DataFrame à traiter.
+
     Returns:
-        pd.DataFrame: Un nouveau DataFrame avec les colonnes converties en entiers.
+        pd.DataFrame: Un nouveau DataFrame avec les colonnes converties en entiers, si possible.
+    
+    Raises:
+        AssertionError: Si l'argument n'est pas de type DataFrame.
+        AssertionError: Si le DataFrame contient des valeurs non-NaN. Utilisez la fonction supprimer_lignes_na avant d'appeler cette fonction.
+    
+    Example:
+        >>> import pandas as pd
+        >>> data = {'col1': ['1', 'A', '2'], 'col2': ['a', 'b', 'c']}
+        >>> df = pd.DataFrame(data)
+        >>> df
+          col1 col2
+        0    1    a
+        1    2    b
+        2    3    c
+        
+        >>> df = convert_object_columns_to_integers(df)
+        >>> df
+          col1   col2
+        0    1    a
+        1    NaN  b
+        2    3    c
     """
     assert isinstance(df, pd.DataFrame), "must be a dataframe"
     assert df.notnull().all().all(), "no NoneType Allowed, use function supprimer_lignes_na"
