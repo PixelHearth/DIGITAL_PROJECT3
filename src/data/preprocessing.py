@@ -28,15 +28,19 @@ class CustomPreprocessor:
         #  on garde les colonnes qui sont types Objets
         self.object_columns = dataframe.select_dtypes(include=['object']).columns
         
+        
         # liste des noms des colonnes object
         self.indices = [column for column in (dataframe.columns) if column in self.object_columns]
-
+        if len(self.indices) == 0:
+            raise ValueError("il n'y a pas de colonne de type caractère il est inutile d'appliquer la fonction")
+        
         # liste ordonnées des valeurs  au sein des colonnes 
         self.unique_values = [sorted(list(set(self.dataframe[col])) ) for col in self.object_columns]
         
         #dictionnaires avec titre de la colonnes, les valeurs uniques au sein de la colonne ordonnées avec leur index correspondants
         self.inverse_encoder = {index: {j: v for j, v in enumerate(values)}
                                  for (index, values) in zip(self.indices, self.unique_values)}
+        assert self.inverse_encoder is not None, 'le dictionnaire de transformation est vide '
 
     def fit(self):
         """

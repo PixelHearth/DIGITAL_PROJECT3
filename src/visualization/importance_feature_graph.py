@@ -40,5 +40,5 @@ def plot_feature_importance(importances_df, nb_feature):
     plt.tight_layout()
 
     # Ajout du texte indiquant le pourcentage total d'importance représenté par les caractéristiques les plus importantes
-    plt.savefig("report/features_importance.png")
+    plt.savefig("docs/features_importance.png")
 
