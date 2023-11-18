@@ -14,7 +14,7 @@ def app():
 
     # import bdd
     properties = clean("src/data/database/Base_clean.csv")
-    new_variable = importation_excel("src/essai2.xlsm", "saisie")
+    new_variable = importation_excel("src/formulaire.xlsm", "Source")
 
     #instance du framework de processing et entrainement des données sur properties pour l'encodage
     cpp_p_selection = CustomPreprocessor(properties)
