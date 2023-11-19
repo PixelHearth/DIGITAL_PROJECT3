@@ -12,8 +12,10 @@ def app():
     # calcul le temps du début
     start = time.time()
 
-    # import bdd
+    #import bdd
     properties = clean("src/data/database/Base_clean.csv")
+
+    #import test client
     new_variable = importation_excel("src/formulaire.xlsm", "Source")
 
     #instance du framework de processing et entrainement des données sur properties pour l'encodage
@@ -33,7 +35,6 @@ def app():
     cpp_kneigh.fit()
 
     cpp_kneigh.transform(properties)
-    
     cpp_kneigh.transform(new_variable)
 
     #création du graph des importances dans le modèle de selection
@@ -61,5 +62,5 @@ def app():
     return individual
     
 if __name__ == "__main__":
-    app()
+    app()   
 
