@@ -78,9 +78,11 @@ class Models:
         # Prédiction sur les données de l'individu test
         prediction = neigh.predict(self.np_individual_features)
 
+        proba_predict = neigh.predict_proba(self.np_individual_features)
         # Création et affichage du score de fiabilité de la prédiction
         score = neigh.score(self.independent_variable, self.dependent_variable)
         print(f"Précision du modèle : {score}")
+        print(proba_predict)
 
         # Restitution d'un DataFrame avec la prédiction et les variables indépendantes de l'individu test
         self.independant_variable_test = self.np_individual_features.flatten()
