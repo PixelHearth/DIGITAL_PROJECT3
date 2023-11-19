@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 from openpyxl import load_workbook
-
+from .fonctions_filtrage import convert_object_columns_to_integers
 def importation_excel(nom_fichier_excel, nom_feuille):
     """
     Importe les données à partir d'un fichier Excel spécifié.
@@ -25,7 +25,7 @@ def importation_excel(nom_fichier_excel, nom_feuille):
     assert os.path.exists(nom_fichier_excel), f"Le fichier Excel '{nom_fichier_excel}' n'existe pas."
 
     # Charge le classeur Excel en mode lecture seule
-    classeur = load_workbook(nom_fichier_excel, read_only=True, data_only=True)
+    classeur = load_workbook(nom_fichier_excel, read_only=True, data_only=True,)
 
     # Vérifie si la feuille spécifiée existe dans le fichier Excel
     assert nom_feuille in classeur.sheetnames, f"La feuille '{nom_feuille}' n'existe pas dans le fichier Excel."
@@ -36,7 +36,7 @@ def importation_excel(nom_fichier_excel, nom_feuille):
     # Récupère les noms de colonnes depuis la première ligne de la feuille
     noms_de_colonnes = [cell.value for cell in feuille[1]]
 
-    # Vérifie si les noms de colonnes ne sont pas vides
+    # # Vérifie si les noms de colonnes ne sont pas vides
     assert all(nom is not None for nom in noms_de_colonnes), "Les noms de colonnes ne peuvent pas être vides."
 
     # Récupère les données depuis la deuxième ligne de la feuille
@@ -44,6 +44,6 @@ def importation_excel(nom_fichier_excel, nom_feuille):
 
     # Crée un DataFrame pandas avec les données et les noms de colonnes
     df = pd.DataFrame([ligne_data], columns=noms_de_colonnes)
-
+    df= convert_object_columns_to_integers(df)
     # Retourne le DataFrame créé
     return df
