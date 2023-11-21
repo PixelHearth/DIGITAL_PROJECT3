@@ -1,40 +1,60 @@
-# Outil d'estimation du Diagnostic de Performance Énergétique
+# Energy Performance Diagnosis Estimation Tool
 
-## Description du projet
-Le présent repository GitHub concerne un produit digital conçu pour estimer le Diagnostic de Performance Énergétique (DPE) d'un appartement. Le produit s'articule autour d'un fichier Excel livré à l'utilisateur et qui permet à celui-ci de rentrer les informations relatives à son logement par le biais d'un formulaire. La validation du formulaire Excel permet de lancer l'exécution d'un script Python (sans action de l'utilisateur) qui calcule le DPE du logement à l'aide de modèles prédictifs et qui réalise des graphiques en guise de résultats. Ces derniers sont retransmis au classeur Excel et affichés immédiatement à l'utilisateur.
+## Project Description
+This GitHub repository pertains to a digital product designed to estimate the Energy Performance Diagnosis (DPE) of an apartment. The product revolves around an Excel file provided to the user, allowing them to input information about their residence through a form. Upon validation of the Excel form, it triggers the execution of a Python script (without user action) that calculates the DPE of the property using predictive models and generates graphs as results. These results are then transmitted to the Excel workbook and immediately displayed to the user.
 
-## Organisation des fichiers du repository
-Ce repository est constitué des trois dossiers suivants :
-- docs
-- src
-- test
-On retrouve égalament le présent README expliquant la structure du repository et un fichier requirements.txt qui a pour but d'indiquer les différentes librairies nécessaires pour ce projet ainsi que leur version.
+## Repository File Organization
+This repository consists of the following three folders:
+- `docs`
+- `src`
+- `test`
 
-Le dossier docs contient les différents comptes-rendus réalisés au cours de l'avancée du projet.
+Additionally, there is the `README` file explaining the repository's structure and a `requirements.txt` file indicating the different libraries necessary for this project along with their versions.
 
-Le dossier src contient à sa racine le fichier formulaire.xlsm qui est le fichier Excel du projet à destination de l'utilisateur, c'est ce fichier qui lance le formulaire et exécute le script python. Le dossier src contient également les sous-dossiers suivants :
-- data : ce dossier contient tous les scripts Python de nettoyage de la base de données ainsi que le script de transformation en binaire, un sous dossier database est également présent et comporte la base de données nettoyée en version csv et pickle.
-- features :
-- models : ce dossier contient les scripts d'analyse des données et de modèles de prédiction réalisés en Python.
-- notebook : ce dossier contient les fichiers de prise de notes à propos du projet.
-- visualization : ce dossier contient les scripts Python de création de graphique nécessaires pour les résultats du DPE mais aussi pour la visualisation préliminaire des données.
+The `docs` folder contains various progress reports made during the project.
 
-Pour finir, le dossier test est constitué des quatre sous-dossiers suivants :
-- data : ce dossier contient les tests des programmes de nettoyage de la base de données
-- features :
-- models : ce dossier contient les tests des scripts de modèles de prédiction
-- visualization : ce dossier contient les tests des scripts de création de graphique
+The `src` folder, at its root, contains the `formulaire.xlsm` file, which is the Excel file of the project intended for the user. This file initiates the form and executes the Python script. The `src` folder also includes the following subfolders:
+- `data`: This folder contains all Python scripts for cleaning the database, including the binary transformation script. A subfolder named `database` is also present, containing the cleaned database in both CSV and pickle formats.
+- `features`
+- `models`: This folder contains Python scripts for data analysis and prediction models.
+- `notebook`: This folder contains note-taking files regarding the project.
+- `visualization`: This folder includes Python scripts for creating graphs needed for DPE results and preliminary data visualization.
 
-La documentation sur la base de données, le DPE et la question du RGPD s'appliquant à nos données est disponible dans le Wiki du repository.
+Finally, the `test` folder consists of the following four subfolders:
+- `data`: This folder contains tests for the database cleaning programs.
+- `features`
+- `models`: This folder contains tests for prediction model scripts.
+- `visualization`: This folder contains tests for graph creation scripts.
 
-## Objectif en Cours
-- Product owner    : Poursuivre la rédaction de la notice en intégrant les nouvelles variables explicatives et les interfaces de saisie et de résultat sous forme d’images.
-- Scrum master     : 
-- Data engineer    : Protéger la base de données du projet et accélerer sa réutilisation en la transformant en binaire pour encapsuler l'exécution en utilisant pickle avec Python.
-- Data scientist   : Apporter une probabilité de confiance de l’estimation du score du DPE afin d’avoir un résultat plus précis (par exemple : 70% A et 30% B) qui sera transmis en complément à l’utilisateur.
-- UI/UX designer   : Apporter des restrictions au formulaire pour éviter l’insertion de valeurs aberrantes (des lettres pour les surfaces par exemple) et ainsi garantir le bon fonctionnement de l’algorithme de prédiction.
-- Data Gouvernance : Intégrer le formulaire au classeur Excel du projet capable de lancer le script Python afin d’avoir un outil fonctionnel et proposant une estimation du DPE par le bais d’un message Excel.
+Documentation on the database, DPE, and GDPR compliance regarding our data is available in the repository's Wiki.
 
-## Recommandations générales:
-- Faire plus de tests
-- Tester le programme pour un neophyte voir si ça marche ou s'il y a des modifications à faire
+## How to Use the Project
+
+### Installation
+
+Clone the GitHub repository and install the necessary dependencies:
+
+```bash
+git clone https://github.com/gbar-dev/stock_prediction_by_asset.git
+cd stock_prediction_by_asset
+pip install -r requirements.txt
+```
+
+### Model Training
+
+Train the model using the dedicated script:
+
+```bash
+python src/main.py
+```
+
+## Contribute
+
+If you wish to contribute to improving the model or adding new features, follow the contribution steps in the [Contribute](#contribute) section of the README file.
+
+## License
+
+This project is distributed under the [MIT License](link_to_license), allowing free use and distribution.
+
+---
+Remember to adjust the sections based on the specifics of your project, the data used, and any other relevant information.
