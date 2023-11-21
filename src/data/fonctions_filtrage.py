@@ -30,6 +30,7 @@ def supprimer_lignes_na(df, nom_colonne):
 #Remplace dans la colonne selectionnée, toutes les cases qui prennent la valeur a
 #par la valeur b
 
+
 def remplacer_valeurs(df, nom_colonne, valeur_a, valeur_b):
     # Vérifiez si la colonne spécifiée est dans le DataFrame
     if nom_colonne in df.columns:
@@ -41,21 +42,64 @@ def remplacer_valeurs(df, nom_colonne, valeur_a, valeur_b):
     return df
 
 
-def convert_object_columns_to_integers(df):
+def conditional_fill_na(df):
     """
-    Convertit les colonnes de type 'object' en entiers s'il y a au moins un élément convertible en integer à l'intérieur, sinon renvoie le DataFrame inchangé.
-    
-    Objectif : Permet de supprimer les valeurs non-NaN d'une colonne tout en conservant le maximum d'informations.
-    
+    Conditional fill missing values in a DataFrame based on the data type of each column.
+
+    For columns of type 'object', fill NaN values with the string 'unknown' ('inconnu' in French).
+    For numeric columns, fill NaN values with the mean of the column.
+
     Args:
-        df (pd.DataFrame): Le DataFrame à traiter.
+        df (pd.DataFrame): The DataFrame to be processed.
 
     Returns:
-        pd.DataFrame: Un nouveau DataFrame avec les colonnes converties en entiers, si possible.
+        pd.DataFrame: A new DataFrame with missing values filled based on the specified conditions.
+    
+    Example:
+        >>> import pandas as pd
+        >>> data = {'col1': [1, 2, None], 'col2': ['a', 'b', None], 'col3': [4.0, 5.0, None]}
+        >>> df = pd.DataFrame(data)
+        >>> df
+           col1 col2  col3
+        0   1.0    a   4.0
+        1   2.0    b   5.0
+        2   NaN  NaN   NaN
+        
+        >>> df = conditional_fill_na(df)
+        >>> df
+           col1 col2  col3
+        0   1.0    a   4.0
+        1   2.0    b   5.0
+        2   1.5    inconnu   4.5
+    """
+    assert isinstance(df, pd.DataFrame), "Input must be a DataFrame"
+
+    for column in df.columns:
+        if df[column].dtype == "object":
+            # For 'object' columns, fill NaN with the string 'unknown'
+            df[column].fillna("unknown", inplace=True)
+        else:
+            # For numeric columns, fill NaN with the mean of the column
+            df[column].fillna(df[column].mean(), inplace=True)
+
+    return df
+
+def convert_object_columns_to_integers(df):
+    """
+    Converts columns of type 'object' to integers if there is at least one element convertible to an integer inside,
+    otherwise returns the unchanged DataFrame.
+    
+    Objective: Allows removing non-NaN values from a column while retaining maximum information.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to be processed.
+
+    Returns:
+        pd.DataFrame: A new DataFrame with columns converted to integers, if possible.
     
     Raises:
-        AssertionError: Si l'argument n'est pas de type DataFrame.
-        AssertionError: Si le DataFrame contient des valeurs non-NaN. Utilisez la fonction supprimer_lignes_na avant d'appeler cette fonction.
+        AssertionError: If the argument is not of type DataFrame.
+        AssertionError: If the DataFrame contains non-NaN values. Use the drop_na_rows function before calling this function.
     
     Example:
         >>> import pandas as pd
@@ -71,24 +115,23 @@ def convert_object_columns_to_integers(df):
         >>> df
           col1   col2
         0    1    a
-        1    NaN  b
+        1  NaN    b
         2    3    c
     """
-    assert isinstance(df, pd.DataFrame), "must be a dataframe"
-    assert df.notnull().all().all(), "no NoneType Allowed, use function supprimer_lignes_na"
-    #On selection les colonnes Object (ambigues)
+    assert isinstance(df, pd.DataFrame), "Input must be a DataFrame"
+    assert df.notnull().all().all(), "No NoneType Allowed, use the drop_na_rows function"
+
+    # Select object columns (ambiguous)
     object_columns = df.select_dtypes(include=['object']).columns
 
-    # On crée et cherche dans chaque colonne tout les élements 
+    # Iterate through each column and check elements
     for col in object_columns:
-        #count : instancier un compte pour calculer le nombre d'élement int ou float
+        # Initialize a counter to calculate the number of int or float elements
         count = 0
         list_numeric = []
         list_string = []
 
-    # On parcours la colonne 
-
-        # Condition 1: si l'element est un élement integer ou float on garde sinon on ajoute None à une liste string
+        # Iterate through the column
         for element in df[col]:
             try:
                 int_value = float(element)
@@ -98,7 +141,8 @@ def convert_object_columns_to_integers(df):
             except ValueError:
                 list_numeric.append(None)
                 list_string.append(element)
-        # Finalement on compte le nombre d'élement dans la liste (int,float) si cette liste >= 1 alors notre colonne est list_numeric sinon on garde les valeurs string
+        
+        # If there are no numeric elements, keep string values; otherwise, convert to numeric
         if count == 0:
             df[col] = list_string
         else:

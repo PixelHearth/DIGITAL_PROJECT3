@@ -13,7 +13,7 @@ from src.data.preprocessing import CustomPreprocessor
 #             }
 #             self.df = pd.DataFrame(data)
 #             self.preprocessor = CustomPreprocessor(self.df)
-#             self.preprocessor.fit()
+#             self.preprocessor.fit()r
 #             self.encoded_df = self.preprocessor.transform(self.df.copy())
 #             print("test1 passed")
 #         except:
