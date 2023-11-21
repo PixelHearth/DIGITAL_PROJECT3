@@ -3,13 +3,13 @@ from  .fonctions_filtrage import *
 
 def clean(chemin):
     
-    #importation de df en csv ou excel
+    #import csv or xlsx/xlsm to dataframe
     try:
         df = pd.read_csv(chemin)
     except:
         df = pd.read_excel(chemin)
 
-    #colonnes à garder 
+    #columns to keep
     colonnes= ['classe_bilan_dpe', 'annee_construction_dpe','version', 'surface_habitable_logement',
         'type_installation_chauffage', 'type_energie_chauffage',
         'type_generateur_chauffage', 'type_generateur_chauffage_anciennete',
@@ -40,16 +40,13 @@ def clean(chemin):
     colonnes_listes="compte"     #"scinde" pour scinder, "compte" pour compter
 
 
-    ###NETTOYAGE ET MISE EN FORME DE LA df###
-
-    ##On place la variable à prédire en première position
+    #put classe_bilan_dpe to first column
     df = deplacer_colonne_en_premier(df, 'classe_bilan_dpe')   
 
-    ##On supprime de la df les colonnes qui ne nous servent à rien
+    #keep columns useful
     df = selectionner_colonnes(df, colonnes)
 
-    ##Pour chaque colonne dans la df, on fusionne les modalitées trop proches
-
+    #take a near modality to descrease number of modality
     #type_adjacence_principal_plancher_haut
     df = remplacer_valeurs(df, "type_adjacence_principal_plancher_haut", "comble faiblement ventilÃ©", "comble")
     df = remplacer_valeurs(df, "type_adjacence_principal_plancher_haut", "comble fortement ventilÃ©", "comble")
@@ -141,25 +138,21 @@ def clean(chemin):
     df = remplacer_valeurs(df, "type_generateur_chauffage", "chaudiere gpl/butane/propane standard", "chaudiere gpl/butane/propane")
 
 
-
-
-
-
-    ##Pour les colonnes représentées par des listes de modalitées, on 
-    ##liste les modalitées à compter
+    #transform to binary data
+    #list of columns to transform
     colonnesliste=["l_orientation_baie_vitree","l_local_non_chauffe_mur",
-                "l_orientation_mur_exterieur","l_local_non_chauffe_plancher_bas",
-                "l_local_non_chauffe_plancher_haut"]
+                   "l_orientation_mur_exterieur","l_local_non_chauffe_plancher_bas",
+                   "l_local_non_chauffe_plancher_haut"]
+    
+    #modality for each column in colonneslistes
     modcolonneliste=[["nord","sud","est","ouest"],
-                            ["garage","comble","cellier","hall","circulation"],
-                            ["nord","sud","est","ouest"],
-                            ["circulation","autre","hall","cellier","garage"],
-                            ["circulation","locaux","comble","garage"]]
-
+                     ["garage","comble","cellier","hall","circulation"],
+                     ["nord","sud","est","ouest"],
+                     ["circulation","autre","hall","cellier","garage"],
+                     ["circulation","locaux","comble","garage"]]
 
         
-    ##Pour les colonnes représentées par des listes de modalitées, on 
-    ##les scindes/convertit en entier suivant la méthode choisie
+    #split columns by the comma and transform to binary
     if colonnes_listes=="scinde" :
         k=0
         for i in colonnesliste :
@@ -169,71 +162,18 @@ def clean(chemin):
         for i in colonnesliste :
             df = convertir_listes_en_nombre(df, i)
 
-    ##On remplace les NA de chaque colonne par la valeur souaitée
-    remplace = 'inconnu'
-    colonnesaclean = ['type_installation_chauffage',
-                'type_energie_chauffage',
-                'type_generateur_chauffage',
-                'type_installation_ecs',
-                'type_energie_ecs',
-                'type_generateur_ecs',
-                'type_vitrage',
-                'type_materiaux_menuiserie',
-                'type_fermeture',
-                'local_non_chauffe_principal_plancher_haut',
-                'local_non_chauffe_principal_plancher_bas',
-                'type_production_energie_renouvelable',
-                'type_generateur_ecs_anciennete',
-                'type_generateur_chauffage_anciennete',
-                'type_plancher_bas_deperditif',
-                'type_plancher_haut_deperditif',
-                'type_adjacence_principal_plancher_bas',
-                'type_isolation_plancher_bas',
-                'type_adjacence_principal_plancher_haut',
-                'type_isolation_plancher_haut',
-                'type_porte',
-                'type_ventilation',
-                'type_gaz_lame',
-                'annee_construction_dpe',
-                'l_orientation_mur_exterieur nord',
-                'l_orientation_mur_exterieur sud',
-                'l_orientation_mur_exterieur est',
-                'l_orientation_mur_exterieur ouest',
-                'type_isolation_mur_exterieur',
-                'l_orientation_baie_vitree nord',
-                'l_orientation_baie_vitree sud',
-                'l_orientation_baie_vitree est',
-                'l_orientation_baie_vitree ouest',
-                'presence_balcon',
-                'local_non_chauffe_principal_mur']
-    for colonne in colonnesaclean:
-        df=remplacer_na_par_valeur(df, colonne, remplace)
-        
-    remplace = 0
-    colonnesaclean = ['surface_vitree_ouest',
-                    'surface_vitree_est',
-                    'surface_plancher_bas_deperditif',
-                    'surface_plancher_haut_deperditif',
-                    'surface_vitree_nord',
-                    'surface_vitree_sud',
-                    'epaisseur_structure_mur_exterieur',
-                    'surface_plancher_bas_totale',
-                    'surface_plancher_haut_totale',
-                    'surface_porte',
-                    ]
-    
-    for colonne in colonnesaclean:
-        df=remplacer_na_par_valeur(df, colonne, remplace)
+    #replace na by "inconnu" if columns is object, else replace na by mean of the column
+    df = conditional_fill_na(df)
 
-    ##On supprime les lignes contenant des NA
+    #convert if its possible object columns to integer
+    df = convert_object_columns_to_integers(df)
+    
+    #delete na
     for colonne in df.columns :
         df=supprimer_lignes_na(df, colonne)
-
-    df = convert_object_columns_to_integers(df)
-    # suppression des na
-    df.dropna(inplace = True)
-    # suppression des doublons
+        
+    # duplicate drop
     df.drop_duplicates(inplace = True)
-    ##On sauvegarde la df nettoyée au format csv
+    
     return df
     
