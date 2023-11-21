@@ -37,7 +37,7 @@ def clean(chemin):
         'local_non_chauffe_principal_plancher_haut',
         'type_adjacence_principal_plancher_haut', 'type_porte', 'surface_porte',
         'classe_inertie']
-    colonnes_listes="compte"     #"scinde" pour scinder, "compte" pour compter
+    colonnes_listes="compte"     #"scinde" to split, "compte" to count
 
 
     #put classe_bilan_dpe to first column

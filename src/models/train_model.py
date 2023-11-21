@@ -2,17 +2,22 @@ from sklearn.neighbors import KNeighborsClassifier
 import numpy as np
 import pandas as pd
 import pandas.api.types as ptypes
+import pandas as pd
+import numpy as np
+from sklearn.neighbors import KNeighborsClassifier
+from pandas.api.types import is_numeric_dtype
+
 class Models:
     """
-    Classe représentant un ensemble de modèles pour l'analyse de données.
+    Class representing a model for KNN.
+    
+    Parameters:
+    -dataframe (pd.DataFrame): The training DataFrame containing the data to be explained and explanatory.
 
-    :param dataframe: Le dataframe d'entraînement contenant les données à expliquer et explicatives.
-    :type dataframe: pandas.DataFrame
+    -individual_features (pd.DataFrame): The DataFrame of test individual features.
 
-    :param individual_features: Le dataframe des caractéristiques de l'individu test.
-    :type individual_features: pandas.DataFrame
-
-    :raises AssertionError: Si les données d'entraînement et de test ne sont pas des dataframes pandas.
+    Raises AssertionError: 
+        If the training and test data are not pandas DataFrames.
 
     :Example:
 
@@ -20,69 +25,69 @@ class Models:
     >>> individual_data = pd.DataFrame({'Feature1': [0.7], 'Feature2': [0.4]})
     >>> models_instance = Models(data, individual_data)
     >>> models_instance.k_neighbors()
-    Précision du modèle : 0.85
-    # Output: Un DataFrame contenant les prédictions et les variables indépendantes.
+    Model Accuracy: 0.85
+    # Output: A DataFrame containing predictions and independent variables.
 
     """
 
     def __init__(self, dataframe, individual_features):
-        assert isinstance(dataframe, pd.DataFrame), "Les données d'entraînement doivent être sous forme de dataframe"
-        assert isinstance(individual_features, pd.DataFrame), "Les données de test doivent être sous forme de dataframe"
-        assert (len(dataframe.columns) or len(individual_features.columns)) >0, "votre dataframe est vide"
-        assert len(dataframe.columns) == (len(individual_features.columns)), "les bases de données n'ont pas le même nombre de variables,  utiliser l'algorithme de selection des variables"
+        assert isinstance(dataframe, pd.DataFrame), "Training data must be in the form of a DataFrame."
+        assert isinstance(individual_features, pd.DataFrame), "Test data must be in the form of a DataFrame."
+        assert (len(dataframe.columns) or len(individual_features.columns)) > 0, "Your DataFrame is empty."
+        assert len(dataframe.columns) == len(individual_features.columns), "Databases do not have the same number of variables, use the variable selection algorithm."
 
-        assert all(ptypes.is_numeric_dtype(dataframe[col])for col in dataframe.columns), "Les types de données des colonnes du dataframe d'entrainement doivent être int ou float. utiliser l'algorithme de preprocessing"
-        assert all(ptypes.is_numeric_dtype(individual_features[col])for col in individual_features.columns), " Les types de données des colonnes du dataframe de test doivent être int ou float. utiliser l'algorithme de preprocessing"
+        assert all(is_numeric_dtype(dataframe[col])for col in dataframe.columns), "Data types of columns in the training dataframe must be int or float. Use the preprocessing algorithm."
+        assert all(is_numeric_dtype(individual_features[col])for col in individual_features.columns), "Data types of columns in the test dataframe must be int or float. Use the preprocessing algorithm."
 
-        # Dataframe d'entraînement
+        # Training DataFrame
         self.dataframe = dataframe
 
-        # Variable à expliquer
+        # Dependent variable
         self.dependent_variable = self.dataframe.iloc[:, 0].values
 
-        # Variables explicatives
+        # Independent variables
         self.independent_variable = self.dataframe.iloc[:, 1:].values
 
-        # Dataframe de test
+        # Test DataFrame
         self.individual_features = individual_features
 
-        # Variables explicatives de l'individu test
+        # Independent variables of the test individual
         self.np_individual_features = individual_features.iloc[:, 1:].values
 
     def k_neighbors(self):
         """
-        Crée un algorithme de k_neighbors basé sur les données de propriétés.
+        Creates a k_neighbors algorithm based on property data.
 
-        Cette fonction utilise l'algorithme KNeighborsClassifier pour entraîner un modèle
-        et effectuer des prédictions sur les données fournies.
+        This function uses the KNeighborsClassifier algorithm to train a model
+        and make predictions on the provided data.
 
-        :return: Un DataFrame contenant les prédictions du modèle et les variables indépendantes.
-        :rtype: pandas.DataFrame
+        Return: A DataFrame containing model predictions and independent variables.
+        Rtype: pandas.DataFrame
 
-        :raises ValueError: Si les données indépendantes et dépendantes ne sont pas correctement définies.
+        raises ValueError: If independent and dependent data are not properly defined.
 
-        :Example:
+        Example:
 
         >>> model = Models(data, individual_data)
         >>> model.k_neighbors()
-        Précision du modèle : 0.85
-        # Output: Un DataFrame contenant les prédictions et les variables indépendantes de l'individu test.
+        Model Accuracy: 0.85
+        # Output: A DataFrame containing predictions and independent variables of the test individual.
 
         """
-        # Instance du k-neighbors avec 5 individus proches
+        # Instance of k-neighbors with 3 close individuals
         neigh = KNeighborsClassifier(n_neighbors=3)
 
-        # Entraînement des données sur la base de donnée d'entrainement
+        # Training data on the training database
         neigh.fit(self.independent_variable, self.dependent_variable)
 
-        # Prédiction sur les données de l'individu test
+        # Prediction on the test individual data
         prediction = neigh.predict(self.np_individual_features)
 
-        # Création et affichage du score de fiabilité de la prédiction
+        # Creation and display of the prediction reliability score
         score = neigh.score(self.independent_variable, self.dependent_variable)
-        print(f"Précision du modèle : {score}")
+        print(f"Model Accuracy: {score}")
 
-        # Restitution d'un DataFrame avec la prédiction et les variables indépendantes de l'individu test
+        # Returning a DataFrame with the prediction and independent variables of the test individual
         self.independant_variable_test = self.np_individual_features.flatten()
         result = np.concatenate([prediction, self.independant_variable_test])
         dataframe_decoded = pd.DataFrame(result).transpose()
