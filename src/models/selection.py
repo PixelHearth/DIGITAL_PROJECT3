@@ -1,9 +1,5 @@
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-import pandas.api.types as ptypes
-
-import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
 from pandas.api.types import is_numeric_dtype
 
 def select_features(dataframe, num_features):
