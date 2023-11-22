@@ -35,8 +35,6 @@ def app():
 
     cpp_kneigh.transform(properties)
     cpp_kneigh.transform(new_variable)
-    
-    scaler = MinMaxScaler()
 
     # Create the graph of importances in the selection model
     plot_feature_importance(importance, nb_features)
