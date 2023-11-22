@@ -1,80 +1,86 @@
 from sklearn.preprocessing import OrdinalEncoder   
 import pandas as pd
+import pandas as pd
+from sklearn.preprocessing import OrdinalEncoder
+
 class CustomPreprocessor:
     """ 
-    fait un encodage des variables string en variables ordinales
+    Performs ordinal encoding of string variables.
+    
+    Initializes a CustomPreprocessor object.
+
+    Parameters:
+        dataframe (pandas.DataFrame): The DataFrame containing the data to preprocess.
+
+    Attributes:
+        encoder (OrdinalEncoder): The encoder that transforms string values into ordinal values.
+        dataframe (pandas.DataFrame): The DataFrame used to train the encoder.
+        indices (list): A list of column indices that will be transformed into ordinal values.
+        object_columns (Index): An index listing the names of columns considered as objects (strings).
     """
-    def __init__(self,dataframe):
-        """
-        Initialise un objet CustomPreprocessor.
-
-        Parameters:
-        dataframe (pandas.DataFrame): Le DataFrame contenant les données à prétraiter.
-
-        Attributes:
-        encoder (OrdinalEncoder): L'encodeur qui transforme les valeurs de type chaîne en valeurs ordinales.
-        dataframe (pandas.DataFrame): Le DataFrame utilisé pour entraîner l'encodeur.
-        indices (list): Une liste des indices des colonnes qui seront transformées en valeurs ordinales.
-        object_columns (Index): Un index répertoriant les noms des colonnes considérées comme des objets (chaînes).
-
-        """
-        assert isinstance(dataframe,pd.DataFrame)
-        # chargement du modele d'encodage
+    def __init__(self, dataframe):
+        #asserts
+        assert isinstance(dataframe, pd.DataFrame)
+        # Loading the encoding model
         self.encoder = OrdinalEncoder()
 
-        #dataframe à convertir, entrainer ou transformer
+        # DataFrame to convert, train, or transform
         self.dataframe = dataframe
 
-        #  on garde les colonnes qui sont types Objets
+        # Keep columns that are object types
         self.object_columns = dataframe.select_dtypes(include=['object']).columns
-        
-        
-        # liste des noms des colonnes object
-        self.indices = [column for column in (dataframe.columns) if column in self.object_columns]
+
+        # List of names of object columns
+        self.indices = [column for column in dataframe.columns if column in self.object_columns]
         if len(self.indices) == 0:
-            raise ValueError("il n'y a pas de colonne de type caractère il est inutile d'appliquer la fonction")
-        
-        # liste ordonnées des valeurs  au sein des colonnes 
-        self.unique_values = [sorted(list(set(self.dataframe[col])) ) for col in self.object_columns]
-        
-        #dictionnaires avec titre de la colonnes, les valeurs uniques au sein de la colonne ordonnées avec leur index correspondants
+            raise ValueError("There are no string-type columns; applying the function is unnecessary")
+
+        # Ordered list of values within the columns
+        self.unique_values = [sorted(list(set(self.dataframe[col]))) for col in self.object_columns]
+
+        # Dictionaries with column title, unique values within the column ordered with their corresponding indices
         self.inverse_encoder = {index: {j: v for j, v in enumerate(values)}
-                                 for (index, values) in zip(self.indices, self.unique_values)}
-        assert self.inverse_encoder is not None, 'le dictionnaire de transformation est vide '
+                                for (index, values) in zip(self.indices, self.unique_values)}
+        assert self.inverse_encoder is not None, 'The transformation dictionary is empty'
 
     def fit(self):
         """
-        permet d'entrainer l'encodeur sur le dataframe de la classe
+        Trains the encoder on the class's DataFrame.
         """
-                
         self.encoder.fit(self.dataframe[self.object_columns])
 
     def transform(self, df_to_transform):
+        """
+        Transforms the specified DataFrame using the encoder.
+
+        Parameters:
+            df_to_transform (pandas.DataFrame): The DataFrame to transform.
+
+        Returns:
+            pandas.DataFrame: The DataFrame with the transformation applied.
+        """
         assert isinstance(df_to_transform, pd.DataFrame)
 
-    
-        # Créez une copie du DataFrame pour éviter de modifier l'original
+        # Create a copy of the DataFrame to avoid modifying the original
         df_to_transform[self.object_columns] = self.encoder.transform(df_to_transform[self.object_columns])
         return df_to_transform
 
-    
-    def inverse_transform(self,df_test):
+    def inverse_transform(self, df_test):
         """
-        Effectue la transformation inverse en utilisant l'encodeur.
+        Performs the inverse transformation using the encoder.
 
         Parameters:
-        df_test (pandas.DataFrame): Le DataFrame à transformer inversement.
+            df_test (pandas.DataFrame): The DataFrame to inverse transform.
 
         Returns:
-        pandas.DataFrame: Le DataFrame avec la transformation inverse appliquée.
+            pandas.DataFrame: The DataFrame with the inverse transformation applied.
         """
 
-        # On vérifie que notre dictionnaire inverse_encoder est pas vide, le 
-        assert isinstance(df_test,pd.DataFrame)
+        # Check that our inverse_encoder dictionary is not empty
+        assert isinstance(df_test, pd.DataFrame)
         if self.inverse_encoder is not None:
             for col_name in self.indices:
                 if col_name in df_test.columns:
                     df_test[col_name] = df_test[col_name].map(self.inverse_encoder[col_name])
 
         return df_test
-    

@@ -1,49 +1,50 @@
 import os
 import pandas as pd
 from openpyxl import load_workbook
-from .fonctions_filtrage import convert_object_columns_to_integers
-def importation_excel(nom_fichier_excel, nom_feuille):
+
+def importation_excel(excel_file_path, sheet_name):
     """
-    Importe les données à partir d'un fichier Excel spécifié.
+    Imports data from a specified Excel file.
 
-    :param nom_fichier_excel: Chemin du fichier Excel.
-    :type nom_fichier_excel: str
-    :param nom_feuille: Nom de la feuille dans le fichier Excel.
-    :type nom_feuille: str
-    :return: DataFrame pandas contenant les données de la feuille spécifiée.
-    :rtype: pandas.DataFrame
+    Args:
+        excel_file_path (str): Path to the Excel file.
+        sheet_name (str): Name of the sheet in the Excel file.
 
-    :raises AssertionError: Si le fichier Excel ou la feuille spécifiée n'existe pas.
-    :raises AssertionError: Si les noms de colonnes sont vides.
-
-    Exemple d'utilisation:
+    Returns:
+        pd.DataFrame: Pandas DataFrame containing the data from the specified sheet.
     
-    >>> importation_excel('mon_fichier.xlsx', 'Feuille1')
+    Raises:
+        AssertionError: If the Excel file or the specified sheet does not exist.
+        AssertionError: If column names are empty.
+
+    Example:
+        >>> import_excel_data('my_file.xlsx', 'Sheet1')
     """
 
-    # Vérifie si le fichier Excel existe
-    assert os.path.exists(nom_fichier_excel), f"Le fichier Excel '{nom_fichier_excel}' n'existe pas."
+    # Check if the Excel file exists
+    assert os.path.exists(excel_file_path), f"The Excel file '{excel_file_path}' does not exist."
 
-    # Charge le classeur Excel en mode lecture seule
-    classeur = load_workbook(nom_fichier_excel, read_only=True, data_only=True,)
+    # Load the Excel workbook in read-only mode
+    workbook = load_workbook(excel_file_path, read_only=True, data_only=True)
 
-    # Vérifie si la feuille spécifiée existe dans le fichier Excel
-    assert nom_feuille in classeur.sheetnames, f"La feuille '{nom_feuille}' n'existe pas dans le fichier Excel."
+    # Check if the specified sheet exists in the Excel file
+    assert sheet_name in workbook.sheetnames, f"The sheet '{sheet_name}' does not exist in the Excel file."
 
-    # Sélectionne la feuille spécifiée
-    feuille = classeur[nom_feuille]
+    # Select the specified sheet
+    sheet = workbook[sheet_name]
 
-    # Récupère les noms de colonnes depuis la première ligne de la feuille
-    noms_de_colonnes = [cell.value for cell in feuille[1]]
+    # Get column names from the first row of the sheet
+    column_names = [cell.value for cell in sheet[1]]
 
-    # # Vérifie si les noms de colonnes ne sont pas vides
-    assert all(nom is not None for nom in noms_de_colonnes), "Les noms de colonnes ne peuvent pas être vides."
+    # Check if column names are not empty
+    assert all(name is not None for name in column_names), "Column names cannot be empty."
 
-    # Récupère les données depuis la deuxième ligne de la feuille
-    ligne_data = [cell.value for cell in feuille[2]]
+    # Get data from the second row of the sheet
+    data_row = [cell.value for cell in sheet[2]]
 
-    # Crée un DataFrame pandas avec les données et les noms de colonnes
-    df = pd.DataFrame([ligne_data], columns=noms_de_colonnes)
-    df= convert_object_columns_to_integers(df)
-    # Retourne le DataFrame créé
+    # Create a Pandas DataFrame with the data and column names
+    df = pd.DataFrame([data_row], columns=column_names)
+
+    # Return the created DataFrame
     return df
+

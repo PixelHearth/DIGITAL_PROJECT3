@@ -1,44 +1,35 @@
-
 import matplotlib.pyplot as plt
+import pandas as pd
+
 def plot_feature_importance(importances_df, nb_feature):
     """
-    Crée un graphique à barres montrant l'importance des caractéristiques dans un modèle.
+    This chart displays the importance of features in a model. Features are shown on the x-axis,
+    and their importance on the y-axis. The total percentage of importance represented by the
+    most important features is also indicated.
 
     Args:
-        importances_df (DataFrame): Le DataFrame contenant les informations sur l'importance des caractéristiques.
-        nb_feature (int): Le nombre de caractéristiques à inclure dans le graphique en fonction de leur importance.
-
-    Returns:
-        None
-
-    Ce graphique affiche l'importance des caractéristiques dans un modèle. Les caractéristiques sont affichées sur l'axe des x
-    et leur importance sur l'axe des y. Le pourcentage total d'importance représenté par les caractéristiques les plus
-    importantes est également indiqué.
-
-    Args:
-        importances_df (DataFrame): Le DataFrame contenant les informations sur l'importance des caractéristiques.
-        nb_feature (int): Le nombre de caractéristiques à inclure dans le graphique en fonction de leur importance.
+        importances_df (DataFrame): The DataFrame containing information about feature importance.
+        nb_feature (int): The number of features to include in the chart based on their importance.
 
     Returns:
         None
     """
-    # Créer le graphique à barres
+    # Create the bar chart
     plt.figure(figsize=(10, 6))
     
-    # Triez le DataFrame par importance et prenez les 10 premières caractéristiques
+    # Sort the DataFrame by importance and take the top 'nb_feature' features
     top_importances_df = importances_df.sort_values(by='Importance', ascending=False).head(nb_feature)
     
     plt.bar(top_importances_df['Feature'], top_importances_df['Importance'], color='b')
 
-    # Titre du graphique, Nom des axes
-    plt.xlabel('Caractéristique')
+    # Chart title, axis labels
+    plt.xlabel('Feature')
     plt.ylabel('Importance')
-    plt.title('Importance des Caractéristiques dans le Modèle Random Forest')
+    plt.title('Feature Importance in the Random Forest Model')
 
-    # Lisibilité du graphique
+    # Improve chart readability
     plt.xticks(rotation=90)
     plt.tight_layout()
 
-    # Ajout du texte indiquant le pourcentage total d'importance représenté par les caractéristiques les plus importantes
+    # Add text indicating the total percentage of importance represented by the most important features
     plt.savefig("docs/features_importance.png")
-
