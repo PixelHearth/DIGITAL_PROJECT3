@@ -1,6 +1,6 @@
 import pandas as pd
 from  .fonctions_filtrage import *
-
+chemin=""
 def clean(chemin):
     
     #import dataframes
@@ -181,4 +181,4 @@ def clean(chemin):
     df.drop_duplicates(inplace = True)
     
     return df
-    
+clean(chemin).to_csv("df_clean.csv", index=False)
