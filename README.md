@@ -35,7 +35,7 @@ Documentation on the database, DPE, and GDPR compliance regarding our data is av
 Clone the GitHub repository and install the necessary dependencies:
 
 ```bash
-git clone https://github.com/gbar-dev/stock_prediction_by_asset.git
+git clone https://github.com/%username%/stock_prediction_by_asset.git
 cd stock_prediction_by_asset
 pip install -r requirements.txt
 ```
