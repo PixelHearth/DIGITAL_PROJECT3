@@ -2,46 +2,78 @@ import pandas as pd
 import numpy as np
 
 
-#################supprimer_lignes_na################################
-#Entrée :
-#Un dataframe et un nom de colonne 
-#Sortie :
-#Un dataframe
-#Utilitée :
-#Supprime toutes les lignes du dataframe qui renvoient NaN sur la 
-#colonne selectionée 
 
 def supprimer_lignes_na(df, nom_colonne):
-    # Vérifiez si la colonne spécifiée est dans le DataFrame
+    """
+    Cette fonction prend en entrée un DataFrame et le nom d'une colonne.
+    Elle retourne un nouveau DataFrame qui est le résultat de la suppression
+    des lignes contenant des valeurs NaN dans la colonne spécifiée.
+
+    Paramètres :
+    - df (pandas DataFrame) : Le DataFrame à traiter.
+    - nom_colonne (str) : Le nom de la colonne sur laquelle baser la suppression des lignes NaN.
+
+    Retour :
+    - pandas DataFrame : Le DataFrame résultant après la suppression des lignes contenant NaN dans la colonne spécifiée.
+
+    Exemple :
+    >>> df = pd.DataFrame({'A': [1, 2, np.nan, 4], 'B': [5, np.nan, 7, 8]})
+    >>> nom_colonne = 'A'
+    >>> df_resultat = supprimer_lignes_na(df, nom_colonne)
+    >>> print(df_resultat)
+       A    B
+    0  1.0  5.0
+    1  2.0  NaN
+    3  4.0  8.0
+    """
+    # Vérifie si la colonne spécifiée est présente dans le DataFrame
     if nom_colonne in df.columns:
-        # Utilisez la méthode dropna pour supprimer les lignes contenant des NA dans la colonne spécifiée
+        # Utilise la méthode dropna pour supprimer les lignes contenant des NaN dans la colonne spécifiée
         df_sans_na = df.dropna(subset=[nom_colonne])
         return df_sans_na
     else:
         print(f"La colonne '{nom_colonne}' n'est pas présente dans le DataFrame.")
+        # Si la colonne n'est pas présente, retourne le DataFrame d'origine
         return df
-
-#######################remplacer_valeurs################################
-#Entrée :
-#Un dataframe, un nom de colonne, une valeur a et une valeur b (str, float ou int)
-#Sortie :
-#Un dataframe
-#Utilitée :
-#Remplace dans la colonne selectionnée, toutes les cases qui prennent la valeur a
-#par la valeur b
 
 
 def remplacer_valeurs(df, nom_colonne, valeur_a, valeur_b):
-    # Vérifiez si la colonne spécifiée est dans le DataFrame
+    """
+    Cette fonction prend en entrée un DataFrame, le nom d'une colonne, une valeur à remplacer (valeur_a),
+    et une valeur de remplacement (valeur_b). Elle retourne un nouveau DataFrame résultant
+    du remplacement de toutes les occurrences de la valeur a par la valeur b dans la colonne spécifiée.
+
+    Paramètres :
+    - df (pandas DataFrame) : Le DataFrame à traiter.
+    - nom_colonne (str) : Le nom de la colonne dans laquelle effectuer le remplacement de valeurs.
+    - valeur_a (str, float, ou int) : La valeur à remplacer.
+    - valeur_b (str, float, ou int) : La valeur de remplacement.
+
+    Retour :
+    - pandas DataFrame : Le DataFrame résultant après le remplacement des valeurs spécifiées.
+
+    Exemple :
+    >>> df = pd.DataFrame({'A': [1, 2, 3, 4], 'B': ['a', 'b', 'a', 'c']})
+    >>> nom_colonne = 'B'
+    >>> valeur_a = 'a'
+    >>> valeur_b = 'x'
+    >>> df_resultat = remplacer_valeurs(df, nom_colonne, valeur_a, valeur_b)
+    >>> print(df_resultat)
+       A  B
+    0  1  x
+    1  2  b
+    2  3  x
+    3  4  c
+    """
+    # Vérifie si la colonne spécifiée est présente dans le DataFrame
     if nom_colonne in df.columns:
-        # Utilisez la méthode 'replace' pour remplacer les valeurs dans la colonne spécifiée
+        # Utilise la méthode 'replace' pour remplacer les valeurs dans la colonne spécifiée
         df[nom_colonne] = df[nom_colonne].replace({valeur_a: valeur_b})
     else:
         print(f"La colonne '{nom_colonne}' n'est pas présente dans le DataFrame.")
 
     return df
-
-
+    
 def conditional_fill_na(df):
     """
     Conditional fill missing values in a DataFrame based on the data type of each column.
@@ -151,89 +183,150 @@ def convert_object_columns_to_integers(df):
 
     return df
 
-#######################scinde_colonnes###############################
-#Entrée :
-#Un dataframe, un nom de colonne, une liste de str
-#Sortie :
-#Un dataframe
-#Utilitée :
-#Dans notre base, certaines colonnes renvoient une liste de modalitées
-#(nord, sud, est, ouest par exemple pour les murs exposés), on va alors 
-#scinder cette colonne en 4 colonnes nommées par exemple "nom_colonne nord"
-#qui renvera 1 si la ligne contient "nord" dans la colonne "nom_colonne", Nan
-#si la colonne renvoie un NaN, 0 sinon
-#La colonne initiale "nom_colonne" est alors supprimée
-
-
 def scinde_colonnes(df, nom_colonne, noms_colonnes_personnalisees):
-    # Vérifiez si la colonne spécifiée est dans le DataFrame
+    """
+    Cette fonction prend en entrée un DataFrame, le nom d'une colonne, et une liste de noms de colonnes personnalisées.
+    Elle crée de nouvelles colonnes dans le DataFrame en fonction des noms spécifiés dans la liste.
+    Chaque nouvelle colonne contient des valeurs binaires indiquant la présence de la sous-chaîne correspondante dans la colonne d'origine.
+
+    Paramètres :
+    - df (pandas DataFrame) : Le DataFrame à traiter.
+    - nom_colonne (str) : Le nom de la colonne à scinder.
+    - noms_colonnes_personnalisees (list) : La liste des noms de colonnes personnalisées à créer.
+
+    Retour :
+    - pandas DataFrame : Le DataFrame résultant après la création des nouvelles colonnes.
+
+    Exemple :
+    >>> df = pd.DataFrame({'Tags': ['python, data', 'data science', 'java', 'python', np.nan]})
+    >>> nom_colonne = 'Tags'
+    >>> noms_colonnes_personnalisees = ['python', 'java', 'data']
+    >>> df_resultat = scinde_colonnes(df, nom_colonne, noms_colonnes_personnalisees)
+    >>> print(df_resultat)
+       Tags python  Tags java  Tags data
+    0    'python, data'         0         1
+    1    'data science'         0         0
+    2              'java'         1         0
+    3            'python'         0         1
+    4                NaN      None      None
+    """
+    # Vérifie si la colonne spécifiée est présente dans le DataFrame
     if nom_colonne in df.columns:
-        # Créez de nouvelles colonnes vides avec les noms spécifiés dans la liste
+        # Crée de nouvelles colonnes vides avec les noms spécifiés dans la liste
         for nom in noms_colonnes_personnalisees:
             df[nom_colonne + ' ' + nom] = df[nom_colonne].apply(lambda x: 1 if isinstance(x, str) and nom in x else (0 if not pd.isna(x) else None))
+        # Supprime la colonne d'origine
         df = df.drop(columns=[nom_colonne])
     else:
         print(f"La colonne '{nom_colonne}' n'est pas présente dans le DataFrame.")
 
     return df
 
-######################compter_virgules##############################
-#Entrée :
-#Une chaine de caractère (de la forme "['modalité1','modalité2','ta capté'])
-#Sortie :
-#Un int (ou None)
-#Utilitée :
-#Pour traiter les colonnes type "liste de modalitées" on peut aussi juste remplacer
-#la liste par le nombre de modalitées qu'elle renvoie, d'ou l'interet de cette
-#fonction qui, en se basant sur le nombre de virgules, renverra NaN ou le nombre 
-#de modalitées
+
 
 def compter_virgules(chaine):
-        if pd.notna(chaine):
-            return chaine.count(',')+1 if isinstance(chaine, str) else 0
-        else:
-            return np.nan
+    """
+    Cette fonction prend en entrée une chaîne de caractères représentant une liste de modalités.
+    Elle renvoie le nombre de modalités dans la liste (le nombre de virgules + 1) ou None si la chaîne est NaN.
 
-####################convertir_listes_en_nombre#############################
-#Entrée :
-#Un dataframe et un nom de colonne
-#Sortie :
-#Un dataframe
-#Utilitée :
-#A l'aide de la fonction précédente, compte les modalitées de chaque
-#ligne de la colonne selectionnée
-        
-def convertir_listes_en_nombre(df, nom_colonne):
+    Paramètres :
+    - chaine (str) : Une chaîne de caractères représentant une liste de modalités.
+
+    Retour :
+    - int ou None : Le nombre de modalités dans la liste (le nombre de virgules + 1) ou None si la chaîne est NaN.
+
+    Exemple :
+    >>> chaine = "['modalité1','modalité2','ta capté']"
+    >>> resultat = compter_virgules(chaine)
+    >>> print(resultat)
+    3
+    """
+    if pd.notna(chaine):
+        return chaine.count(',') + 1 if isinstance(chaine, str) else 0
+    else:
+        return None
+
+
+ def convertir_listes_en_nombre(df, nom_colonne):
+    """
+    Cette fonction prend en entrée un DataFrame et le nom d'une colonne contenant des listes de modalités.
+    Elle remplace les listes par le nombre de modalités qu'elles contiennent en utilisant la fonction compter_virgules.
+
+    Paramètres :
+    - df (pandas DataFrame) : Le DataFrame à traiter.
+    - nom_colonne (str) : Le nom de la colonne à convertir.
+
+    Retour :
+    - pandas DataFrame : Le DataFrame résultant après la conversion des listes en nombre de modalités.
+
+    Exemple :
+    >>> df = pd.DataFrame({'Modalites': ["['modalité1','modalité2','ta capté']", "['option1','option2']", np.nan]})
+    >>> nom_colonne = 'Modalites'
+    >>> df_resultat = convertir_listes_en_nombre(df, nom_colonne)
+    >>> print(df_resultat)
+       Modalites
+    0            3
+    1            2
+    2         None
+    """
     if nom_colonne in df.columns:
+        # Applique la fonction compter_virgules à la colonne spécifiée
         df[nom_colonne] = df[nom_colonne].apply(compter_virgules)
     else:
         print(f"La colonne '{nom_colonne}' n'est pas présente dans le DataFrame.")
+
     return df
 
-#######################selectionner_colonnes###############################
-#Entrée :
-#Un dataframe et une liste de noms de colonnes
-#Sortie :
-#Un dataframe
-#Utilitée :
-#Renvoie un dataframe avec uniquement les colonnes désirées
-
 def selectionner_colonnes(df, colonnes_a_garder):
-    # Vérifiez si toutes les colonnes spécifiées sont présentes dans le DataFrame
+    """
+    Cette fonction prend en entrée un DataFrame et une liste de noms de colonnes.
+    Elle renvoie un nouveau DataFrame contenant uniquement les colonnes spécifiées.
+
+    Paramètres :
+    - df (pandas DataFrame) : Le DataFrame à traiter.
+    - colonnes_a_garder (list) : La liste des noms de colonnes à conserver dans le DataFrame résultant.
+
+    Retour :
+    - pandas DataFrame : Le DataFrame résultant avec uniquement les colonnes désirées.
+
+    Exemple :
+    >>> df = pd.DataFrame({'A': [1, 2, 3], 'B': ['a', 'b', 'c'], 'C': [True, False, True]})
+    >>> colonnes_a_garder = ['A', 'C']
+    >>> df_resultat = selectionner_colonnes(df, colonnes_a_garder)
+    >>> print(df_resultat)
+       A     C
+    0  1  True
+    1  2 False
+    2  3  True
+    """
+    # Vérifie si toutes les colonnes spécifiées sont présentes dans le DataFrame
     colonnes_presentes = [col for col in colonnes_a_garder if col in df.columns]
+    # Sélectionne uniquement les colonnes présentes
     df_selectionne = df[colonnes_presentes]
     return df_selectionne
 
-#####################deplacer_colonne_en_premier###########################
-#Entrée :
-#Un dataframe et un nom de colonne
-#Sortie :
-#Un dataframe
-#Utilitée :
-#Déplace une colonne à la première place. Ici le score DPE, pour coller au 
-#programme de Guillaume
-
 def deplacer_colonne_en_premier(df, nom_colonne):
+    """
+    Cette fonction prend en entrée un DataFrame et le nom d'une colonne.
+    Elle renvoie un nouveau DataFrame avec la colonne spécifiée déplacée en première position.
+
+    Paramètres :
+    - df (pandas DataFrame) : Le DataFrame à traiter.
+    - nom_colonne (str) : Le nom de la colonne à déplacer en premier.
+
+    Retour :
+    - pandas DataFrame : Le DataFrame résultant avec la colonne déplacée en première position.
+
+    Exemple :
+    >>> df = pd.DataFrame({'A': [1, 2, 3], 'B': ['a', 'b', 'c'], 'C': [True, False, True]})
+    >>> nom_colonne = 'B'
+    >>> df_resultat = deplacer_colonne_en_premier(df, nom_colonne)
+    >>> print(df_resultat)
+         B  A     C
+    0    'a'  1  True
+    1    'b'  2 False
+    2    'c'  3  True
+    """
     if nom_colonne in df.columns:
         # Liste des noms de colonnes
         columns = list(df.columns)
@@ -251,43 +344,70 @@ def deplacer_colonne_en_premier(df, nom_colonne):
     else:
         print(f"La colonne '{nom_colonne}' n'existe pas dans le DataFrame.")
         return df
-
-###################remplacer_na_par_valeur############################
-#Entrée :
-#Un dataframe, un nom de colonne, une valeur
-#Sortie :
-#Un dataframe
-#Utilitée :
-#Remplace tous les NaN d'une colonne par la valeur selectionnée
-#
-
+        
 def remplacer_na_par_valeur(df, nom_colonne, valeur_remplacement):
-    # Vérifiez si la colonne spécifiée est dans le DataFrame
+    """
+    Cette fonction prend en entrée un DataFrame, le nom d'une colonne, et une valeur de remplacement.
+    Elle remplace les valeurs manquantes (NA) dans la colonne spécifiée par la valeur de remplacement.
+
+    Paramètres :
+    - df (pandas DataFrame) : Le DataFrame à traiter.
+    - nom_colonne (str) : Le nom de la colonne dans laquelle effectuer le remplacement.
+    - valeur_remplacement : La valeur à utiliser pour remplacer les valeurs manquantes.
+
+    Retour :
+    - pandas DataFrame : Le DataFrame résultant après le remplacement des valeurs manquantes.
+
+    Exemple :
+    >>> df = pd.DataFrame({'A': [1, 2, np.nan, 4], 'B': ['a', 'b', 'c', np.nan]})
+    >>> nom_colonne = 'A'
+    >>> valeur_remplacement = 0
+    >>> df_resultat = remplacer_na_par_valeur(df, nom_colonne, valeur_remplacement)
+    >>> print(df_resultat)
+       A    B
+    0  1    'a'
+    1  2    'b'
+    2  0    'c'
+    3  4  None
+    """
+    # Vérifie si la colonne spécifiée est présente dans le DataFrame
     if nom_colonne in df.columns:
-        # Utilisez la méthode 'fillna' pour remplacer les valeurs manquantes (NA) dans la colonne spécifiée
+        # Utilise la méthode 'fillna' pour remplacer les valeurs manquantes (NA) dans la colonne spécifiée
         df[nom_colonne] = df[nom_colonne].fillna(valeur_remplacement)
         return df
     else:
         print(f"La colonne '{nom_colonne}' n'est pas présente dans le DataFrame.")
         return df
 
-####################count_na_per_column############################
-#Entrée :
-#Un dataframe
-#Sortie :
-#Un dataframe
-#Utilitée :
-#Renvoie un dataframe avec deux colonnes: une contenant le nom de chaque colonne
-#de notre dataframe initiale, l'autre le nombre de nan pour chaque colonne
-
 def count_na_per_column(df):
-    # Utilisez la méthode isna() pour obtenir un DataFrame booléen où True représente les valeurs manquantes.
+    """
+    Cette fonction prend en entrée un DataFrame et renvoie un nouveau DataFrame
+    contenant deux colonnes : le nom de chaque colonne du DataFrame initial
+    et le nombre de valeurs manquantes (NaN) pour chaque colonne.
+
+    Paramètres :
+    - df (pandas DataFrame) : Le DataFrame à traiter.
+
+    Retour :
+    - pandas DataFrame : Un DataFrame contenant deux colonnes : le nom de chaque colonne du DataFrame initial
+                        et le nombre de valeurs manquantes (NaN) pour chaque colonne.
+
+    Exemple :
+    >>> df = pd.DataFrame({'A': [1, 2, np.nan, 4], 'B': ['a', 'b', 'c', np.nan], 'C': [np.nan, np.nan, 3, 4]})
+    >>> df_resultat = count_na_per_column(df)
+    >>> print(df_resultat)
+      Column  NA_Count
+    0      A         1
+    1      B         1
+    2      C         2
+    """
+    # Utilise la méthode isna() pour obtenir un DataFrame booléen où True représente les valeurs manquantes.
     is_na_df = df.isna()
     
-    # Utilisez la méthode sum() sur le DataFrame booléen pour compter le nombre de valeurs manquantes par colonne.
+    # Utilise la méthode sum() sur le DataFrame booléen pour compter le nombre de valeurs manquantes par colonne.
     na_count_series = is_na_df.sum()
     
-    # Créez un nouveau DataFrame à partir de la série de comptage des valeurs manquantes.
+    # Crée un nouveau DataFrame à partir de la série de comptage des valeurs manquantes.
     result_df = pd.DataFrame({'Column': na_count_series.index, 'NA_Count': na_count_series.values})
     
     return result_df
