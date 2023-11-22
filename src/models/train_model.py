@@ -1,13 +1,11 @@
-from sklearn.neighbors import KNeighborsClassifier
-import numpy as np
-import pandas as pd
-import pandas.api.types as ptypes
+
 import pandas as pd
 import numpy as np
 from sklearn.neighbors import KNeighborsClassifier
 from pandas.api.types import is_numeric_dtype
-
+from sklearn.preprocessing import MinMaxScaler
 class Models:
+
     """
     Class representing a model for KNN.
     
@@ -31,6 +29,7 @@ class Models:
     """
 
     def __init__(self, dataframe, individual_features):
+        
         assert isinstance(dataframe, pd.DataFrame), "Training data must be in the form of a DataFrame."
         assert isinstance(individual_features, pd.DataFrame), "Test data must be in the form of a DataFrame."
         assert (len(dataframe.columns) or len(individual_features.columns)) > 0, "Your DataFrame is empty."
@@ -53,6 +52,16 @@ class Models:
 
         # Independent variables of the test individual
         self.np_individual_features = individual_features.iloc[:, 1:].values
+        
+    def scale(self):
+        # Création d'un objet scaler
+        scaler = MinMaxScaler()
+
+        # Normalisation des données
+        self.independent_variable = scaler.fit_transform(self.independent_variable)
+
+        # Création d'un nouveau DataFrame avec les données normalisées
+        self.np_individual_features = scaler.transform(self.np_individual_features)
 
     def k_neighbors(self):
         """
@@ -76,7 +85,8 @@ class Models:
         """
         # Instance of k-neighbors with 3 close individuals
         neigh = KNeighborsClassifier(n_neighbors=3)
-
+        
+        Models.scale()
         # Training data on the training database
         neigh.fit(self.independent_variable, self.dependent_variable)
 
