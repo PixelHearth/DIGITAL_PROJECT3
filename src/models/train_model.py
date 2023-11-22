@@ -90,3 +90,4 @@ class Models:
         dataframe_decoded = pd.DataFrame(result).transpose()
         assert isinstance(dataframe_decoded, pd.DataFrame)
         return dataframe_decoded
+    

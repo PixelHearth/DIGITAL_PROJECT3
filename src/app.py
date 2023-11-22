@@ -7,7 +7,7 @@ from data.make_dataset import importation_excel
 import pandas as pd
 import time
 import os
-
+from sklearn.preprocessing import MinMaxScaler
 def app():
     # calcul le temps du début
     start = time.time()
@@ -36,13 +36,19 @@ def app():
 
     cpp_kneigh.transform(properties)
     cpp_kneigh.transform(new_variable)
+    
+    scaler = MinMaxScaler()
 
+    # Appliquer la normalisation sur les données
+    data_normalized = scaler.fit_transform(individual)
     #création du graph des importances dans le modèle de selection
     plot_feature_importance(importance,nb_features)
 
     #instance et entrainement du k_neighbors sur les données encodées 
     individual = Models(properties,new_variable).k_neighbors()
     individual.columns = new_variable.columns
+
+    
     #restitution d'un dataframe compréhensible pour un humain
     #valeur prédite du k_neighbors
     cpp_kneigh.inverse_transform(individual)
