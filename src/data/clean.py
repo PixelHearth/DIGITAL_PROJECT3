@@ -1,8 +1,9 @@
 import pandas as pd
 from  .fonctions_filtrage import *
-chemin=""
-def clean(chemin):
-    
+import os 
+
+def clean(path):
+    assert os.path.exists(path),"the path doesn't exist"
     #import dataframes
     files = ["dpe_logement", "dpe_logement1", "dpe_logement2", "dpe_logement3", "dpe_logement4", "dpe_logement5", "dpe_logement6"]
 
@@ -179,6 +180,5 @@ def clean(chemin):
         
     # duplicate drop
     df.drop_duplicates(inplace = True)
-    
+    df.to_csv("database/df_clean.csv", index=False)
     return df
-clean(chemin).to_csv("df_clean.csv", index=False)
