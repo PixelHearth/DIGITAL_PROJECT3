@@ -163,11 +163,11 @@ def clean_df(path):
     if colonnes_listes=="scinde" :
         k=0
         for i in colonnesliste :
-            df = separate_columnes(df, i,modcolonneliste[k])
+            df = separate_columns(df, i,modcolonneliste[k])
             k+=1
     else : 
         for i in colonnesliste :
-            df = liste_to_int(df, i)
+            df = list_to_int(df, i)
 
     #replace na by "inconnu" if columns is object, else replace na by mean of the column
     df = conditional_fill_na(df)
