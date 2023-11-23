@@ -2,18 +2,19 @@ import pandas as pd
 from  .fonctions_filtrage import *
 import os 
 
-def clean(path):
-    assert os.path.exists(path),"the path doesn't exist"
+def clean_df(path):
+
+    df = pd.read_csv(path)
     #import dataframes
-    files = ["dpe_logement", "dpe_logement1", "dpe_logement2", "dpe_logement3", "dpe_logement4", "dpe_logement5", "dpe_logement6"]
+    # files = ["dpe_logement", "dpe_logement1", "dpe_logement2", "dpe_logement3", "dpe_logement4", "dpe_logement5", "dpe_logement6"]
 
-    dataframes = []
+    # dataframes = []
 
-    for file in files:
-        mini_df = pd.read_csv(f"{file}.csv")
-        dataframes.append(mini_df)
+    # for file in files:
+    #     mini_df = pd.read_csv(f"{file}.csv")
+    #     dataframes.append(mini_df)
 
-    df=dataframes[dataframes.type_batiment_dpe=="appartement"][dataframes.version>=1]
+    # df=dataframes[dataframes.type_batiment_dpe=="appartement"][dataframes.version>=1]
 
     #columns to keep
     colonnes= ['classe_bilan_dpe', 'annee_construction_dpe','version', 'surface_habitable_logement',
@@ -180,5 +181,5 @@ def clean(path):
         
     # duplicate drop
     df.drop_duplicates(inplace = True)
-    df.to_csv("database/df_clean.csv", index=False)
+    # df.to_csv("src/data/database/df_clean.csv", index=False)
     return df

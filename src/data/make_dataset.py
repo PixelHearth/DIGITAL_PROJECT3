@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 from openpyxl import load_workbook
+from .fonctions_filtrage import convert_object_columns_to_integers
 
 def importation_excel(excel_file_path, sheet_name):
     """
@@ -45,6 +46,7 @@ def importation_excel(excel_file_path, sheet_name):
     # Create a Pandas DataFrame with the data and column names
     df = pd.DataFrame([data_row], columns=column_names)
 
+    df = convert_object_columns_to_integers(df)
     # Return the created DataFrame
     return df
 
