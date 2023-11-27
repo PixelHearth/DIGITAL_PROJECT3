@@ -4,18 +4,21 @@ import os
 
 def clean_df(path):
 
-    df = pd.read_csv(path)
-    #import dataframes
-    # files = ["dpe_logement", "dpe_logement1", "dpe_logement2", "dpe_logement3", "dpe_logement4", "dpe_logement5", "dpe_logement6"]
+    # df = pd.read_csv(path)
+    # import dataframes
+    files = ["dpe_logement", "dpe_logement1", "dpe_logement2", "dpe_logement3", "dpe_logement4", "dpe_logement5", "dpe_logement6"]
 
-    # dataframes = []
+    list_df = []
 
-    # for file in files:
-    #     mini_df = pd.read_csv(f"{file}.csv")
-    #     dataframes.append(mini_df)
+    for file in files:
+        mini_df = pd.read_csv(f"src/data/database/{file}.csv")
+        list_df.append(mini_df)
 
-    # df=dataframes[dataframes.type_batiment_dpe=="appartement"][dataframes.version>=1]
+    # Concaténer les DataFrames dans la liste
+    df = pd.concat(list_df, ignore_index=True)
 
+    # Filtrer les lignes selon les conditions spécifiées
+    df = df[(df['type_batiment_dpe'] == "appartement") & (df['version'] >= 1)]
     #columns to keep
     colonnes= ['classe_bilan_dpe', 'annee_construction_dpe','version', 'surface_habitable_logement',
         'type_installation_chauffage', 'type_energie_chauffage',
@@ -172,6 +175,9 @@ def clean_df(path):
     #replace na by "inconnu" if columns is object, else replace na by mean of the column
     df = conditional_fill_na(df)
 
+    for colonne in df.columns :
+        df=delete_na(df, colonne)
+        
     #convert if its possible object columns to integer
     df = convert_object_columns_to_integers(df)
     

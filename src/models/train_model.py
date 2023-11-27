@@ -53,15 +53,7 @@ class Models:
         # Independent variables of the test individual
         self.np_individual_features = individual_features.iloc[:, 1:].values
         
-    def scale(self):
-        # Création d'un objet scaler
-        scaler = MinMaxScaler()
-
-        # Normalisation des données
-        self.independent_variable = scaler.fit_transform(self.independent_variable)
-
-        # Création d'un nouveau DataFrame avec les données normalisées
-        self.np_individual_features = scaler.transform(self.np_individual_features)
+        
 
     def k_neighbors(self):
         """
@@ -86,13 +78,39 @@ class Models:
         # Instance of k-neighbors with 3 close individuals
         neigh = KNeighborsClassifier(n_neighbors=3)
         
-        # Models.scale()
+        
+        #! make a function then implement
+        scaler = MinMaxScaler()
+
+        # Normalization of data on properties dataset
+        self.independent_variable = scaler.fit_transform(self.independent_variable)
+
+        # Transform customer dataset
+        self.np_individual_features = scaler.transform(self.np_individual_features)
+        
         # Training data on the training database
         neigh.fit(self.independent_variable, self.dependent_variable)
 
         # Prediction on the test individual data
         prediction = neigh.predict(self.np_individual_features)
         proba = neigh.predict_proba(self.np_individual_features)
+
+        # make a function to get prediction for 1 class and a function to predict for 2 class
+        # Obtenir les indices triés des classes par probabilité décroissante
+        sorted_class_indices = np.argsort(proba[0])[::-1]
+
+        # Sélectionner les deux classes les mieux représentées
+        top_classes = sorted_class_indices[:2]
+
+        # Afficher les résultats
+        for i,e in zip(top_classes,self.dataframe.iloc[:, 0]):
+            print(f"{e}: {proba[0][i] * 100:.2f}%")
+
+        # Output exemple :
+        # Classe 1: 66.67%
+        # Classe 0: 33.33%
+
+            
         # Creation and display of the prediction reliability score
         score = neigh.score(self.independent_variable, self.dependent_variable)
         print(f"Model Accuracy: {score}")
@@ -101,5 +119,6 @@ class Models:
         self.independant_variable_test = self.np_individual_features.flatten()
         result = np.concatenate([prediction, self.independant_variable_test])
         dataframe_decoded = pd.DataFrame(result).transpose()
+        dataframe_decoded.columns = self.dataframe.columns
         assert isinstance(dataframe_decoded, pd.DataFrame)
         return dataframe_decoded,proba

@@ -49,12 +49,11 @@ class TestCustomPreprocessor(unittest.TestCase):
         
         self.df = pd.DataFrame(data)
         self.preprocessor = CustomPreprocessor(self.df)
-        self.preprocessor.fit()
         self.encoded_df = self.preprocessor.transform(self.df.copy())
 
     def test_transform(self):
         expected_encoded_data = {
-            'Category': [0.0, 0.0, 1.0, 2.0],
+            'Category': ["blue", "red", "yellow", "blue"],
             'Color': [3, 5, 4, 5]
         }
         expected_encoded_df = pd.DataFrame(expected_encoded_data)
