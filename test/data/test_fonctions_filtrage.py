@@ -7,237 +7,409 @@ import unittest
 
 
 
-#Crée les deux dataframes qui seront utilisés pour les tests
-def creedfexemple(numéro_test):
-    if numéro_test==1:        
-        data = pd.DataFrame({'Nom': ['Alice', 'Bob', 'Charlie', 'David', 'Eva'],
-                             'Âge': [25, 30, None, 22, 28],
-                             'Ville': ['Paris', 'New York', 'Los Angeles', None, 'Berlin'],
-                             'Salaire': [50000, None, 60000, None, 75000],
-                             'Ville2': ['Paris', 'New York', 'Los Angeles', None, 'Berlin']})
-    elif numéro_test==2:
-        data = pd.DataFrame({'Nom': ['Alice', 'Bob', 'Charlie', 'David', 'Eva'],
-                             'Âge': [25, 30, None, 22, 28],
-                             'Ville': ['Paris', 'New York', 'Los Angeles', None, 'Berlin'],
-                             'Salaire': [50000, None, 60000, None, 75000],
-                             'Passions': ['lecture, cuisine, sport', 
-                                          'cuisine, sport, dessin', 
-                                          'manga, informatique, tiboinshape', 
-                                          None, 
-                                          'sport']})
-    return(data)
+class TestDeleteNAFunction(unittest.TestCase):
 
-#Compare deux dataframes 
-def comparedf(df1,df2):
-    compare = (df1 == df2) | (df1.isna() & df2.isna())
-    return(compare.all().all())
+    def setUp(self):
+        # Create a sample DataFrame for testing
+        self.df = pd.DataFrame({'A': [1, 2, np.nan, 4], 'B': [5, np.nan, 7, 8]})
 
-#Voulant rendre le script de nettoyage le plus flexible possible, la mention
-#de colonnes n'existant plus risque d'arriver fréquemment. Afin d'éviter d'avoir
-#à modifier le script à chaque fois, chaque programme pouvoir renvoyer le 
-#dataframe initiale si la colonne mentionnée n'existe pas
-nom_colonnefictive = 'mescheveux'
+    def test_delete_na_column_present(self):
+        # Test when the specified column is present
+        column_name = 'A'
+        df_result = delete_na(self.df, column_name)
+        expected_result = pd.DataFrame({'A': [1.0, 2.0, 4.0], 'B': [5.0, np.nan, 8.0]})
+        pd.testing.assert_frame_equal(df_result, expected_result)
+
+    def test_delete_na_column_not_present(self):
+        # Test when the specified column is not present
+        column_name = 'C'
+        df_result = delete_na(self.df, column_name)
+        # The result should be the same as the original DataFrame
+        pd.testing.assert_frame_equal(df_result, self.df)
 
 
+class TestReplaceValueFunction(unittest.TestCase):
 
+    def setUp(self):
+        # Create a sample DataFrame for testing
+        self.df = pd.DataFrame({'A': [1, 2, 3, 4], 'B': ['a', 'b', 'a', 'c']})
 
+    def test_replace_value_column_present(self):
+        # Test when the specified column is present
+        column_name = 'B'
+        value_a = 'a'
+        value_b = 'x'
+        df_result = replace_value(self.df, column_name, value_a, value_b)
+        expected_result = pd.DataFrame({'A': [1, 2, 3, 4], 'B': ['x', 'b', 'x', 'c']})
+        pd.testing.assert_frame_equal(df_result, expected_result)
 
-#supprimer_lignes_na
-data = creedfexemple(1)
-datasol = pd.DataFrame({'Nom': ['Alice', 'Charlie', 'Eva'],
-                     'Âge': [25, None, 28],
-                     'Ville': ['Paris', 'Los Angeles', 'Berlin'],
-                     'Salaire': [50000, 60000, 75000],
-                     'Ville2': ['Paris', 'Los Angeles', 'Berlin']})
-nom_colonne = 'Salaire'
-data=supprimer_lignes_na(data,nom_colonne).reset_index(drop=True)
-if comparedf(data,datasol):
-    print("supprimer_lignes_na OK")
-else:
-    print("!!!!supprimer_lignes_na ERREUR!!!!")
-data = creedfexemple(1)
-data1=supprimer_lignes_na(data,nom_colonnefictive).reset_index(drop=True)
-if comparedf(data,data1):
-    print("")
-else:
-    print("!!!!supprimer_lignes_na ne gère pas les colonnes fictives!!!!")
+    def test_replace_value_column_not_present(self):
+        # Test when the specified column is not present
+        column_name = 'C'
+        value_a = 'a'
+        value_b = 'x'
+        df_result = replace_value(self.df, column_name, value_a, value_b)
+        # The result should be the same as the original DataFrame
+        pd.testing.assert_frame_equal(df_result, self.df)
+        
+        
+class TestConditionalFillNAFunction(unittest.TestCase):
 
+    def test_conditional_fill_na(self):
+        # Test the conditional_fill_na function
+        data = {'col1': [1, 2, None], 'col2': ['a', 'b', None], 'col3': [4.0, 5.0, None]}
+        df = pd.DataFrame(data)
+        
+        # Expected result after applying conditional_fill_na
+        expected_result = pd.DataFrame({
+            'col1': [1.0, 2.0, 1.5],
+            'col2': ['a', 'b', 'unknown'],
+            'col3': [4.0, 5.0, 4.5]
+        })
+        
+        df_result = conditional_fill_na(df)
+        
+        # Check if the resulting DataFrame is equal to the expected result
+        pd.testing.assert_frame_equal(df_result, expected_result)
 
+    def test_conditional_fill_na_empty_dataframe(self):
+        # Test the conditional_fill_na function with an empty DataFrame
+        empty_df = pd.DataFrame()
+        
+        # The result should be an empty DataFrame as well
+        df_result = conditional_fill_na(empty_df)
+        
+        # Check if the resulting DataFrame is empty
+        self.assertTrue(df_result.empty)
 
-#remplacer_valeurs
-data = creedfexemple(1)
-datasol = pd.DataFrame({'Nom': ['Alice', 'Bob', 'Charlie', 'David', 'Eva'],
-                     'Âge': [25, 30, None, 22, 28],
-                     'Ville': ['Paris', 'Dunkerque', 'Los Angeles', None, 'Berlin'],
-                     'Salaire': [50000, None, 60000, None, 75000],
-                     'Ville2': ['Paris', 'New York', 'Los Angeles', None, 'Berlin']})
-nom_colonne = 'Ville'
-valeur_a = 'New York'
-valeur_b = 'Dunkerque' #miskine
-data=remplacer_valeurs(data, nom_colonne, valeur_a, valeur_b).reset_index(drop=True)
-
-if comparedf(data,datasol):
-    print("remplacer_valeurs OK")
-else:
-    print("!!!!remplacer_valeurs ERREUR!!!!")
-data = creedfexemple(1)
-data1=remplacer_valeurs(data, nom_colonnefictive, valeur_a, valeur_b).reset_index(drop=True)
-if comparedf(data,data1):
-    print("")
-else:
-    print("!!!!remplacer_valeurs ne gère pas les colonnes fictives!!!!")
-
-
-#scinde_colonnes
-data = creedfexemple(2)
-datasol = pd.DataFrame({'Nom': ['Alice', 'Bob', 'Charlie', 'David', 'Eva'],
-                     'Âge': [25, 30, None, 22, 28],
-                     'Ville': ['Paris', 'New York', 'Los Angeles', None, 'Berlin'],
-                     'Salaire': [50000, None, 60000, None, 75000],
-                     'Passions lecture':[1,0,0,None,0],
-                     'Passions cuisine':[1,1,0,None,0],
-                     'Passions sport':[1,1,0,None,1],
-                     'Passions manga':[0,0,1,None,0],
-                     'Passions informatique':[0,0,1,None,0],
-                     'Passions dessin':[0,1,0,None,0]
-                     })
-nom_colonne = 'Passions'
-noms_colonnes_personnalisees = ['lecture', 'cuisine', 'sport',
-                                'manga', 'informatique', 'dessin']
-
-
-data=scinde_colonnes(data, nom_colonne, noms_colonnes_personnalisees).reset_index(drop=True)
-if comparedf(data,datasol):
-    print("scinde_colonnes OK")
-else:
-    print("!!!!scinde_colonnes ERREUR!!!!")
-
-data1=scinde_colonnes(data, nom_colonnefictive, noms_colonnes_personnalisees)
-if comparedf(data,data1):
-    print("")
-else:
-    print("!!!!scinde_colonnes ne gère pas les colonnes fictives!!!!")
+    def test_conditional_fill_na_non_dataframe_input(self):
+        # Test the conditional_fill_na function with a non-DataFrame input
+        non_df_input = [1, 2, 3]
+        
+        # The function should raise an AssertionError
+        with self.assertRaises(AssertionError):
+            conditional_fill_na(non_df_input)
 
 
 
-    
-#compter_virgules
-chaine1="tito,toto,teuteu,tata,,,virgule balhblahvlah"
-chaine2="il n'y a pas de virgules"
-chaine3=None 
-nb1=6
-nb2=0
-nb3=None
-if compter_virgules(chaine1) != 7:
-    print("!!!!compter_virgule ERREUR1!!!!")
-elif compter_virgules(chaine2) != 1:
-    print("!!!!compter_virgule ERREUR2!!!!")
-elif not np.isnan(compter_virgules(chaine3)):
-    print("!!!!compter_virgule ERREUR3!!!!")
-else:
-    print("compter_virgules OK")
-    
-    
-#convertir_listes_en_nombre
-data = creedfexemple(2)
-datasol = pd.DataFrame({'Nom': ['Alice', 'Bob', 'Charlie', 'David', 'Eva'],
-                     'Âge': [25, 30, None, 22, 28],
-                     'Ville': ['Paris', 'New York', 'Los Angeles', None, 'Berlin'],
-                     'Salaire': [50000, None, 60000, None, 75000],
-                     'Passions': [3, 
-                                  3, 
-                                  3, 
-                                  None, 
-                                  1]})
-nom_colonne = "Passions"
-data=convertir_listes_en_nombre(data, nom_colonne).reset_index(drop=True)
-if comparedf(data,datasol):
-    print("convertir_listes_en_nombre OK")
-else:
-    print("!!!!convertir_listes_en_nombre ERREUR!!!!")
+class TestConvertObjectColumnsToIntegersFunction(unittest.TestCase):
+
+    def test_convert_object_columns_to_integers(self):
+        # Test the convert_object_columns_to_integers function
+        data = {'col1': ['1', 'A', '2'], 'col2': ['a', 'b', 'c']}
+        df = pd.DataFrame(data)
+
+        # Expected result after applying convert_object_columns_to_integers
+        expected_result = pd.DataFrame({
+            'col1': [1.0, None, 2.0],
+            'col2': ['a', 'b', 'c']
+        })
+        
+        df_result = convert_object_columns_to_integers(df)
+        
+        # Check if the resulting DataFrame is equal to the expected result
+        pd.testing.assert_frame_equal(df_result, expected_result)
+
+    def test_convert_object_columns_to_integers_empty_dataframe(self):
+        # Test the convert_object_columns_to_integers function with an empty DataFrame
+        empty_df = pd.DataFrame()
+
+        # The result should be an empty DataFrame as well
+        df_result = convert_object_columns_to_integers(empty_df)
+        
+        # Check if the resulting DataFrame is empty
+        self.assertTrue(df_result.empty)
+
+    def test_convert_object_columns_to_integers_non_dataframe_input(self):
+        # Test the convert_object_columns_to_integers function with a non-DataFrame input
+        non_df_input = [1, 2, 3]
+
+        # The function should raise an AssertionError
+        with self.assertRaises(AssertionError):
+            convert_object_columns_to_integers(non_df_input)
+
+    def test_convert_object_columns_to_integers_with_strings(self):
+        # Test the convert_object_columns_to_integers function with strings that cannot be converted
+        data = {'col1': ['A', 'B', 'C'], 'col2': ['a', 'b', 'c']}
+        df = pd.DataFrame(data)
+
+        # The result should be the same as the original DataFrame
+        df_result = convert_object_columns_to_integers(df)
+
+        # Check if the resulting DataFrame is equal to the original DataFrame
+        pd.testing.assert_frame_equal(df_result, df)
 
 
-data1=convertir_listes_en_nombre(data, nom_colonnefictive)
-if comparedf(data,data1):
-    print("")
-else:
-    print("!!!!convertir_listes_en_nombre ne gère pas les colonnes fictives!!!!")
 
-    
-#selectionner_colonnes
-data = creedfexemple(1)
-datasol = pd.DataFrame({'Nom': ['Alice', 'Bob', 'Charlie', 'David', 'Eva'],
-                     'Ville': ['Paris', 'New York', 'Los Angeles', None, 'Berlin'],
-                     'Salaire': [50000, None, 60000, None, 75000],
-                     })
-colonnes_a_garder = ['Nom', 'Ville', 'Salaire']
+class TestSeparateColumnsFunction(unittest.TestCase):
 
-data=selectionner_colonnes(data, colonnes_a_garder).reset_index(drop=True)
-if comparedf(data,datasol):
-    print("selectionner_colonnes OK")
-else:
-    print("!!!!selectionner_colonnes ERREUR!!!!")    
+    def test_separate_columns(self):
+        # Test the separate_columns function
+        data = {'Tags': ['python, data', 'data science', 'java', 'python', np.nan]}
+        df = pd.DataFrame(data)
 
-    
-    
-#deplacer_colonne_en_premier(df, nom_colonne)
-data = creedfexemple(1)
-datasol = pd.DataFrame({'Salaire': [50000, None, 60000, None, 75000],
-                     'Nom': ['Alice', 'Bob', 'Charlie', 'David', 'Eva'],
-                     'Âge': [25, 30, None, 22, 28],
-                     'Ville': ['Paris', 'New York', 'Los Angeles', None, 'Berlin'],
-                     'Ville2': ['Paris', 'New York', 'Los Angeles', None, 'Berlin']}) 
-nom_colonne = "Salaire"
-data=deplacer_colonne_en_premier(data, nom_colonne).reset_index(drop=True)
-if comparedf(data,datasol):
-    print("deplacer_colonne_en_premier OK")
-else:
-    print("!!!!deplacer_colonne_en_premier ERREUR!!!!")    
-    
+        # Expected result after applying separate_columns
+        expected_result = pd.DataFrame({
+            'Tags python': [0, 0, 0, 0, None],
+            'Tags java': [1, 0, 1, 0, None],
+            'Tags data': [1, 0, 0, 1, None]
+        })
+        
+        df_result = separate_columns(df, 'Tags', ['python', 'java', 'data'])
+        
+        # Check if the resulting DataFrame is equal to the expected result
+        pd.testing.assert_frame_equal(df_result, expected_result)
+
+    def test_separate_columns_column_not_present(self):
+        # Test the separate_columns function when the specified column is not present
+        data = {'Tags': ['python, data', 'data science', 'java', 'python', np.nan]}
+        df = pd.DataFrame(data)
+
+        # The result should be the same as the original DataFrame
+        df_result = separate_columns(df, 'TagsNotExist', ['python', 'java', 'data'])
+        
+        # Check if the resulting DataFrame is equal to the original DataFrame
+        pd.testing.assert_frame_equal(df_result, df)
+
+    def test_separate_columns_empty_dataframe(self):
+        # Test the separate_columns function with an empty DataFrame
+        empty_df = pd.DataFrame()
+
+        # The result should be an empty DataFrame as well
+        df_result = separate_columns(empty_df, 'Tags', ['python', 'java', 'data'])
+        
+        # Check if the resulting DataFrame is empty
+        self.assertTrue(df_result.empty)
+
+    def test_separate_columns_with_nan_values(self):
+        # Test the separate_columns function with NaN values in the original column
+        data = {'Tags': [np.nan, 'data science', 'java', 'python', 'python, data']}
+        df = pd.DataFrame(data)
+
+        # Expected result after applying separate_columns
+        expected_result = pd.DataFrame({
+            'Tags python': [None, 0, 0, 0, 1],
+            'Tags java': [None, 0, 1, 0, 0],
+            'Tags data': [None, 0, 0, 0, 1]
+        })
+
+        df_result = separate_columns(df, 'Tags', ['python', 'java', 'data'])
+
+        # Check if the resulting DataFrame is equal to the expected result
+        pd.testing.assert_frame_equal(df_result, expected_result)
+        
+        
+
+class TestCommaCountFunction(unittest.TestCase):
+
+    def test_comma_count(self):
+        # Test the comma_count function
+        string = "['modality1', 'modality2', 'got it']"
+        result = comma_count(string)
+        expected_result = 3
+
+        # Check if the result is equal to the expected result
+        self.assertEqual(result, expected_result)
+
+    def test_comma_count_empty_string(self):
+        # Test the comma_count function with an empty string
+        string = ""
+        result = comma_count(string)
+        expected_result = 0
+
+        # Check if the result is equal to the expected result
+        self.assertEqual(result, expected_result)
+
+    def test_comma_count_nan_string(self):
+        # Test the comma_count function with a NaN string
+        string = pd.NA
+        result = comma_count(string)
+
+        # The result should be None for NaN string
+        self.assertIsNone(result)
+
+    def test_comma_count_non_string_input(self):
+        # Test the comma_count function with a non-string input
+        non_string_input = 123
+        result = comma_count(non_string_input)
+        expected_result = 0
+
+        # Check if the result is equal to the expected result
+        self.assertEqual(result, expected_result)
+        
+        
+
+class TestListToIntAndSelectColumnsFunctions(unittest.TestCase):
+
+    def setUp(self):
+        # Create a sample DataFrame for testing
+        data = {'Modalities': ["['modality1', 'modality2', 'got it']", "['option1', 'option2']", np.nan],
+                'A': [1, 2, 3],
+                'B': ['a', 'b', 'c'],
+                'C': [True, False, True]}
+        self.df = pd.DataFrame(data)
+
+    def test_list_to_int(self):
+        # Test the list_to_int function
+        column_name = 'Modalities'
+        df_result = list_to_int(self.df.copy(), column_name)
+
+        # Expected result after applying list_to_int
+        expected_result = pd.DataFrame({'Modalities': [3, 2, None],
+                                        'A': [1, 2, 3],
+                                        'B': ['a', 'b', 'c'],
+                                        'C': [True, False, True]})
+        
+        # Check if the resulting DataFrame is equal to the expected result
+        pd.testing.assert_frame_equal(df_result, expected_result)
+
+    def test_list_to_int_column_not_present(self):
+        # Test the list_to_int function when the specified column is not present
+        column_name = 'NotPresentColumn'
+        df_result = list_to_int(self.df.copy(), column_name)
+
+        # The result should be the same as the original DataFrame
+        pd.testing.assert_frame_equal(df_result, self.df)
+
+    def test_select_columns(self):
+        # Test the select_columns function
+        columns_to_keep = ['A', 'C']
+        df_result = select_columns(self.df.copy(), columns_to_keep)
+
+        # Expected result after applying select_columns
+        expected_result = pd.DataFrame({'A': [1, 2, 3],
+                                        'C': [True, False, True]})
+        
+        # Check if the resulting DataFrame is equal to the expected result
+        pd.testing.assert_frame_equal(df_result, expected_result)
+
+    def test_select_columns_some_columns_not_present(self):
+        # Test the select_columns function when some specified columns are not present
+        columns_to_keep = ['A', 'NotPresentColumn', 'C']
+        df_result = select_columns(self.df.copy(), columns_to_keep)
+
+        # Expected result after applying select_columns (excluding 'NotPresentColumn')
+        expected_result = pd.DataFrame({'A': [1, 2, 3],
+                                        'C': [True, False, True]})
+        
+        # Check if the resulting DataFrame is equal to the expected result
+        pd.testing.assert_frame_equal(df_result, expected_result)
 
 
-data1=deplacer_colonne_en_premier(data, nom_colonnefictive)
-if comparedf(data,data1):
-    print("")
-else:
-    print("!!!!deplacer_colonne_en_premier ne gère pas les colonnes fictives!!!!")
 
-    
-    
-#remplacer_na_par_valeur
-data = creedfexemple(1)
-datasol = pd.DataFrame({'Nom': ['Alice', 'Bob', 'Charlie', 'David', 'Eva'],
-                     'Âge': [25, 30, 'inconnu', 22, 28],
-                     'Ville': ['Paris', 'New York', 'Los Angeles', None, 'Berlin'],
-                     'Salaire': [50000, None, 60000, None, 75000],
-                     'Ville2': ['Paris', 'New York', 'Los Angeles', None, 'Berlin']})
-nom_colonne = 'Âge'
-valeur_remplacement = 'inconnu'
-data=remplacer_na_par_valeur(data, nom_colonne, valeur_remplacement).reset_index(drop=True)
-if comparedf(data,datasol):
-    print("remplacer_na_par_valeur OK")
-else:
-    print("!!!!remplacer_na_par_valeur ERREUR!!!!")  
-    
-data1=remplacer_na_par_valeur(data, nom_colonnefictive, valeur_remplacement).reset_index(drop=True)
-if comparedf(data,data1):
-    print("")
-else:
-    print("!!!!remplacer_na_par_valeur ne gère pas les colonnes fictives!!!!")    
-    
+class TestSwitchFirstColumnFunction(unittest.TestCase):
+
+    def setUp(self):
+        # Create a sample DataFrame for testing
+        data = {'A': [1, 2, 3],
+                'B': ['a', 'b', 'c'],
+                'C': [True, False, True]}
+        self.df = pd.DataFrame(data)
+
+    def test_switch_first_column(self):
+        # Test the switch_first_column function
+        column_name = 'B'
+        df_result = switch_first_column(self.df.copy(), column_name)
+
+        # Expected result after applying switch_first_column
+        expected_result = pd.DataFrame({'B': ['a', 'b', 'c'],
+                                        'A': [1, 2, 3],
+                                        'C': [True, False, True]})
+        
+        # Check if the resulting DataFrame is equal to the expected result
+        pd.testing.assert_frame_equal(df_result, expected_result)
+
+    def test_switch_first_column_column_not_present(self):
+        # Test the switch_first_column function when the specified column is not present
+        column_name = 'NotPresentColumn'
+        df_result = switch_first_column(self.df.copy(), column_name)
+
+        # The result should be the same as the original DataFrame
+        pd.testing.assert_frame_equal(df_result, self.df)
+
+    def test_switch_first_column_empty_dataframe(self):
+        # Test the switch_first_column function with an empty DataFrame
+        empty_df = pd.DataFrame()
+
+        # The result should be an empty DataFrame as well
+        df_result = switch_first_column(empty_df, 'A')
+        
+        # Check if the resulting DataFrame is empty
+        self.assertTrue(df_result.empty)
+        
 
 
-#count_na_per_column
-data = creedfexemple(1)
-datasol = pd.DataFrame({'Column': ['Nom', 'Âge', 'Ville', 'Salaire', 'Ville2'],
-                     'NA_Count': [0, 1, 1, 2, 1]})
+class TestReplaceNAValueFunction(unittest.TestCase):
 
+    def setUp(self):
+        # Create a sample DataFrame for testing
+        data = {'A': [1, 2, np.nan, 4],
+                'B': ['a', 'b', 'c', np.nan]}
+        self.df = pd.DataFrame(data)
 
-data=count_na_per_column(data).reset_index(drop=True)
-if comparedf(data,datasol):
-    print("count_na_per_column OK")
-else:
-    print("!!!!count_na_per_column ERREUR!!!!")  
+    def test_replace_na_value(self):
+        # Test the replace_na_value function
+        column_name = 'A'
+        replacement_value = 0
+        df_result = replace_na_value(self.df.copy(), column_name, replacement_value)
+
+        # Expected result after applying replace_na_value
+        expected_result = pd.DataFrame({'A': [1, 2, 0, 4],
+                                        'B': ['a', 'b', 'c', np.nan]})
+        
+        # Check if the resulting DataFrame is equal to the expected result
+        pd.testing.assert_frame_equal(df_result, expected_result)
+
+    def test_replace_na_value_column_not_present(self):
+        # Test the replace_na_value function when the specified column is not present
+        column_name = 'NotPresentColumn'
+        replacement_value = 0
+        df_result = replace_na_value(self.df.copy(), column_name, replacement_value)
+
+        # The result should be the same as the original DataFrame
+        pd.testing.assert_frame_equal(df_result, self.df)
+
+    def test_replace_na_value_empty_dataframe(self):
+        # Test the replace_na_value function with an empty DataFrame
+        empty_df = pd.DataFrame()
+
+        # The result should be an empty DataFrame as well
+        df_result = replace_na_value(empty_df, 'A', 0)
+        
+        # Check if the resulting DataFrame is empty
+        self.assertTrue(df_result.empty)
+        
+        
+
+class TestCountNAPerColumnFunction(unittest.TestCase):
+
+    def setUp(self):
+        # Create a sample DataFrame for testing
+        data = {'A': [1, 2, np.nan, 4],
+                'B': ['a', 'b', 'c', np.nan],
+                'C': [np.nan, np.nan, 3, 4]}
+        self.df = pd.DataFrame(data)
+
+    def test_count_na_per_column(self):
+        # Test the count_na_per_column function
+        df_result = count_na_per_column(self.df.copy())
+
+        # Expected result after applying count_na_per_column
+        expected_result = pd.DataFrame({'Column': ['A', 'B', 'C'],
+                                        'NA_Count': [1, 1, 2]})
+        
+        # Check if the resulting DataFrame is equal to the expected result
+        pd.testing.assert_frame_equal(df_result, expected_result)
+
+    def test_count_na_per_column_empty_dataframe(self):
+        # Test the count_na_per_column function with an empty DataFrame
+        empty_df = pd.DataFrame()
+
+        # The result should be an empty DataFrame as well
+        df_result = count_na_per_column(empty_df)
+        
+        # Check if the resulting DataFrame is empty
+        self.assertTrue(df_result.empty)
 
 class TestConvertObjectColumnsToIntegers(unittest.TestCase):
 

@@ -35,8 +35,8 @@ class Models:
         assert (len(dataframe.columns) or len(individual_features.columns)) > 0, "Your DataFrame is empty."
         assert len(dataframe.columns) == len(individual_features.columns), "Databases do not have the same number of variables, use the variable selection algorithm."
 
-        assert all(is_numeric_dtype(dataframe[col])for col in dataframe.columns), "Data types of columns in the training dataframe must be int or float. Use the preprocessing algorithm."
-        assert all(is_numeric_dtype(individual_features[col])for col in individual_features.columns), "Data types of columns in the test dataframe must be int or float. Use the preprocessing algorithm."
+        assert all(is_numeric_dtype(dataframe[col]) for col in dataframe.columns), "Data types of columns in the training dataframe must be int or float. Use the preprocessing algorithm."
+        assert all(is_numeric_dtype(individual_features[col]) for col in individual_features.columns), "Data types of columns in the test dataframe must be int or float. Use the preprocessing algorithm."
 
         # Training DataFrame
         self.dataframe = dataframe
@@ -86,13 +86,13 @@ class Models:
         # Instance of k-neighbors with 3 close individuals
         neigh = KNeighborsClassifier(n_neighbors=3)
         
-        Models.scale()
+        # Models.scale()
         # Training data on the training database
         neigh.fit(self.independent_variable, self.dependent_variable)
 
         # Prediction on the test individual data
         prediction = neigh.predict(self.np_individual_features)
-
+        proba = neigh.predict_proba(self.np_individual_features)
         # Creation and display of the prediction reliability score
         score = neigh.score(self.independent_variable, self.dependent_variable)
         print(f"Model Accuracy: {score}")
@@ -102,5 +102,4 @@ class Models:
         result = np.concatenate([prediction, self.independant_variable_test])
         dataframe_decoded = pd.DataFrame(result).transpose()
         assert isinstance(dataframe_decoded, pd.DataFrame)
-        return dataframe_decoded
-    
+        return dataframe_decoded,proba
