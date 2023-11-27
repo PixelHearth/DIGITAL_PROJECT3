@@ -7,20 +7,19 @@ from data.make_dataset import importation_excel
 import pandas as pd
 import time
 import os
-from sklearn.preprocessing import MinMaxScaler
+import numpy as np
 def app():
     # Calculate the start time
     start = time.time()
 
     # Import database
-    properties = clean_df("/home/gbar-dev/Documents/Programs/DIGITAL_PROJECT3/src/data/database/Base_clean.csv")
-    new_variable = importation_excel("/home/gbar-dev/Documents/Programs/DIGITAL_PROJECT3/src/formulaire 2.xlsm", "Source")
+    properties = clean_df("src/data/database/Base_clean.csv")
+    new_variable = importation_excel("src/formulaire.xlsm", "Source")
 
     # Instance of the processing framework and data training on properties for encoding
     cpp_p_selection = CustomProcessing(properties)
-    cpp_p_selection.fit()
+
     properties = cpp_p_selection.fit_transform(properties)
-    print(properties.dtypes)
     
     # Selection of important variables, encoding must have been done beforehand
     nb_features = 20
