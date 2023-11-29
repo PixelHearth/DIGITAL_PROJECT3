@@ -43,6 +43,7 @@ class CustomProcessing:
         
     def fit_transform(self,dataframe):
         # Transform the object columns and create new one-hot encoded columns
+        self.encoder.fit(self.dataframe[self.object_columns])
         encoded_data = self.encoder.transform(dataframe[self.object_columns]).toarray()
         # Create a DataFrame with the encoded data
         encoded_df = pd.DataFrame(encoded_data, columns=self.encoder.get_feature_names_out(self.object_columns)).reset_index(drop=True)
@@ -60,9 +61,16 @@ class CustomProcessing:
         assert isinstance(dataframe, pd.DataFrame)
 
         # Create a DataFrame with the transformed data
-        df_encoded = self.encoder.transform(dataframe[self.object_columns])
-
-        return df_encoded
+        encoded_data = self.encoder.transform(dataframe[self.object_columns]).toarray()
+        # Create a DataFrame with the encoded data
+        encoded_df = pd.DataFrame(encoded_data, columns=self.encoder.get_feature_names_out(self.object_columns)).reset_index(drop=True)
+        
+        df = dataframe.drop(self.object_columns,axis=1)
+        df = df.reset_index(drop=True)
+        # Concatenate the encoded DataFrame with the original DataFrame
+        result_df = pd.concat([self.ordinal_var(df), encoded_df], axis=1)
+        self.cols = result_df.columns
+        return result_df
 
     def inverse_transform(self, df_test):
         """
@@ -77,10 +85,30 @@ class CustomProcessing:
 
         # Check that our inverse_encoder dictionary is not empty
         assert isinstance(df_test, pd.DataFrame)
-        
-        if self.inverse_encoder is not None:
-            for col_name in self.indices:
-                if col_name in df_test.columns:
-                    df_test[col_name] = df_test[col_name].map(self.inverse_encoder[col_name])
+
+        # Obtenez les noms des colonnes transformées à l'origine
+        cols_transformed = self.encoder.get_feature_names_out(self.object_columns)
+
+        # Sélectionnez uniquement les colonnes présentes dans df_test et qui ont été transformées à l'origine
+        cols_to_inverse = [col for col in cols_transformed if col in df_test.columns]
+
+        # Inversez la transformation uniquement pour les colonnes sélectionnées
+        for col in cols_to_inverse:
+            df_test = self.encoder.inverse_transform(df_test)
+
+        return df_test
+            
+        # # Check if the columns are present in the DataFrame
+        # for col in df_test.columns:
+        #     if col in cols:
+        #         print(col)
+        #     # # Inverse transform only specific columns
+        #         original_col = col.split('_')[0]
+    
+        #         # Transformation inverse avec LabelEncoder
+        #         df_test[col] = self.encoder.fit_transform(df_test[original_col])
+                
+            #     # Replace the one-hot encoded column with the inverse transformed values
+            #     df_test[col] = df_test
 
         return df_test

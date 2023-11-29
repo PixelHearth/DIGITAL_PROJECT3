@@ -15,14 +15,12 @@ The `docs` folder contains various progress reports made during the project.
 
 The `src` folder, at its root, contains the `formulaire.xlsm` file, which is the Excel file of the project intended for the user. This file initiates the form and executes the Python script. The `src` folder also includes the following subfolders:
 - `data`: This folder contains all Python scripts for cleaning the database, including the binary transformation script. A subfolder named `database` is also present, containing the cleaned database in both CSV and pickle formats.
-- `features`
 - `models`: This folder contains Python scripts for data analysis and prediction models.
 - `notebook`: This folder contains note-taking files regarding the project.
 - `visualization`: This folder includes Python scripts for creating graphs needed for DPE results and preliminary data visualization.
 
 Finally, the `test` folder consists of the following four subfolders:
 - `data`: This folder contains tests for the database cleaning programs.
-- `features`
 - `models`: This folder contains tests for prediction model scripts.
 - `visualization`: This folder contains tests for graph creation scripts.
 
