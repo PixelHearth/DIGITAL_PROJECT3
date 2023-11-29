@@ -15,26 +15,30 @@ def app():
     # Import database
     properties = clean_df("src/data/database/Base_clean.csv")
     new_variable = importation_excel("src/formulaire.xlsm", "Source")
-
     # Instance of the processing framework and data training on properties for encoding
     cpp_p_selection = CustomProcessing(properties)
-
     properties = cpp_p_selection.fit_transform(properties)
     
     # Selection of important variables, encoding must have been done beforehand
     nb_features = 20
-    properties, importance = select_features(properties, nb_features)
-    
+    columns_important, importance = select_features(properties, nb_features)
+    print(columns_important)
     plot_feature_importance(importance, nb_features)
+
+    col = cpp_p_selection.column_selection(columns_important)
     cpp_p_selection.inverse_transform(properties)
+    print(col)
+    properties.to_csv("src/data/database/try.csv")
+    properties = properties[col]
+    
 
     # Instance of the processing framework and data training on properties for encoding after selection
     cpp_kneigh = CustomProcessing(properties)
-    cpp_kneigh.fit(properties)
+    cpp_kneigh.fit()
 
     cpp_kneigh.transform(properties)
     cpp_kneigh.transform(new_variable)
-    properties.to_csv("src/data/database/try.csv")
+    
 
     # Create the graph of importances in the selection model
 
