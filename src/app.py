@@ -20,7 +20,7 @@ def app():
     cpp_p_selection = CustomProcessing(properties)
 
     properties = cpp_p_selection.fit_transform(properties)
-    
+    print(properties)
     # Selection of important variables, encoding must have been done beforehand
     nb_features = 20
     properties, importance = select_features(properties, nb_features)
