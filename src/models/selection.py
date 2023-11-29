@@ -60,4 +60,4 @@ def select_features(dataframe, num_features):
     # Creating the resulting DataFrame with the selected features
     selected_dataframe = pd.concat([dependent_variable, independent_variables[selected_features]], axis=1)
     assert isinstance(selected_dataframe, pd.DataFrame), "The result must be a DataFrame."
-    return selected_dataframe, importances_df
+    return selected_dataframe.columns, importances_df
