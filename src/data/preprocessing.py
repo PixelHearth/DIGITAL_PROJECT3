@@ -30,6 +30,7 @@ class CustomProcessing:
         # Keep columns that are object types
         self.object_columns = self.dataframe.select_dtypes(include=['object']).columns
         self.numeric_columns = self.dataframe.select_dtypes(include=['number']).columns
+
     def ordinal_var(self,dataframe):
         self.dataframe_var = dataframe.iloc[:, 0]
         label_encoder = LabelEncoder()
@@ -45,14 +46,17 @@ class CustomProcessing:
     def fit_transform(self,dataframe):
         # Transform the object columns and create new one-hot encoded columns
         self.encoder.fit(self.dataframe[self.object_columns])
+
         encoded_data = self.encoder.transform(dataframe[self.object_columns])
         # Create a DataFrame with the encoded data
         encoded_df = pd.DataFrame(encoded_data, columns=self.encoder.get_feature_names_out(self.object_columns)).reset_index(drop=True)
         
         df = dataframe.drop(self.object_columns,axis=1)
         df = df.reset_index(drop=True)
+
         # Concatenate the encoded DataFrame with the original DataFrame
         result_df = pd.concat([self.ordinal_var(df), encoded_df], axis=1)
+
         return result_df
 
     def transform(self, dataframe):
@@ -62,14 +66,15 @@ class CustomProcessing:
         assert isinstance(dataframe, pd.DataFrame)
 
         # Create a DataFrame with the transformed data
-        encoded_data = self.encoder.transform(dataframe[self.object_columns]).toarray()
+        encoded_data = self.encoder.transform(dataframe[self.object_columns])
         # Create a DataFrame with the encoded data
         encoded_df = pd.DataFrame(encoded_data, columns=self.encoder.get_feature_names_out(self.object_columns)).reset_index(drop=True)
         
         df = dataframe.drop(self.object_columns,axis=1)
         df = df.reset_index(drop=True)
+
         # Concatenate the encoded DataFrame with the original DataFrame
-        result_df = pd.concat([self.ordinal_var(df), encoded_df], axis=1)
+        result_df = pd.concat([df, encoded_df], axis=1)
         
         return result_df
 
@@ -95,7 +100,9 @@ class CustomProcessing:
 
         # Inversez la transformation uniquement pour les colonnes sélectionnées
         inverse_encoded = self.encoder.inverse_transform(df_test[cols_transformed])
+
         df_test[self.object_columns] = inverse_encoded
+
         return df_test
     
     def column_selection(self,cols):
@@ -112,18 +119,4 @@ class CustomProcessing:
         # Appliquer le split si l'underscore existe, sinon ajouter la colonne telle quelle
         list_cols = list(set(list_cols))
         return list_cols
-
-
-        # # Check if the columns are present in the DataFrame
-        # for col in df_test.columns:
-        #     if col in cols:
-        #         print(col)
-        #     # # Inverse transform only specific columns
-        #         original_col = col.split('_')[0]
-    
-        #         # Transformation inverse avec LabelEncoder
-        #         df_test[col] = self.encoder.fit_transform(df_test[original_col])
-                
-            #     # Replace the one-hot encoded column with the inverse transformed values
-            #     df_test[col] = df_test
 
