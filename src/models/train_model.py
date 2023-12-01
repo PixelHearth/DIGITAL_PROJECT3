@@ -3,7 +3,10 @@ import pandas as pd
 import numpy as np
 from sklearn.neighbors import KNeighborsClassifier
 from pandas.api.types import is_numeric_dtype
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score,roc_auc_score,log_loss
+from sklearn.model_selection import train_test_split
+import shap
 class Models:
 
     """
@@ -40,30 +43,70 @@ class Models:
 
         # Training DataFrame
         self.dataframe = dataframe
-
-        # Dependent variable
-        self.dependent_variable = self.dataframe.iloc[:, 0].values
-
-        # Independent variables
-        self.independent_variable = self.dataframe.iloc[:, 1:].values
+        self.dataframe = self.dataframe.sample(frac=1, random_state=42) 
 
         # Test DataFrame
         self.individual_features = individual_features
 
-        # Independent variables of the test individual
-        self.np_individual_features = individual_features.iloc[:, 1:].values
+        self.dependent_variable = self.dataframe.iloc[:, 0].values
+        self.independent_variable = self.dataframe.iloc[:, 1:].values
+        self.np_individual_features = self.individual_features.iloc[:, 1:].values
+
+    def standardize_training_data(self):
+        """Standardize the train dataframe
+        """
+        # Select Number type
+        numeric_columns = self.dataframe.select_dtypes(include=['number']).columns
+
+        # Initialize scaler
+        scaler = StandardScaler()
+
+        # apply scaler to num col
+        self.dataframe[numeric_columns] = scaler.fit_transform(self.dataframe[numeric_columns])
+
+        # return df
+        self.dependent_variable = self.dataframe.iloc[:, 0].values
+
+        # return df
+        self.independent_variable = self.dataframe.iloc[:, 1:].values
+
+    def standardize_test_data(self):
+        """Standardize the test dataframe
+        """
+        # Select number col
+        numeric_columns_test = self.individual_features.select_dtypes(include=['number']).columns
+
+        # Initialize scaler
+        scaler = StandardScaler()
+
+        # Apply to num col
+        self.individual_features[numeric_columns_test] = scaler.fit_transform(self.individual_features[numeric_columns_test])
         
-    def scale(self):
-        # Création d'un objet scaler
-        scaler = MinMaxScaler()
+        # Independent variables of the test individual
+        self.np_individual_features = self.individual_features.iloc[:, 1:].values
 
-        # Normalisation des données
-        self.independent_variable = scaler.fit_transform(self.independent_variable)
-
-        # Création d'un nouveau DataFrame avec les données normalisées
-        self.np_individual_features = scaler.transform(self.np_individual_features)
-
-    def k_neighbors(self):
+    def metric_knn(self):
+        """Function to get the k optimal for the KNN"""
+        # Split dataframe into train and test frame
+        X_train, X_test, y_train, y_test = train_test_split(self.independent_variable,self.dependent_variable, test_size=0.3, random_state=42)
+        roc_auc_scores = []
+        # Test between 50 value for k 
+        for k in range(1, 50):  # Vous pouvez ajuster la plage selon vos besoins
+            knn = KNeighborsClassifier(n_neighbors=k)
+            knn.fit(X_train, y_train)
+            y_prob = knn.predict(X_test)  # Probabilité de la classe positive
+            roc_auc = accuracy_score(y_test, y_prob)
+            # store accuracy_score
+            roc_auc_scores.append(round(roc_auc, 2))
+        print(roc_auc_scores)
+        
+        # get k optimal
+        best_k_index = roc_auc_scores.index(max(roc_auc_scores))
+        best_k = range(1, 50)[best_k_index]
+        
+        return best_k
+    
+    def k_neighbors(self, best_k):
         """
         Creates a k_neighbors algorithm based on property data.
 
@@ -84,22 +127,44 @@ class Models:
 
         """
         # Instance of k-neighbors with 3 close individuals
-        neigh = KNeighborsClassifier(n_neighbors=3)
+        neigh = KNeighborsClassifier(n_neighbors=best_k)
         
-        # Models.scale()
         # Training data on the training database
         neigh.fit(self.independent_variable, self.dependent_variable)
 
         # Prediction on the test individual data
         prediction = neigh.predict(self.np_individual_features)
         proba = neigh.predict_proba(self.np_individual_features)
-        # Creation and display of the prediction reliability score
-        score = neigh.score(self.independent_variable, self.dependent_variable)
-        print(f"Model Accuracy: {score}")
+        
+
+        # make a function to get prediction for 1 class and a function to predict for 2 class
+        sorted_class_indices = np.argsort(proba[0])[::-1]
+
+        # Select 3 representatives classes
+        top_classes = sorted_class_indices[:3]
+        
+        # Make a list
+        proba = [{"classe": class_index, "probabilite": proba[0][class_index]} for class_index in top_classes]
 
         # Returning a DataFrame with the prediction and independent variables of the test individual
         self.independant_variable_test = self.np_individual_features.flatten()
         result = np.concatenate([prediction, self.independant_variable_test])
+        
         dataframe_decoded = pd.DataFrame(result).transpose()
-        assert isinstance(dataframe_decoded, pd.DataFrame)
+
+        dataframe_decoded.columns = self.dataframe.columns
+        
+        # # Créer un explainer SHAP
+        # explainer = shap.KernelExplainer(neigh.predict_proba, self.independent_variable)
+        # # Choisissez un échantillon (par exemple, le premier échantillon dans l'ensemble de test)
+        # sample = self.np_individual_features
+
+        # # Calculer les valeurs SHAP pour l'échantillon choisi
+        # shap_values = explainer.shap_values(sample)
+        #         # Résumé des valeurs SHAP
+        # shap.summary_plot(shap_values, features=dataframe_decoded.iloc[:,1:])
+        
+        if not isinstance(dataframe_decoded, pd.DataFrame):
+            raise TypeError("Must be DataFrame")
+        
         return dataframe_decoded,proba

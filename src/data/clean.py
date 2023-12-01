@@ -5,16 +5,6 @@ import os
 def clean_df(path):
 
     df = pd.read_csv(path)
-    #import dataframes
-    # files = ["dpe_logement", "dpe_logement1", "dpe_logement2", "dpe_logement3", "dpe_logement4", "dpe_logement5", "dpe_logement6"]
-
-    # dataframes = []
-
-    # for file in files:
-    #     mini_df = pd.read_csv(f"{file}.csv")
-    #     dataframes.append(mini_df)
-
-    # df=dataframes[dataframes.type_batiment_dpe=="appartement"][dataframes.version>=1]
 
     #columns to keep
     colonnes= ['classe_bilan_dpe', 'annee_construction_dpe','version', 'surface_habitable_logement',
@@ -29,7 +19,7 @@ def clean_df(path):
         'type_production_energie_renouvelable', 'type_vitrage',
         'type_materiaux_menuiserie', 'type_gaz_lame', 'type_fermeture',
         'vitrage_vir', 'surface_vitree_nord', 'surface_vitree_sud',
-        'surface_vitree_ouest', 'surface_vitree_est', 'traversant', 'facteur_solaire_baie_vitree', 'presence_balcon',
+        'surface_vitree_ouest', 'surface_vitree_est', 'traversant', 'presence_balcon',
         'l_orientation_baie_vitree', 'type_isolation_mur_exterieur',
         'materiaux_structure_mur_exterieur',
         'epaisseur_structure_mur_exterieur', 'surface_mur_totale',
@@ -172,6 +162,9 @@ def clean_df(path):
     #replace na by "inconnu" if columns is object, else replace na by mean of the column
     df = conditional_fill_na(df)
 
+    for colonne in df.columns :
+        df=delete_na(df, colonne)
+        
     #convert if its possible object columns to integer
     df = convert_object_columns_to_integers(df)
     
