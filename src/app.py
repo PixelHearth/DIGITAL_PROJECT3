@@ -18,25 +18,26 @@ def app():
     # Instance of the processing framework and data training on properties for encoding
     cpp_p_selection = CustomProcessing(properties)
     properties = cpp_p_selection.fit_transform(properties)
-    print(properties)
     # Selection of important variables, encoding must have been done beforehand
-    nb_features = 20
+    nb_features = 10
     columns_important, importance = select_features(properties, nb_features)
-    print(columns_important)
     plot_feature_importance(importance, nb_features)
 
     col = cpp_p_selection.column_selection(columns_important)
+
     cpp_p_selection.inverse_transform(properties)
-    print(col)
-    properties.to_csv("src/data/database/try.csv")
+    # Vérifier si toutes les colonnes sélectionnées existent dans le DataFrame
+    
+    # Assurez-vous que properties a les colonnes que vous essayez de sélectionner
     properties = properties[col]
     
-
+    properties.to_csv("src/data/database/try.csv")
     # Instance of the processing framework and data training on properties for encoding after selection
     cpp_kneigh = CustomProcessing(properties)
     cpp_kneigh.fit()
 
     cpp_kneigh.transform(properties)
+    properties.to_csv("src/data/database/try.csv")
     cpp_kneigh.transform(new_variable)
     
 
