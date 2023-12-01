@@ -13,45 +13,54 @@ def app():
     start = time.time()
 
     # Import database
-    properties = clean_df("src/data/database/Base_clean.csv")
-    new_variable = importation_excel("src/formulaire.xlsm", "Source")
+    properties = clean_df("src/data/database/df_clean.csv")
+    # new_variable = importation_excel("src/formulaire.xlsm", "Source")
+
     # Instance of the processing framework and data training on properties for encoding
     cpp_p_selection = CustomProcessing(properties)
     properties = cpp_p_selection.fit_transform(properties)
+
     # Selection of important variables, encoding must have been done beforehand
-    nb_features = 10
+    nb_features = 8
     columns_important, importance = select_features(properties, nb_features)
+
     plot_feature_importance(importance, nb_features)
 
     col = cpp_p_selection.column_selection(columns_important)
 
     cpp_p_selection.inverse_transform(properties)
-    # Vérifier si toutes les colonnes sélectionnées existent dans le DataFrame
-    
-    # Assurez-vous que properties a les colonnes que vous essayez de sélectionner
-    properties = properties[col]
-    
+
     properties.to_csv("src/data/database/try.csv")
+    if 'classe_bilan_dpe' in col:
+    # Sélectionnez toutes les colonnes, mais avec 'classe_bilan_dpe' en premier
+        ordered_columns = ['classe_bilan_dpe'] + [col for col in col if col != 'classe_bilan_dpe']
+
+    # Réorganisez les colonnes du DataFrame
+        properties_selected = properties[ordered_columns]
+    
+    new_variable = properties_selected.sample(1)
+    print(new_variable)
     # Instance of the processing framework and data training on properties for encoding after selection
-    cpp_kneigh = CustomProcessing(properties)
-    cpp_kneigh.fit()
+    cpp_kneigh = CustomProcessing(properties_selected)
 
-    cpp_kneigh.transform(properties)
-    properties.to_csv("src/data/database/try.csv")
-    cpp_kneigh.transform(new_variable)
-    
-
+    properties_selected = cpp_kneigh.fit_transform(properties_selected)
+    new_variable = cpp_kneigh.transform(new_variable)
     # Create the graph of importances in the selection model
 
     # Instance and training of k_neighbors on the encoded data
-    individual,proba = Models(properties, new_variable).k_neighbors()
+    knn_model = Models(properties_selected, new_variable)
+    print(new_variable)
+    # knn_model.standardize_training_data()
+    # knn_model.standardize_test_data()
+    best_k = knn_model.metric_knn()
+    individual,proba = knn_model.k_neighbors(best_k)
     # individual.columns = new_variable.columns
 
     # Restoration of a human-readable dataframe
     # Predicted value of k_neighbors
     cpp_kneigh.inverse_transform(individual)
     individual = individual.iloc[:, 0].values.flatten()[0]
-    file_path = os.path.join('/home/gbar-dev/Documents/Programs/DIGITAL_PROJECT3/src/data/database/', 'prediction.txt')
+    file_path = os.path.join('src/data/database/', 'prediction.txt')
 
     # Open the file in write mode (w), if it does not exist, it will be created
     with open(file_path, 'w') as text_file:

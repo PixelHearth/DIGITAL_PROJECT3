@@ -31,5 +31,12 @@ def plot_feature_importance(importances_df, nb_feature):
     plt.xticks(rotation=90)
     plt.tight_layout()
 
+    # Calcul du pourcentage total d'importance représenté par les caractéristiques les plus importantes
+    total_importance = importances_df['Importance'].sum()
+    top_features_importance = importances_df.iloc[:nb_feature]['Importance'].sum()  
+    percentage = (top_features_importance / total_importance) * 100
+
+    # Ajout du texte indiquant le pourcentage total d'importance représenté par les caractéristiques les plus importantes
+    plt.annotate(f"Top {nb_feature} Features: {percentage:.2f}%", xy=(0.5, 0.9), xycoords='axes fraction')
     # Add text indicating the total percentage of importance represented by the most important features
     plt.savefig("docs/features_importance.png")

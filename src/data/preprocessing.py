@@ -31,6 +31,7 @@ class CustomProcessing:
         self.object_columns = self.dataframe.select_dtypes(include=['object']).columns
         self.numeric_columns = self.dataframe.select_dtypes(include=['number']).columns
         
+
     def ordinal_var(self,dataframe):
         self.dataframe_var = dataframe.iloc[:, 0]
         label_encoder = LabelEncoder()
@@ -46,14 +47,17 @@ class CustomProcessing:
     def fit_transform(self,dataframe):
         # Transform the object columns and create new one-hot encoded columns
         self.encoder.fit(self.dataframe[self.object_columns])
+
         encoded_data = self.encoder.transform(dataframe[self.object_columns])
         # Create a DataFrame with the encoded data
         encoded_df = pd.DataFrame(encoded_data, columns=self.encoder.get_feature_names_out(self.object_columns)).reset_index(drop=True)
         
         df = dataframe.drop(self.object_columns,axis=1)
         df = df.reset_index(drop=True)
+
         # Concatenate the encoded DataFrame with the original DataFrame
         result_df = pd.concat([self.ordinal_var(df), encoded_df], axis=1)
+
         return result_df
 
     def transform(self, dataframe):
@@ -67,9 +71,11 @@ class CustomProcessing:
         # Create a DataFrame with the encoded data
         encoded_df = pd.DataFrame(encoded_data, columns=self.encoder.get_feature_names_out(self.object_columns))
         
-        df = dataframe.drop(self.object_columns, axis=1)
+        df = dataframe.drop(self.object_columns,axis=1)
+        df = df.reset_index(drop=True)
+
         # Concatenate the encoded DataFrame with the original DataFrame
-        result_df = pd.concat([self.ordinal_var(df), encoded_df], axis=1).reset_index(drop=True)
+        result_df = pd.concat([df, encoded_df], axis=1)
         
         return result_df
 
@@ -95,8 +101,10 @@ class CustomProcessing:
 
         # Inversez la transformation uniquement pour les colonnes sélectionnées
         inverse_encoded = self.encoder.inverse_transform(df_test[cols_transformed])
+
         df_test[self.object_columns] = inverse_encoded
         df_test.drop(cols_transformed,axis = 1,inplace= True)
+
         return df_test
     
     def column_selection(self,cols):

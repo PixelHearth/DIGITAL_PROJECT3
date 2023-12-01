@@ -3,7 +3,10 @@ import pandas as pd
 import numpy as np
 from sklearn.neighbors import KNeighborsClassifier
 from pandas.api.types import is_numeric_dtype
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score,roc_auc_score,log_loss
+from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
 class Models:
 
     """
@@ -41,21 +44,65 @@ class Models:
         # Training DataFrame
         self.dataframe = dataframe
 
+        # Test DataFrame
+        self.individual_features = individual_features
+
+        self.dependent_variable = self.dataframe.iloc[:, 0].values
+        self.independent_variable = self.dataframe.iloc[:, 1:].values
+        self.np_individual_features = self.individual_features.iloc[:, 1:].values
+
+    def standardize_training_data(self):
+        # Sélectionnez uniquement les colonnes numériques du DataFrame d'entraînement
+        numeric_columns = self.dataframe.select_dtypes(include=['number']).columns
+
+        # Créez un objet StandardScaler
+        scaler = StandardScaler()
+
+        # Appliquez la standardisation aux colonnes numériques du DataFrame d'entraînement
+        self.dataframe[numeric_columns] = scaler.fit_transform(self.dataframe[numeric_columns])
+
         # Dependent variable
         self.dependent_variable = self.dataframe.iloc[:, 0].values
 
         # Independent variables
         self.independent_variable = self.dataframe.iloc[:, 1:].values
 
-        # Test DataFrame
-        self.individual_features = individual_features
+    def standardize_test_data(self):
+        # Assurez-vous que les colonnes numériques du DataFrame de test ont la même standardisation
+        # que les colonnes numériques du DataFrame d'entraînement
 
+        # Sélectionnez uniquement les colonnes numériques du DataFrame de test
+        numeric_columns_test = self.individual_features.select_dtypes(include=['number']).columns
+
+        # Créez un objet StandardScaler
+        scaler = StandardScaler()
+
+        # Appliquez la standardisation aux colonnes numériques du DataFrame de test
+        self.individual_features[numeric_columns_test] = scaler.fit_transform(self.individual_features[numeric_columns_test])
+        
         # Independent variables of the test individual
-        self.np_individual_features = individual_features.iloc[:, 1:].values
-        
-        
+        self.np_individual_features = self.individual_features.iloc[:, 1:].values
 
-    def k_neighbors(self):
+    def metric_knn(self):
+        # Initialisez une liste pour stocker les scores d'exactitude
+        X_train, X_test, y_train, y_test = train_test_split(self.independent_variable,self.dependent_variable, test_size=0.3, random_state=42)
+        roc_auc_scores = []
+        # Testez différentes valeurs de k
+        for k in range(1, 50):  # Vous pouvez ajuster la plage selon vos besoins
+            knn = KNeighborsClassifier(n_neighbors=k)
+            knn.fit(X_train, y_train)
+            y_prob = knn.predict(X_test)  # Probabilité de la classe positive
+            roc_auc = accuracy_score(y_test, y_prob)
+            roc_auc_scores.append(round(roc_auc, 2))
+        print(roc_auc_scores)
+
+        best_k_index = roc_auc_scores.index(max(roc_auc_scores))
+
+# Récupérer la valeur de k correspondante
+        best_k = range(1, 100)[best_k_index]
+        return best_k
+    
+    def k_neighbors(self, best_k):
         """
         Creates a k_neighbors algorithm based on property data.
 
@@ -76,17 +123,8 @@ class Models:
 
         """
         # Instance of k-neighbors with 3 close individuals
-        neigh = KNeighborsClassifier(n_neighbors=3)
+        neigh = KNeighborsClassifier(n_neighbors=best_k)
         
-        
-        #! make a function then implement
-        scaler = MinMaxScaler()
-
-        # Normalization of data on properties dataset
-        self.independent_variable = scaler.fit_transform(self.independent_variable)
-
-        # Transform customer dataset
-        self.np_individual_features = scaler.transform(self.np_individual_features)
         
         # Training data on the training database
         neigh.fit(self.independent_variable, self.dependent_variable)
@@ -94,26 +132,20 @@ class Models:
         # Prediction on the test individual data
         prediction = neigh.predict(self.np_individual_features)
         proba = neigh.predict_proba(self.np_individual_features)
-
+        print(self.individual_features.iloc[:,0].ravel())
+        print(prediction)
+        score = accuracy_score(self.individual_features.iloc[:,0], prediction)
+        print(score)
         # make a function to get prediction for 1 class and a function to predict for 2 class
         # Obtenir les indices triés des classes par probabilité décroissante
         sorted_class_indices = np.argsort(proba[0])[::-1]
 
         # Sélectionner les deux classes les mieux représentées
-        top_classes = sorted_class_indices[:2]
-
+        top_classes = sorted_class_indices[:3]
+        print(top_classes)
         # Afficher les résultats
-        for i,e in zip(top_classes,self.dataframe.iloc[:, 0]):
-            print(f"{e}: {proba[0][i] * 100:.2f}%")
-
-        # Output exemple :
-        # Classe 1: 66.67%
-        # Classe 0: 33.33%
-
-            
-        # Creation and display of the prediction reliability score
-        score = neigh.score(self.independent_variable, self.dependent_variable)
-        print(f"Model Accuracy: {score}")
+        for class_index in top_classes:
+            print(f"{class_index}: {proba[0][class_index] * 100:.2f}%")
 
         # Returning a DataFrame with the prediction and independent variables of the test individual
         self.independant_variable_test = self.np_individual_features.flatten()
