@@ -17,69 +17,116 @@ class CustomProcessing:
         dataframe (pandas.DataFrame): The DataFrame used to train the encoder.
         object_columns (Index): An index listing the names of columns considered as objects (strings).
     """
-    def __init__(self, dataframe):
+    def __init__(self, df):
         # asserts
-        assert isinstance(dataframe, pd.DataFrame)
+        if not isinstance(df,pd.DataFrame):
+            raise TypeError("input must be a dataframe")
 
         # Loading the encoding model
         self.encoder = OneHotEncoder(handle_unknown='ignore', sparse=False)
-
-        # DataFrame to convert, train, or transform
-        self.dataframe = dataframe.iloc[:,1:]
-        self.dataframe_var = dataframe.iloc[:, 0]
-        # Keep columns that are object types
-        self.object_columns = self.dataframe.select_dtypes(include=['object']).columns
-        self.numeric_columns = self.dataframe.select_dtypes(include=['number']).columns
+        
+        # get columns to train
+        self.df = df.iloc[:,1:]
+        
+        # Keep distinct object and numerous columns
+        self.object_columns = self.df.select_dtypes(include=['object']).columns
+        self.numeric_columns = self.df.select_dtypes(include=['number']).columns
         
 
-    def ordinal_var(self,dataframe):
-        self.dataframe_var = dataframe.iloc[:, 0]
+    def label_encoder(self,df):
+        """Transform the first column, must be categorical values, in a value
+
+        Args:
+            dataframe (pd.DataFrame): Dataframe to encode in ordinal
+
+        Returns:
+            dataframe (pd.DataFrame): Dataframe with first column encoded
+            
+        Exemple:
+        >>> df = pd.DataFrame({'Category': ['A', 'B', 'C', 'A', 'B'],'color': ['blue','red','red','blue','grey']})
+        >>> encoded_df = label_encoder(df)
+        >>> print(encoded_df)
+           Category Color
+        0         0 blue    
+        1         1 red
+        2         2 red
+        3         0 blue
+        4         1 grey
+        
+        """
+        # Return error type if not a dataframe
+        if not isinstance(df,pd.DataFrame):
+            raise TypeError("input must be a dataframe")
+        
+        # Instance LabelEncoder to transform label in number
         label_encoder = LabelEncoder()
-        self.dataframe_var = label_encoder.fit_transform(self.dataframe_var)
-        dataframe.iloc[:, 0] = self.dataframe_var
-        dataframe = pd.concat([dataframe.iloc[:, 0],dataframe.iloc[:,1:]],axis= 1).astype(int)
-        return dataframe
+        
+        # Fit and transform the first column
+        df.iloc[:, 0] = label_encoder.fit_transform(df.iloc[:, 0])
+        
+        # Get Int type for first columns
+        df = pd.concat([df.iloc[:, 0].astype(int),df.iloc[:,1:]],axis= 1)
+
+        return df
     
     def fit(self):
-        # Fit the encoder on the entire dataset
-        self.encoder.fit(self.dataframe[self.object_columns])
+        """DataFrame to fit the OneHotEncoder instanced in the class"""
         
-    def fit_transform(self,dataframe):
-        # Transform the object columns and create new one-hot encoded columns
-        self.encoder.fit(self.dataframe[self.object_columns])
+        # Fit the encoder on the object dataset
+        self.encoder.fit(self.df[self.object_columns])
+        
+    def fit_transform(self,df):
+        """Fit and transform with the OneHotEncoder object columns in the dataframe 
 
-        encoded_data = self.encoder.transform(dataframe[self.object_columns])
+        Args:
+            dataframe (pd.DataFrame): dataframe to encode
+
+        Returns:
+            dataframe (pd.DataFrame): dataframe encoded
+        """
+        if not isinstance(df,pd.DataFrame):
+            raise TypeError("input must be a dataframe")
+        
+        #fit and transform object columns
+        encoded_data = self.encoder.fit_transform(df[self.object_columns])
+        
         # Create a DataFrame with the encoded data
         encoded_df = pd.DataFrame(encoded_data, columns=self.encoder.get_feature_names_out(self.object_columns)).reset_index(drop=True)
         
-        df = dataframe.drop(self.object_columns,axis=1)
-        df = df.reset_index(drop=True)
+        df = df.drop(self.object_columns,axis=1).reset_index(drop=True)
 
         # Concatenate the encoded DataFrame with the original DataFrame
-        result_df = pd.concat([self.ordinal_var(df), encoded_df], axis=1)
+        result_df = pd.concat([self.label_encoder(df), encoded_df], axis=1)
 
         return result_df
 
-    def transform(self, dataframe):
+    def transform(self, df):
+        """Function to transform a dataframe with the fit made previously with the dataframe instancied in the class
+
+        Args:
+            dataframe (pd.DataFrame): DataFrame to encode
+
+        Returns:
+            dataframe (pd.DataFrame): DataFrame encoded
         """
-        Transforms the specified DataFrame using the trained OneHotEncoder.
-        """
-        assert isinstance(dataframe, pd.DataFrame)
+        if not isinstance(df,pd.DataFrame):
+            raise TypeError("input must be a dataframe")
 
         # Create a DataFrame with the transformed data
-        encoded_data = self.encoder.transform(dataframe[self.object_columns])
+        encoded_data = self.encoder.transform(df[self.object_columns])
+        
         # Create a DataFrame with the encoded data
         encoded_df = pd.DataFrame(encoded_data, columns=self.encoder.get_feature_names_out(self.object_columns))
         
-        df = dataframe.drop(self.object_columns,axis=1)
-        df = df.reset_index(drop=True)
+        #drop columns transformed
+        df = df.drop(self.object_columns,axis=1).reset_index(drop=True)
 
         # Concatenate the encoded DataFrame with the original DataFrame
         result_df = pd.concat([df, encoded_df], axis=1)
         
         return result_df
 
-    def inverse_transform(self, df_test):
+    def inverse_transform(self, df):
         """
         Performs the inverse transformation using the encoder.
 
@@ -92,33 +139,49 @@ class CustomProcessing:
 
         # Check that our inverse_encoder dictionary is not empty
         
-        assert isinstance(df_test, pd.DataFrame)
+        if not isinstance(df,pd.DataFrame):
+            raise TypeError("input must be a dataframe")
 
-        # Obtenez les noms des colonnes transformées à l'origine
+        # Get origin name of columns
         cols_transformed = self.encoder.get_feature_names_out(self.object_columns)
-        # Sélectionnez uniquement les colonnes présentes dans df_test et qui ont été transformées à l'origine
 
+        # Inverse the transformation with their original name
+        if len(cols_transformed) == 0 : 
+            raise ValueError("no object columns in dataframe")
+        inverse_encoded = self.encoder.inverse_transform(df[cols_transformed])
 
-        # Inversez la transformation uniquement pour les colonnes sélectionnées
-        inverse_encoded = self.encoder.inverse_transform(df_test[cols_transformed])
+        # Replace columns transformed by the inverse_encoded
+        df[self.object_columns] = inverse_encoded
+        
+        # Drop binarized columns
+        df.drop(cols_transformed,axis = 1,inplace= True)
 
-        df_test[self.object_columns] = inverse_encoded
-        df_test.drop(cols_transformed,axis = 1,inplace= True)
-
-        return df_test
+        return df
     
     def column_selection(self,cols):
-        
+        """Get cols transformed by the transformer, split columns modified then drop duplicate, useful after a selection of variables
+
+        Args:
+            cols (list): list of selected variable by the RandomForest
+
+        Returns:
+            cols (list): list of columns selected to reduce dimension
+        """
+        #transform cols
         cols_transformed = self.encoder.get_feature_names_out(self.object_columns).tolist() 
 
+        #variable selected
         col_selected = cols 
+        
+        #loop to get columns 
         list_cols = []
         for cols in col_selected:
             if cols in cols_transformed:
                 list_cols.append(cols.rsplit('_', 1)[0])
             else:
                 list_cols.append(cols)
-        # Appliquer le split si l'underscore existe, sinon ajouter la colonne telle quelle
+                
+        # frop duplicate
         list_cols = list(set(list_cols))
         return list_cols
 
