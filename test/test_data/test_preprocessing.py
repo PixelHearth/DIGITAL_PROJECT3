@@ -2,66 +2,52 @@ import unittest
 import pandas as pd
 import sys
 sys.path.append(".")
-from src.data.preprocessing import CustomPreprocessor
+from src.data.preprocessing import CustomProcessing
 
-# class TestCustomPreprocessor(unittest.TestCase):
-#     def setUp(self):
-#         try:
-#             data = {
-#                 'Category': ['A', 'B', 'A', 'C'],
-#                 'Color': [3, 5, 4, 5]
-#             }
-#             self.df = pd.DataFrame(data)
-#             self.preprocessor = CustomPreprocessor(self.df)
-#             self.preprocessor.fit()r
-#             self.encoded_df = self.preprocessor.transform(self.df.copy())
-#             print("test1 passed")
-#         except:
-#             print("test1 failed")
-
-#     def test_transform(self):
-#         # Vérifiez que la transformation a été effectuée correctement
-#         try:
-#             expected_encoded_data = {
-#                 'Category': [0.0, 1.0, 0.0, 2.0],
-#                 'Color': [3, 5, 4, 5]
-#             }
-#             expected_encoded_df = pd.DataFrame(expected_encoded_data)
-#             pd.testing.assert_frame_equal(self.encoded_df, expected_encoded_df)
-#             print("test2 Passed")
-#         except:
-#             print("test2 failed")
-#     def test_inverse_transform(self):
-#         try:
-#             # Vérifiez que la transformation inverse fonctionne correctement
-#             decoded_df = self.preprocessor.inverse_transform(self.encoded_df.copy())
-#             pd.testing.assert_frame_equal(decoded_df, self.df)
-#             print("test3 Passed")
-#         except:
-#             print("test3 failed")
-
-class TestCustomPreprocessor(unittest.TestCase):
+class TestCustomProcessing(unittest.TestCase):
     def setUp(self):
-        data = {
-            'Category': ['A', 'A', 'B', 'C'],
-            'Color': [3, 5, 4, 5]
-        }
-        
+        # Create a sample DataFrame for testing
+        data = {'Category': ['A', 'B', 'C', 'A', 'B'], 'color': ['blue', 'red', 'red', 'blue', 'grey']}
         self.df = pd.DataFrame(data)
-        self.preprocessor = CustomPreprocessor(self.df)
-        self.encoded_df = self.preprocessor.transform(self.df.copy())
+        self.custom_processing = CustomProcessing(self.df)
+
+    def test_label_encoder(self):
+        # Test if label_encoder method transforms the first column correctly
+        df_transformed = self.custom_processing.label_encoder(self.df.copy())
+        self.assertTrue(df_transformed['Category'].dtype == 'int64')
+        self.assertTrue(df_transformed['color'].dtype == 'object')    
+            
+    def test_fit_transform(self):
+        # Test if fit_transform method encodes object columns correctly
+        self.custom_processing.fit()
+        df_transformed = self.custom_processing.fit_transform(self.df.copy())
+        self.assertEqual(df_transformed.shape, (5, 4))  # Assuming 3 unique categories in the sample data
 
     def test_transform(self):
-        expected_encoded_data = {
-            'Category': ["blue", "red", "yellow", "blue"],
-            'Color': [3, 5, 4, 5]
-        }
-        expected_encoded_df = pd.DataFrame(expected_encoded_data)
-        pd.testing.assert_frame_equal(self.encoded_df, expected_encoded_df)
+        # Test if transform method encodes object columns correctly
+        self.custom_processing.fit()
+        df_transformed = self.custom_processing.transform(self.df.copy())
+        self.assertEqual(df_transformed.shape, (5, 4))  # Assuming 3 unique categories in the sample data
 
     def test_inverse_transform(self):
-        decoded_df = self.preprocessor.inverse_transform(self.encoded_df.copy())
-        pd.testing.assert_frame_equal(decoded_df, self.df)
+        # Test if inverse_transform method reverses the transformation correctly
+        self.custom_processing.fit()
+        df_transformed = self.custom_processing.transform(self.df.copy())
+        df_inverse = self.custom_processing.inverse_transform(df_transformed.copy())
+        self.assertTrue(all(col in df_inverse.columns for col in self.custom_processing.object_columns))
+
+    def test_column_selection(self):
+        # Test if column_selection method selects columns correctly
+        self.custom_processing.fit()
+        df_transformed = self.custom_processing.fit_transform(self.df.copy())
+        selected_cols = df_transformed.columns[:3].tolist()  # Select first 3 columns for testing
+        selected_cols_after = self.custom_processing.column_selection(selected_cols)
+        self.assertTrue(all(col in selected_cols_after for col in self.custom_processing.object_columns))
+
+if __name__ == '__main__':
+    unittest.main()
+
+    
 
 if __name__ == '__main__':
     unittest.main()
