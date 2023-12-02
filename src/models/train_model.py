@@ -46,10 +46,7 @@ class Models:
 
         # Test DataFrame
         self.individual_features = individual_features
-
-        self.dependent_variable = self.dataframe.iloc[:, 0].values
-        self.independent_variable = self.dataframe.iloc[:, 1:].values
-        self.np_individual_features = self.individual_features.iloc[:, 1:].values
+        
 
     def standardize_training_data(self):
         # Sélectionnez uniquement les colonnes numériques du DataFrame d'entraînement
