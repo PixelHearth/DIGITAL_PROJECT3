@@ -6,7 +6,6 @@ from pandas.api.types import is_numeric_dtype
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score,roc_auc_score,log_loss
 from sklearn.model_selection import train_test_split
-import shap
 class Models:
 
     """
@@ -47,7 +46,13 @@ class Models:
 
         # Test DataFrame
         self.individual_features = individual_features
+        self.np_individual_features = self.individual_features.iloc[:, 1:].values
+
         
+        self.dependent_variable = self.dataframe.iloc[:, 0].values
+
+        # return df
+        self.independent_variable = self.dataframe.iloc[:, 1:].values
 
     def standardize_training_data(self):
         """Standardize the train dataframe

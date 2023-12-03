@@ -2,14 +2,15 @@ from data.preprocessing import CustomProcessing
 from models.train_model import Models
 from models.selection import select_features
 from visualization.importance_feature_graph import plot_feature_importance
-from data.clean import clean_df
-from data.make_dataset import importation_excel
 
+from data.clean import clean_df
 from sklearn.preprocessing import StandardScaler
 import pandas as pd
 import time
 import os
 import numpy as np
+import xlwings as xw
+
 def app():
     # Calculate the start time
     start = time.time()
@@ -78,6 +79,30 @@ def app():
     with open(file_path, 'w') as text_file:
         # Write the string to the file
         text_file.write(str(proba))
+
+    try:
+
+        app = xw.App(visible=True)
+        workbook = app.books.open("src/formulaire.xlsm")
+
+        # Sélectionner la feuille source
+        feuille_source = workbook.sheets['Source']
+
+        # Ajouter les classes à partir de la cellule A5
+        for index, donnee in enumerate(proba):
+            classe = donnee['classe']
+            feuille_source.range((5, index + 1)).value = classe
+
+        # Ajouter les probabilités à partir de la cellule A6
+        for index, donnee in enumerate(proba):
+            probabilite = donnee['probabilite']
+            feuille_source.range((6, index + 1)).value = probabilite
+        # Save the workbook
+        workbook.save('src/formulaire.xlsm')
+        print("Workbook saved successfully.")
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
     # Calculate the total execution time
     end = time.time()
