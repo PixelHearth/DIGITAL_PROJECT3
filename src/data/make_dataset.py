@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 from openpyxl import load_workbook
-from .fonctions_filtrage import convert_object_columns_to_integers
+from .filtering_function import convert_object_columns_to_integers
 
 def importation_excel(excel_file_path, sheet_name):
     """

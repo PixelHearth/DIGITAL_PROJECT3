@@ -1,7 +1,5 @@
 import pandas as pd
-from  .fonctions_filtrage import *
-import os 
-
+from  .filtering_function import *
 def clean_df(path):
 
     df = pd.read_csv(path)
