@@ -1,5 +1,3 @@
-import sys 
-sys.path.append(".")
 from src.models.train_model import Models
 import pandas as pd
 import unittest
