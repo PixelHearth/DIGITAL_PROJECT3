@@ -1,106 +1,103 @@
-
 import pandas as pd
-import numpy as np
-from sklearn.neighbors import KNeighborsClassifier
 from pandas.api.types import is_numeric_dtype
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import accuracy_score,roc_auc_score,log_loss
+
+import numpy as np
+
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
+
 class Models:
 
     """
     Class representing a model for KNN.
     
     Parameters:
-    -dataframe (pd.DataFrame): The training DataFrame containing the data to be explained and explanatory.
+    -df (pd.df): The training df containing the data to be explained and explanatory.
 
-    -individual_features (pd.DataFrame): The DataFrame of test individual features.
+    -individual_features (pd.df): The df of test individual features.
 
     Raises AssertionError: 
-        If the training and test data are not pandas DataFrames.
+        If the training and test data are not pandas dfs.
 
     :Example:
 
-    >>> data = pd.DataFrame({'Target': [1, 0, 1], 'Feature1': [0.2, 0.4, 0.6], 'Feature2': [0.1, 0.3, 0.5]})
-    >>> individual_data = pd.DataFrame({'Feature1': [0.7], 'Feature2': [0.4]})
+    >>> data = pd.df({'Target': [1, 0, 1], 'Feature1': [0.2, 0.4, 0.6], 'Feature2': [0.1, 0.3, 0.5]})
+    >>> individual_data = pd.df({'Feature1': [0.7], 'Feature2': [0.4]})
     >>> models_instance = Models(data, individual_data)
     >>> models_instance.k_neighbors()
     Model Accuracy: 0.85
-    # Output: A DataFrame containing predictions and independent variables.
+    # Output: A df containing predictions and independent variables.
 
     """
 
-    def __init__(self, dataframe, individual_features):
+    def __init__(self, df, df_customer):
         
-        assert isinstance(dataframe, pd.DataFrame), "Training data must be in the form of a DataFrame."
-        assert isinstance(individual_features, pd.DataFrame), "Test data must be in the form of a DataFrame."
-        assert (len(dataframe.columns) or len(individual_features.columns)) > 0, "Your DataFrame is empty."
-        assert len(dataframe.columns) == len(individual_features.columns), "Databases do not have the same number of variables, use the variable selection algorithm."
+        if not isinstance(df, pd.DataFrame):
+            raise TypeError("Training data must be in the form of a df.")
 
-        assert all(is_numeric_dtype(dataframe[col]) for col in dataframe.columns), "Data types of columns in the training dataframe must be int or float. Use the preprocessing algorithm."
-        assert all(is_numeric_dtype(individual_features[col]) for col in individual_features.columns), "Data types of columns in the test dataframe must be int or float. Use the preprocessing algorithm."
+        if not isinstance(df_customer, pd.DataFrame):
+            raise TypeError("Test data must be in the form of a df.")
 
-        # Training DataFrame
-        self.dataframe = dataframe
-        self.dataframe = self.dataframe.sample(frac=1, random_state=42) 
+        if len(df.columns) == 0 or len(df_customer.columns) == 0:
+            raise ValueError("Your df is empty.")
 
-        # Test DataFrame
-        self.individual_features = individual_features
-        self.np_individual_features = self.individual_features.iloc[:, 1:].values
+        if len(df.columns) != len(df_customer.columns):
+            raise ValueError("Databases do not have the same number of variables, use the variable selection algorithm.")
 
-        
-        self.dependent_variable = self.dataframe.iloc[:, 0].values
+        if not all(is_numeric_dtype(df[col]) for col in df.columns):
+            raise TypeError("Data types of columns in the training df must be int or float. Use the preprocessing algorithm.")
 
-        # return df
-        self.independent_variable = self.dataframe.iloc[:, 1:].values
+        if not all(is_numeric_dtype(df_customer[col]) for col in df_customer.columns):
+            raise TypeError("Data types of columns in the test df must be int or float. Use the preprocessing algorithm.")
 
-    def standardize_training_data(self):
-        """Standardize the train dataframe
-        """
-        # Select Number type
-        numeric_columns = self.dataframe.select_dtypes(include=['number']).columns
+        # Training df
+        self.df = df
+        self.df = self.df.sample(frac=1, random_state=42) 
 
-        # Initialize scaler
-        scaler = StandardScaler()
+        # Test df
+        self.df_customer = df_customer
+        self.customer_features = self.df_customer.iloc[:, 1:].values
 
-        # apply scaler to num col
-        self.dataframe[numeric_columns] = scaler.fit_transform(self.dataframe[numeric_columns])
-
-        # return df
-        self.dependent_variable = self.dataframe.iloc[:, 0].values
-
-        # return df
-        self.independent_variable = self.dataframe.iloc[:, 1:].values
-
-    def standardize_test_data(self):
-        """Standardize the test dataframe
-        """
-        # Select number col
-        numeric_columns_test = self.individual_features.select_dtypes(include=['number']).columns
-
-        # Initialize scaler
-        scaler = StandardScaler()
-
-        # Apply to num col
-        self.individual_features[numeric_columns_test] = scaler.fit_transform(self.individual_features[numeric_columns_test])
-        
-        # Independent variables of the test individual
-        self.np_individual_features = self.individual_features.iloc[:, 1:].values
+        # Train df
+        self.dependent_variable = self.df.iloc[:, 0].values
+        self.independent_variable = self.df.iloc[:, 1:].values
 
     def metric_knn(self):
-        """Function to get the k optimal for the KNN"""
-        # Split dataframe into train and test frame
-        X_train, X_test, y_train, y_test = train_test_split(self.independent_variable,self.dependent_variable, test_size=0.3, random_state=42)
+        """
+        Function to determine the optimal value of k for KNN.
+
+        Description:
+        This function performs a k-fold cross-validation to find the optimal number of neighbors (k) for a KNN (K-Nearest Neighbors) classifier. It evaluates the performance using the accuracy score on a test set.
+
+        Inputs:
+        - self.independent_variable: Pandas df, features or independent variables.
+        - self.dependent_variable: Pandas Series, target or dependent variable.
+        
+        Outputs:
+        - best_k: Integer, optimal number of neighbors (k) that maximizes the accuracy score.
+
+        Example:
+        
+        # Instantiate the class with data
+        >>> my_classifier = YourClassName(independent_variable, dependent_variable)
+        
+        # Call the metric_knn function to get the optimal k
+        >>> optimal_k = my_classifier.metric_knn()
+    
+        ```
+        """
+        # Split df into train and test frame
+        x_train, x_test, y_train, y_test = train_test_split(self.independent_variable,self.dependent_variable, test_size=0.3, random_state=42)
         roc_auc_scores = []
         # Test between 50 value for k 
         for k in range(1, 50):  # Vous pouvez ajuster la plage selon vos besoins
             knn = KNeighborsClassifier(n_neighbors=k)
-            knn.fit(X_train, y_train)
-            y_prob = knn.predict(X_test)  # Probabilité de la classe positive
+            knn.fit(x_train, y_train)
+            y_prob = knn.predict(x_test)  # Probabilité de la classe positive
             roc_auc = accuracy_score(y_test, y_prob)
             # store accuracy_score
             roc_auc_scores.append(round(roc_auc, 2))
-        print(roc_auc_scores)
         
         # get k optimal
         best_k_index = roc_auc_scores.index(max(roc_auc_scores))
@@ -115,8 +112,8 @@ class Models:
         This function uses the KNeighborsClassifier algorithm to train a model
         and make predictions on the provided data.
 
-        Return: A DataFrame containing model predictions and independent variables.
-        Rtype: pandas.DataFrame
+        Return: A df containing model predictions and independent variables.
+        Rtype: pandas.df
 
         raises ValueError: If independent and dependent data are not properly defined.
 
@@ -125,7 +122,7 @@ class Models:
         >>> model = Models(data, individual_data)
         >>> model.k_neighbors()
         Model Accuracy: 0.85
-        # Output: A DataFrame containing predictions and independent variables of the test individual.
+        # Output: A df containing predictions and independent variables of the test individual.
 
         """
         # Instance of k-neighbors with 3 close individuals
@@ -135,10 +132,9 @@ class Models:
         neigh.fit(self.independent_variable, self.dependent_variable)
 
         # Prediction on the test individual data
-        prediction = neigh.predict(self.np_individual_features)
-        proba = neigh.predict_proba(self.np_individual_features)
+        prediction = neigh.predict(self.customer_features)
+        proba = neigh.predict_proba(self.customer_features)
         
-
         # make a function to get prediction for 1 class and a function to predict for 2 class
         sorted_class_indices = np.argsort(proba[0])[::-1]
 
@@ -148,13 +144,12 @@ class Models:
         # Make a list
         proba = [{"classe": class_index, "probabilite": proba[0][class_index]} for class_index in top_classes]
 
-        # Returning a DataFrame with the prediction and independent variables of the test individual
-        self.independant_variable_test = self.np_individual_features.flatten()
-        result = np.concatenate([prediction, self.independant_variable_test])
-        
-        dataframe_decoded = pd.DataFrame(result).transpose()
-
-        dataframe_decoded.columns = self.dataframe.columns
+        # Returning a df with the prediction and independent variables of the test individual
+        result_ind_test = self.customer_features.flatten()
+        result = np.concatenate([prediction, result_ind_test])
+        # Attribut name for each columns instead of number
+        df_decoded = pd.DataFrame(result).transpose()
+        df_decoded.columns = self.df.columns
         
         # # Créer un explainer SHAP
         # explainer = shap.KernelExplainer(neigh.predict_proba, self.independent_variable)
@@ -164,9 +159,9 @@ class Models:
         # # Calculer les valeurs SHAP pour l'échantillon choisi
         # shap_values = explainer.shap_values(sample)
         #         # Résumé des valeurs SHAP
-        # shap.summary_plot(shap_values, features=dataframe_decoded.iloc[:,1:])
+        # shap.summary_plot(shap_values, features=df_decoded.iloc[:,1:])
         
-        if not isinstance(dataframe_decoded, pd.DataFrame):
-            raise TypeError("Must be DataFrame")
+        if not isinstance(df_decoded, pd.DataFrame):
+            raise TypeError("Must be df")
         
-        return dataframe_decoded,proba
+        return df_decoded,proba
