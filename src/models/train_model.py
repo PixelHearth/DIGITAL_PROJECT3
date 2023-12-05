@@ -89,18 +89,19 @@ class Models:
         x_train, x_test, y_train, y_test = train_test_split(self.independent_variable, self.dependent_variable, test_size=0.2)
         accuracy_scores = []
 
-        # Test entre 50 valeurs pour k 
+        # Test between 50 value for k
         for k in range(5, 55):  
             knn = KNeighborsClassifier(n_neighbors=k)
             knn.fit(x_train, y_train)
             y_pred = knn.predict(x_test)
-            # Calculer la matrice de confusion
+            # Compute accuracy_score
             cm = accuracy_score(y_test, y_pred)
-            # stocker la matrice de confusion
+            # Stock score in a list
             accuracy_scores.append(cm)
+        # Get the max value
         best_k_index = np.argmax(accuracy_scores)
 
-        # Obtenir le meilleur k
+        # Get the k optimal
         best_k = range(5, 55)[best_k_index]
 
         return best_k

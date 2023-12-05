@@ -53,24 +53,24 @@ def importation_excel(excel_file_path, sheet_name):
 
 def export_excel(proba,excel_file_path,sheets):
     try:
-
+        # Instance xlwings
         app = xw.App(visible=True)
-        workbook = app.books.open("src/formulaire.xlsm")
+        workbook = app.books.open(excel_file_path)
 
-        # Sélectionner la feuille source
-        feuille_source = workbook.sheets['Source']
+        # Select sheet
+        feuille_source = workbook.sheets[sheets]
 
-        # Ajouter les classes à partir de la cellule A5
+        # Start add proba at cell  A5
         for index, donnee in enumerate(proba):
             classe = donnee['classe']
             feuille_source.range((5, index + 1)).value = classe
 
-        # Ajouter les probabilités à partir de la cellule A6
+        # Start add proba at cell A6
         for index, donnee in enumerate(proba):
             probabilite = donnee['probabilite']
             feuille_source.range((6, index + 1)).value = probabilite
         # Save the workbook
-        workbook.save('src/formulaire.xlsm')
+        workbook.save(excel_file_path)
         print("Workbook saved successfully.")
 
     except Exception as e:

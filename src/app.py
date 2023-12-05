@@ -66,11 +66,11 @@ def app():
     
     # Make the K Nearest Neighbors
     individual,proba = knn_model.k_neighbors(best_k)
-    
     # Restoration of a human-readable dataframe
     # Predicted value of k_neighbors
     cpp_kneigh.inverse_transform(individual)
 
+    # Export proba in excel sheet
     export_excel(proba,"src/formulaire.xlsm", "Source")
     
     # Calculate the total execution time
