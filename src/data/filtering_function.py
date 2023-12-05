@@ -103,7 +103,8 @@ def conditional_fill_na(df):
         1   2.0    b   5.0
         2   1.5    inconnu   4.5
     """
-    assert isinstance(df, pd.DataFrame), "Input must be a DataFrame"
+    if not isinstance(df, pd.DataFrame):
+        raise TypeError("Input must be a DataFrame")
 
     for column in df.columns:
         if df[column].dtype == "object":
@@ -111,7 +112,7 @@ def conditional_fill_na(df):
             df[column].fillna("unknown", inplace=True)
         else:
             # For numeric columns, fill NaN with the mean of the column
-            df[column].fillna(df[column].mean(), inplace=True)
+            df[column].fillna(df[column].median(), inplace=True)
 
     return df
 
@@ -149,8 +150,11 @@ def convert_object_columns_to_integers(df):
         1  NaN    b
         2    3    c
     """
-    assert isinstance(df, pd.DataFrame), "Input must be a DataFrame"
-    assert df.notnull().all().all(), "No NoneType Allowed, use the drop_na_rows function"
+    if not isinstance(df, pd.DataFrame):
+        raise TypeError("Input must be a DataFrame")
+    
+    if not df.notnull().all().all():
+        raise ValueError("No NoneType Allowed, use the drop_na_rows function")
 
     # Select object columns (ambiguous)
     object_columns = df.select_dtypes(include=['object']).columns

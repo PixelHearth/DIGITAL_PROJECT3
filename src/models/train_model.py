@@ -6,7 +6,6 @@ import numpy as np
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
-
 class Models:
 
     """
@@ -53,7 +52,6 @@ class Models:
 
         # Training df
         self.df = df
-        self.df = self.df.sample(frac=1, random_state=42) 
 
         # Test df
         self.df_customer = df_customer
@@ -88,22 +86,25 @@ class Models:
         ```
         """
         # Split df into train and test frame
-        x_train, x_test, y_train, y_test = train_test_split(self.independent_variable,self.dependent_variable, test_size=0.3, random_state=42)
-        roc_auc_scores = []
-        # Test between 50 value for k 
-        for k in range(1, 50):  # Vous pouvez ajuster la plage selon vos besoins
+        x_train, x_test, y_train, y_test = train_test_split(self.independent_variable, self.dependent_variable, test_size=0.2)
+        accuracy_scores = []
+
+        # Test entre 50 valeurs pour k 
+        for k in range(5, 55):  
             knn = KNeighborsClassifier(n_neighbors=k)
             knn.fit(x_train, y_train)
-            y_prob = knn.predict(x_test)  # Probabilité de la classe positive
-            roc_auc = accuracy_score(y_test, y_prob)
-            # store accuracy_score
-            roc_auc_scores.append(round(roc_auc, 2))
-        
-        # get k optimal
-        best_k_index = roc_auc_scores.index(max(roc_auc_scores))
-        best_k = range(1, 50)[best_k_index]
-        
+            y_pred = knn.predict(x_test)
+            # Calculer la matrice de confusion
+            cm = accuracy_score(y_test, y_pred)
+            # stocker la matrice de confusion
+            accuracy_scores.append(cm)
+        best_k_index = np.argmax(accuracy_scores)
+
+        # Obtenir le meilleur k
+        best_k = range(5, 55)[best_k_index]
+
         return best_k
+
     
     def k_neighbors(self, best_k):
         """
@@ -133,6 +134,7 @@ class Models:
 
         # Prediction on the test individual data
         prediction = neigh.predict(self.customer_features)
+        # score = neigh.score()
         proba = neigh.predict_proba(self.customer_features)
         
         # make a function to get prediction for 1 class and a function to predict for 2 class

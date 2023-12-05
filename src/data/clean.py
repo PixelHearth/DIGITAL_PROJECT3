@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from  .filtering_function import *
 
 def clean_df(path):
@@ -159,19 +160,33 @@ def clean_df(path):
             df = list_to_int(df, i)
 
     #replace na by "inconnu" if columns is object, else replace na by mean of the column
-    df = conditional_fill_na(df)
-
+    
+    
     for colonne in df.columns :
         df=delete_na(df, colonne)
         
     #convert if its possible object columns to integer
     df = convert_object_columns_to_integers(df)
     
-    #delete na
+    # Delete na
     for colonne in df.columns :
         df=delete_na(df, colonne)
         
-    # duplicate drop
+    # Duplicate drop
     df.drop_duplicates(inplace = True)
-    # df.to_csv("src/data/database/df_clean.csv", index=False)
-    return df
+    
+    # Replace unknown to nan
+    df.replace("unknown",np.nan,inplace= True)
+    # Drop columns with more than 500 na
+    df = df.dropna(axis=1, thresh=len(df) - 500)
+    
+    # Replace 0 in annee_construction_dpe to nan
+    df["annee_construction_dpe"].replace(0,np.nan,inplace=True)
+    
+    # Drop na in whole dataset
+    df.dropna(inplace= True)
+    
+    # Balance the dataframe
+    df_balanced = df.groupby(df.iloc[:,0]).apply(lambda x: x.sample(200)).reset_index(drop=True)
+    
+    return df_balanced
