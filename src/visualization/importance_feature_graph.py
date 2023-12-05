@@ -12,7 +12,7 @@ def plot_feature_importance(importances_df, nb_feature):
         nb_feature (int): The number of features to include in the chart based on their importance.
 
     Returns:
-        None
+        A chart in docs with features selected
     """
     # Create the bar chart
     plt.figure(figsize=(10, 6))

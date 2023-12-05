@@ -1,7 +1,6 @@
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import LabelEncoder
 import pandas as pd
-import numpy as np
 
 class CustomProcessing:
     """ 
@@ -23,15 +22,14 @@ class CustomProcessing:
             raise TypeError("input must be a dataframe")
 
         # Loading the encoding model
-        self.encoder = OneHotEncoder(handle_unknown='ignore', sparse=False)
-        
-        # get columns to train
+        self.encoder = OneHotEncoder(handle_unknown='ignore',sparse=False)
+
+        # Get columns to train
         self.df = df.iloc[:,1:]
-        
+
         # Keep distinct object and numerous columns
         self.object_columns = self.df.select_dtypes(include=['object']).columns
         self.numeric_columns = self.df.select_dtypes(include=['number']).columns
-        
 
     def label_encoder(self,df):
         """Transform the first column, must be categorical values, in a value
@@ -75,31 +73,6 @@ class CustomProcessing:
         # Fit the encoder on the object dataset
         self.encoder.fit(self.df[self.object_columns])
         
-    def fit_transform(self,df):
-        """Fit and transform with the OneHotEncoder object columns in the dataframe 
-
-        Args:
-            dataframe (pd.DataFrame): dataframe to encode
-
-        Returns:
-            dataframe (pd.DataFrame): dataframe encoded
-        """
-        if not isinstance(df,pd.DataFrame):
-            raise TypeError("input must be a dataframe")
-        
-        #fit and transform object columns
-        encoded_data = self.encoder.fit_transform(df[self.object_columns])
-        
-        # Create a DataFrame with the encoded data
-        encoded_df = pd.DataFrame(encoded_data, columns=self.encoder.get_feature_names_out(self.object_columns)).reset_index(drop=True)
-        
-        df = df.drop(self.object_columns,axis=1).reset_index(drop=True)
-
-        # Concatenate the encoded DataFrame with the original DataFrame
-        result_df = pd.concat([self.label_encoder(df), encoded_df], axis=1)
-
-        return result_df
-
     def transform(self, df):
         """Function to transform a dataframe with the fit made previously with the dataframe instancied in the class
 
@@ -125,6 +98,32 @@ class CustomProcessing:
         result_df = pd.concat([df, encoded_df], axis=1)
         
         return result_df
+        
+    def fit_transform(self,df):
+        """Fit and transform with the OneHotEncoder object columns in the dataframe 
+
+        Args:
+            dataframe (pd.DataFrame): dataframe to encode
+
+        Returns:
+            dataframe (pd.DataFrame): dataframe encoded
+        """
+        if not isinstance(df,pd.DataFrame):
+            raise TypeError("input must be a dataframe")
+        
+        #fit and transform object columns
+        encoded_data = self.encoder.fit_transform(df[self.object_columns])
+        
+        # Create a DataFrame with the encoded data
+        encoded_df = pd.DataFrame(encoded_data, columns=self.encoder.get_feature_names_out(self.object_columns)).reset_index(drop=True)
+        
+        df = df.drop(self.object_columns,axis=1).reset_index(drop=True)
+
+        # Concatenate the encoded DataFrame with the original DataFrame
+        result_df = pd.concat([self.label_encoder(df), encoded_df], axis=1)
+
+        return result_df
+
 
     def inverse_transform(self, df):
         """
@@ -158,20 +157,20 @@ class CustomProcessing:
 
         return df
     
-    def column_selection(self,cols):
+    def column_selection(self,rf_cols):
         """Get cols transformed by the transformer, split columns modified then drop duplicate, useful after a selection of variables
 
         Args:
-            cols (list): list of selected variable by the RandomForest
+            rf_cols (list): list of selected variable by the RandomForest
 
         Returns:
-            cols (list): list of columns selected to reduce dimension
+            rf_cols (list): list of columns selected to reduce dimension
         """
         #transform cols
         cols_transformed = self.encoder.get_feature_names_out(self.object_columns).tolist() 
 
         #variable selected
-        col_selected = cols 
+        col_selected = rf_cols 
         
         #loop to get columns 
         list_cols = []

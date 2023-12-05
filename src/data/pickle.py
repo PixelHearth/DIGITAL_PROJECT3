@@ -22,8 +22,3 @@ def open_pkl(path_in:str):
     # test ouverture d'un pickle
     with open(path_in, "rb") as file2:
         return(pickle.load(file2))
-    
-
-if __name__ == "__main__":
-    stock_pickle_csv("Base_clean.csv", "Base_clean.pkl")
-    print(open_pkl("Base_clean.pkl"))
