@@ -18,22 +18,22 @@ class TestModels(unittest.TestCase):
         select_features(self.df, self.features)
 
     def test_select_features_exceptions(self):
-        # Test des exceptions
+        # Test of the exceptions
         with self.assertRaises(AssertionError):
-            select_features(self.df, self.features)  # nb_feature doit être supérieur à zéro
+            select_features(self.df, self.features)  # nb_feature must be greater than 0
 
         with self.assertRaises(AssertionError):
-            select_features(self.df, len(self.df.columns))  # nb_feature ne doit pas dépasser le nombre de colonnes - 1
+            select_features(self.df, len(self.df.columns))  # nb_feature must not exceed the number of columns - 1
 
         with self.assertRaises(AssertionError):
-            select_features(pd.DataFrame(), self.features)  # Le DataFrame ne peut pas être vide
+            select_features(pd.DataFrame(), self.features)  # The DataFrame must not be empty
 
-        # Test du type de données pour les paramètres
+        # Test of the datatypes for parameters
         with self.assertRaises(AssertionError):
-            select_features("invalid_df", self.features)  # dataframe doit être un objet DataFrame
+            select_features("invalid_df", self.features)  # dataframe must be a DataFrame object
 
         with self.assertRaises(AssertionError):
-            select_features(self.df, "invalid_nb_feature")  # nb_feature doit être un entier
+            select_features(self.df, "invalid_nb_feature")  # nb_feature must be an integer
 
 if __name__ == '__main__':
     unittest.main()
