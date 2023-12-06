@@ -41,7 +41,7 @@ class Models:
         if len(df.columns) == 0 or len(df_customer.columns) == 0:
             raise ValueError("Your df is empty.")
 
-        if len(df.columns) != len(df_customer.columns):
+        if len(df.columns) != (len(df_customer.columns) + 1):
             raise ValueError("Databases do not have the same number of variables, use the variable selection algorithm.")
 
         if not all(is_numeric_dtype(df[col]) for col in df.columns):
@@ -54,8 +54,7 @@ class Models:
         self.df = df
 
         # Test df
-        self.df_customer = df_customer
-        self.customer_features = self.df_customer.iloc[:, 1:].values
+        self.customer_features = df_customer.values
 
         # Train df
         self.dependent_variable = self.df.iloc[:, 0].values
@@ -98,7 +97,7 @@ class Models:
             cm = accuracy_score(y_test, y_pred)
             # Stock score in a list
             accuracy_scores.append(cm)
-        print(np.max(accuracy_scores))
+            
         # Get the max value
         best_k_index = np.argmax(accuracy_scores)
 
@@ -108,7 +107,7 @@ class Models:
         return best_k
 
     
-    def k_neighbors(self, best_k):
+    def k_neighbors(self):
         """
         Creates a k_neighbors algorithm based on property data.
 
@@ -129,6 +128,7 @@ class Models:
 
         """
         # Instance of k-neighbors with 3 close individuals
+        best_k = self.metric_knn()
         neigh = KNeighborsClassifier(n_neighbors=best_k)
         
         # Training data on the training database
@@ -144,16 +144,10 @@ class Models:
 
         # Select 3 representatives classes
         top_classes = sorted_class_indices[:3]
+        score = np.sum(proba[:, top_classes], axis=1)
         
         # Make a list
         proba = [{"classe": class_index, "probabilite": proba[0][class_index]} for class_index in top_classes]
-
-        # Returning a df with the prediction and independent variables of the test individual
-        result_ind_test = self.customer_features.flatten()
-        result = np.concatenate([prediction, result_ind_test])
-        # Attribut name for each columns instead of number
-        df_decoded = pd.DataFrame(result).transpose()
-        df_decoded.columns = self.df.columns
         
         # # Créer un explainer SHAP
         # explainer = shap.KernelExplainer(neigh.predict_proba, self.independent_variable)
@@ -164,8 +158,4 @@ class Models:
         # shap_values = explainer.shap_values(sample)
         #         # Résumé des valeurs SHAP
         # shap.summary_plot(shap_values, features=df_decoded.iloc[:,1:])
-        
-        if not isinstance(df_decoded, pd.DataFrame):
-            raise TypeError("Must be df")
-        
-        return df_decoded,proba
+        return proba,score
