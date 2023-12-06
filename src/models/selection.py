@@ -28,21 +28,32 @@ def select_features(dataframe, num_features):
     Note:
     - The RandomForestClassifier model is used with 50 trees and a fixed random seed (random_state=42).
     """
+    
     # Preconditions
-    assert isinstance(dataframe, pd.DataFrame), "The 'dataframe' parameter must be a DataFrame."
-    assert isinstance(num_features, int), "The 'num_features' parameter must be an integer."
-    assert num_features > 0, "The 'num_features' parameter must be greater than zero."
-    assert num_features <= len(dataframe.columns) - 1, "The 'num_features' parameter must not exceed the number of columns in the dataframe minus 1."
-    assert len(dataframe.columns) > 0, "The DataFrame cannot be empty."
+    if not isinstance(dataframe, pd.DataFrame):
+        raise TypeError("The 'dataframe' parameter must be a DataFrame.")
 
-    assert all(is_numeric_dtype(dataframe[col]) for col in dataframe.columns), "Data types of columns in the training dataframe must be int or float.\nUse the custom preprocessing function."
+    if not isinstance(num_features, int):
+        raise TypeError("The 'num_features' parameter must be an integer.")
+
+    if num_features <= 0:
+        raise ValueError("The 'num_features' parameter must be greater than zero.")
+
+    if num_features > len(dataframe.columns) - 1:
+        raise ValueError("The 'num_features' parameter must not exceed the number of columns in the dataframe minus 1.")
+
+    if len(dataframe.columns) == 0:
+        raise ValueError("The DataFrame cannot be empty.")
+
+    if not all(is_numeric_dtype(dataframe[col]) for col in dataframe.columns):
+        raise TypeError("Data types of columns in the training dataframe must be int or float.\nUse the custom preprocessing function.")
 
     # Extracting dependent and independent variables
     dependent_variable = dataframe.iloc[:, 0]
     independent_variables = dataframe.iloc[:, 1:]
 
     # Training a Random Forest model
-    rf_model = RandomForestClassifier(n_estimators=50, random_state=42)
+    rf_model = RandomForestClassifier(n_estimators=200, random_state=42)
     rf_model.fit(independent_variables.values, dependent_variable.values)
 
     # Calculating feature importances
@@ -51,7 +62,9 @@ def select_features(dataframe, num_features):
     importances_df = importances_df.sort_values(by='Importance', ascending=False)
 
     # Selecting features based on num_features
-    assert num_features <= len(importances_df), "The 'num_features' parameter must be less than or equal to the number of available features."
+    if num_features == len(importances_df):
+        raise ValueError("The 'num_features' parameter must be less than or equal to the number of available features.")
+        
     selected_dataframe = importances_df[:num_features]
 
     # Retrieving the names of the selected features
@@ -59,5 +72,8 @@ def select_features(dataframe, num_features):
 
     # Creating the resulting DataFrame with the selected features
     selected_dataframe = pd.concat([dependent_variable, independent_variables[selected_features]], axis=1)
-    assert isinstance(selected_dataframe, pd.DataFrame), "The result must be a DataFrame."
-    return selected_dataframe, importances_df
+
+    if not isinstance(selected_dataframe, pd.DataFrame):
+        raise TypeError("The result must be a DataFrame.")
+    
+    return selected_dataframe.columns, importances_df

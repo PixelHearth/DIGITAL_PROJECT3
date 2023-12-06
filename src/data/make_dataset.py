@@ -1,7 +1,8 @@
 import os
 import pandas as pd
 from openpyxl import load_workbook
-from .fonctions_filtrage import convert_object_columns_to_integers
+import xlwings as xw
+from .filtering_function import convert_object_columns_to_integers
 
 def importation_excel(excel_file_path, sheet_name):
     """
@@ -50,3 +51,27 @@ def importation_excel(excel_file_path, sheet_name):
     # Return the created DataFrame
     return df
 
+def export_excel(proba,excel_file_path,sheets):
+    try:
+        # Instance xlwings
+        app = xw.App(visible=True)
+        workbook = app.books.open(excel_file_path)
+
+        # Select sheet
+        feuille_source = workbook.sheets[sheets]
+
+        # Start add proba at cell  A5
+        for index, donnee in enumerate(proba):
+            classe = donnee['classe']
+            feuille_source.range((5, index + 1)).value = classe
+
+        # Start add proba at cell A6
+        for index, donnee in enumerate(proba):
+            probabilite = donnee['probabilite']
+            feuille_source.range((6, index + 1)).value = probabilite
+        # Save the workbook
+        workbook.save(excel_file_path)
+        print("Workbook saved successfully.")
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
