@@ -1,7 +1,4 @@
 import pandas as pd
-import numpy as np
-
-
 
 def delete_na(df, column_name):
     """
@@ -106,7 +103,8 @@ def conditional_fill_na(df):
         1   2.0    b   5.0
         2   1.5    inconnu   4.5
     """
-    assert isinstance(df, pd.DataFrame), "Input must be a DataFrame"
+    if not isinstance(df, pd.DataFrame):
+        raise TypeError("Input must be a DataFrame")
 
     for column in df.columns:
         if df[column].dtype == "object":
@@ -114,7 +112,7 @@ def conditional_fill_na(df):
             df[column].fillna("unknown", inplace=True)
         else:
             # For numeric columns, fill NaN with the mean of the column
-            df[column].fillna(df[column].mean(), inplace=True)
+            df[column].fillna(df[column].median(), inplace=True)
 
     return df
 
@@ -152,8 +150,11 @@ def convert_object_columns_to_integers(df):
         1  NaN    b
         2    3    c
     """
-    assert isinstance(df, pd.DataFrame), "Input must be a DataFrame"
-    assert df.notnull().all().all(), "No NoneType Allowed, use the drop_na_rows function"
+    if not isinstance(df, pd.DataFrame):
+        raise TypeError("Input must be a DataFrame")
+    
+    if not df.notnull().all().all():
+        raise ValueError("No NoneType Allowed, use the drop_na_rows function")
 
     # Select object columns (ambiguous)
     object_columns = df.select_dtypes(include=['object']).columns
@@ -223,9 +224,6 @@ def separate_columns(df, column_name, new_column_names):
         print(f"Column '{column_name}' is not present in the DataFrame.")
 
     return df
-
-
-
 
 def comma_count(string):
     """
@@ -349,72 +347,3 @@ def switch_first_column(df, column_name):
     else:
         print(f"Column '{column_name}' is not present in the DataFrame.")
         return df
-
-        
-def replace_na_value(df, column_name, replacement_value):
-    """
-    This function takes as input a DataFrame, the name of a column, and a replacement value.
-    It replaces missing values (NA) in the specified column with the replacement value.
-
-    Parameters:
-    - df (pandas DataFrame): The DataFrame to process.
-    - column_name (str): The name of the column in which to perform the replacement.
-    - replacement_value: The value to use for replacing missing values.
-
-    Returns:
-    - pandas DataFrame: The resulting DataFrame after replacing missing values.
-
-    Example:
-    >>> df = pd.DataFrame({'A': [1, 2, np.nan, 4], 'B': ['a', 'b', 'c', np.nan]})
-    >>> column_name = 'A'
-    >>> replacement_value = 0
-    >>> df_result = replace_na_value(df, column_name, replacement_value)
-    >>> print(df_result)
-       A    B
-    0  1    'a'
-    1  2    'b'
-    2  0    'c'
-    3  4  None
-    """
-    # Check if the specified column is present in the DataFrame
-    if column_name in df.columns:
-        # Use the 'fillna' method to replace missing values (NA) in the specified column
-        df[column_name] = df[column_name].fillna(replacement_value)
-        return df
-    else:
-        print(f"Column '{column_name}' is not present in the DataFrame.")
-        return df
-
-
-def count_na_per_column(df):
-    """
-    This function takes as input a DataFrame and returns a new DataFrame
-    containing two columns: the name of each column from the original DataFrame
-    and the count of missing values (NaN) for each column.
-
-    Parameters:
-    - df (pandas DataFrame): The DataFrame to process.
-
-    Returns:
-    - pandas DataFrame: A DataFrame containing two columns: the name of each column from the original DataFrame
-                        and the count of missing values (NaN) for each column.
-
-    Example:
-    >>> df = pd.DataFrame({'A': [1, 2, np.nan, 4], 'B': ['a', 'b', 'c', np.nan], 'C': [np.nan, np.nan, 3, 4]})
-    >>> df_result = count_na_per_column(df)
-    >>> print(df_result)
-      Column  NA_Count
-    0      A         1
-    1      B         1
-    2      C         2
-    """
-    # Use the isna() method to get a boolean DataFrame where True represents missing values.
-    is_na_df = df.isna()
-    
-    # Use the sum() method on the boolean DataFrame to count the number of missing values per column.
-    na_count_series = is_na_df.sum()
-    
-    # Create a new DataFrame from the missing values count series.
-    result_df = pd.DataFrame({'Column': na_count_series.index, 'NA_Count': na_count_series.values})
-    
-    return result_df
