@@ -97,7 +97,7 @@ class Models:
             cm = accuracy_score(y_test, y_pred)
             # Stock score in a list
             accuracy_scores.append(cm)
-            
+        print(np.max(accuracy_scores))
         # Get the max value
         best_k_index = np.argmax(accuracy_scores)
 

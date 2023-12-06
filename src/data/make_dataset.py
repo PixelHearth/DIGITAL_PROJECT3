@@ -37,7 +37,7 @@ def importation_excel(excel_file_path, sheet_name):
 
     # Get column names from the first row of the sheet
     column_names = [cell.value for cell in sheet[1]]
-
+    print(column_names)
     # Check if column names are not empty
     assert all(name is not None for name in column_names), "Column names cannot be empty."
 
@@ -54,7 +54,7 @@ def importation_excel(excel_file_path, sheet_name):
 def export_excel(proba,excel_file_path,sheets):
     try:
         # Instance xlwings
-        app = xw.App(visible=True)
+        app = xw.App(visible=False)
         workbook = app.books.open(excel_file_path)
 
         # Select sheet
