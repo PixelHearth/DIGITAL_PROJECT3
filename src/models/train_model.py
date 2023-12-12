@@ -2,7 +2,7 @@ import pandas as pd
 from pandas.api.types import is_numeric_dtype
 
 import numpy as np
-
+import shap
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
@@ -54,7 +54,8 @@ class Models:
         self.df = df
 
         # Test df
-        self.customer_features = df_customer.values
+        self.df_customer = df_customer
+        self.customer_features = self.df_customer.values
 
         # Train df
         self.dependent_variable = self.df.iloc[:, 0].values
@@ -128,7 +129,7 @@ class Models:
 
         """
         # Instance of k-neighbors with 3 close individuals
-        best_k = self.metric_knn()
+        best_k,acc_score = self.metric_knn()
         neigh = KNeighborsClassifier(n_neighbors=best_k)
         
         # Training data on the training database
@@ -149,13 +150,16 @@ class Models:
         # Make a list
         proba = [{"classe": class_index, "probabilite": proba[0][class_index]} for class_index in top_classes]
         
-        # # Créer un explainer SHAP
+        # Make shap explainer
         # explainer = shap.KernelExplainer(neigh.predict_proba, self.independent_variable)
-        # # Choisissez un échantillon (par exemple, le premier échantillon dans l'ensemble de test)
-        # sample = self.np_individual_features
+        
+        # Select sample with customers features
+        # sample = self.customer_features
 
-        # # Calculer les valeurs SHAP pour l'échantillon choisi
+        # Compute shap value
         # shap_values = explainer.shap_values(sample)
-        #         # Résumé des valeurs SHAP
-        # shap.summary_plot(shap_values, features=df_decoded.iloc[:,1:])
+        
+        # Chat
+        # shap.summary_plot(shap_values, features=self.df_customer)
+        
         return proba,score
