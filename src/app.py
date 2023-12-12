@@ -22,6 +22,7 @@ def app():
     # Selection of number of features, important variables, encoding must have been done before
     nb_features = 15
     properties_selected, importance = select_features(properties, nb_features)
+    
     # Plot of features importances
     # plot_feature_importance(importance, nb_features)
     
@@ -30,16 +31,10 @@ def app():
     
     # Make the K Nearest Neighbors
     proba,score = knn_model.k_neighbors()
-    
-    print(f"La probabilité d'être dans une des 3 classes est de, {score.flatten()}")
-    print(proba)
-    # Export proba in excel sheet
 
-    # Écrivez les données dans le fichier texte
+    # write probabilities on a txt
     with open("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/src/data/database/prediction.txt", 'w') as fichier:
         fichier.write(str(proba))
 
-    # export_excel(proba,"C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/src/formulaire.xlsm", "Source")
-    
 if __name__ == "__main__":
     app()
