@@ -1,1 +1,1 @@
-[{'classe': 4, 'probabilite': 0.391304347826087}, {'classe': 3, 'probabilite': 0.21739130434782608}, {'classe': 5, 'probabilite': 0.1956521739130435}]
+[{'classe': 2, 'probabilite': 0.2727272727272727}, {'classe': 1, 'probabilite': 0.22727272727272727}, {'classe': 0, 'probabilite': 0.18181818181818182}]
