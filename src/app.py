@@ -1,7 +1,3 @@
-import time
-
-from sklearn.preprocessing import StandardScaler
-
 from data.clean import clean_df
 from data.preprocessing import CustomProcessing, ScalerProcessor
 from models.train_model import Models
@@ -14,7 +10,7 @@ def app():
     properties = clean_df("src/data/database/df_clean.csv")
     
     # Import customer desc
-    customer = importation_excel("src/formulaire 1.xlsm", "Source")
+    customer = importation_excel("src/formulaire 3.xlsm", "Source")
     
     # Instance StandardScaler for the models and run
     ScalerProcessor(properties,customer).run_processing_pipeline()
@@ -27,9 +23,11 @@ def app():
     nb_features = 15
     properties_selected, importance = select_features(properties, nb_features)
     
+    customer = customer[properties_selected.iloc[:,1:].columns]
+    
     # Plot of features importances
-    plot_feature_importance(importance, nb_features)
-
+    # plot_feature_importance(importance, nb_features)
+    
     # Instance and training of k_neighbors on the encoded data
     knn_model = Models(properties_selected, customer)
     
@@ -37,6 +35,7 @@ def app():
     proba,score = knn_model.k_neighbors()
     
     print(f"La probabilité d'être dans une des 3 classes est de, {score.flatten()}")
+    
     # Export proba in excel sheet
     export_excel(proba,"src/formulaire.xlsm 1", "Source")
     
