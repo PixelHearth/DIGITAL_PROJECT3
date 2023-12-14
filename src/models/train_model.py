@@ -55,7 +55,8 @@ class Models:
         self.df = df
 
         # Test df
-        self.customer_features = df_customer.values
+        self.df_customer = df_customer
+        self.customer_features = self.df_customer.values
 
         # Train df
         self.dependent_variable = self.df.iloc[:, 0].values
@@ -129,7 +130,7 @@ class Models:
 
         """
         # Instance of k-neighbors with 3 close individuals
-        best_k = self.metric_knn()
+        best_k,acc_score = self.metric_knn()
         neigh = KNeighborsClassifier(n_neighbors=best_k)
         
         # Training data on the training database

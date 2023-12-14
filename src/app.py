@@ -1,7 +1,3 @@
-import time
-
-from sklearn.preprocessing import StandardScaler
-
 from data.clean import clean_df
 from data.preprocessing import CustomProcessing, ScalerProcessor
 from models.train_model import Models
@@ -26,15 +22,15 @@ def app():
     # Selection of number of features, important variables, encoding must have been done before
     nb_features = 15
     properties_selected, importance = select_features(properties, nb_features)
-
+    
     # Plot of features importances
     # plot_feature_importance(importance, nb_features)
-
+    
     # Instance and training of k_neighbors on the encoded data
     knn_model = Models(properties_selected, customer)
     
     # Make the K Nearest Neighbors
-    proba,score = knn_model.k_neighbors()
+    proba = knn_model.k_neighbors()
     
     # Write data on txt file
     with open("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/src/data/database/prediction.txt", 'w') as fichier:
