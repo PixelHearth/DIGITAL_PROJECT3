@@ -32,4 +32,5 @@ def plot_feature_importance(importances_df, nb_feature):
     plt.tight_layout()
 
     # Add text indicating the total percentage of importance represented by the most important features
-    plt.savefig("docs/features_importance.png")
+    plt.savefig("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/docs/features_importance.png")
+    plt.close()
