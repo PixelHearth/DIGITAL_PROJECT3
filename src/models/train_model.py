@@ -1,10 +1,12 @@
 import pandas as pd
 from pandas.api.types import is_numeric_dtype
 import numpy as np
-
+import matplotlib.pyplot as plt
+import seaborn as sns
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
+import shap
 class Models:
 
     """
@@ -96,7 +98,7 @@ class Models:
             cm = accuracy_score(y_test, y_pred)
             # Stock score in a list
             accuracy_scores.append(cm)
-        print(np.max(accuracy_scores))
+            
         # Get the max value
         best_k_index = np.argmax(accuracy_scores)
 
@@ -150,14 +152,33 @@ class Models:
         # Créer une liste de dictionnaires pour chaque classe et sa probabilité
         result_list = [{'classe': int(class_index), 'probabilite': float(prob)} for class_index, prob in zip(top_classes, proba_values)]
 
-        # # Créer un explainer SHAP
-        # explainer = shap.KernelExplainer(neigh.predict_proba, self.independent_variable)
-        # # Choisissez un échantillon (par exemple, le premier échantillon dans l'ensemble de test)
-        # sample = self.customer_features
+        # Create shap explainer
+        explainer = shap.KernelExplainer(neigh.predict_proba, self.independent_variable)
 
-        # # Calculer les valeurs SHAP pour l'échantillon choisi
-        # shap_values = explainer.shap_values(sample)
-        #         # Résumé des valeurs SHAP
-        # shap.summary_plot(shap_values, features=self.df.iloc[:, 1:])
+        # Learning on customer's data
+        sample = self.customer_features
 
+        # Compute shap values
+        shap_values = explainer.shap_values(sample)
+        # Chart
+        sns.set(style="white")
+
+        # Create a summary plot with enhanced settings
+        shap.summary_plot(
+            shap_values,
+            features=self.df.iloc[:, 1:],
+            plot_type="bar",  # Use violin plot for better visualization
+            show=False,  # Avoid automatic plt.show() to customize the plot further
+            plot_size=(16, 6)
+        )
+
+        # Customize the plot
+        plt.title('Part de la contribution des variables dans la prédiction de la classe', fontsize=16)
+        plt.xlabel('Part de la contribution ', fontsize=14)
+        plt.ylabel('Variables', fontsize=14)
+        plt.xticks(fontsize=12)
+        plt.yticks(fontsize=12)
+        plt.tight_layout()
+
+        plt.savefig("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/docs/shape_value.png")
         return result_list,score
