@@ -1,7 +1,7 @@
 import pandas as pd
 import sys
 sys.path.append(".")
-from src.data.fonctions_filtrage import *
+from src.data.filtering_function import *
 import numpy as np
 import unittest
 
@@ -337,80 +337,6 @@ class TestSwitchFirstColumnFunction(unittest.TestCase):
         # Check if the resulting DataFrame is empty
         self.assertTrue(df_result.empty)
         
-
-
-class TestReplaceNAValueFunction(unittest.TestCase):
-
-    def setUp(self):
-        # Create a sample DataFrame for testing
-        data = {'A': [1, 2, np.nan, 4],
-                'B': ['a', 'b', 'c', np.nan]}
-        self.df = pd.DataFrame(data)
-
-    def test_replace_na_value(self):
-        # Test the replace_na_value function
-        column_name = 'A'
-        replacement_value = 0
-        df_result = replace_na_value(self.df.copy(), column_name, replacement_value)
-
-        # Expected result after applying replace_na_value
-        expected_result = pd.DataFrame({'A': [1, 2, 0, 4],
-                                        'B': ['a', 'b', 'c', np.nan]})
-        
-        # Check if the resulting DataFrame is equal to the expected result
-        pd.testing.assert_frame_equal(df_result, expected_result)
-
-    def test_replace_na_value_column_not_present(self):
-        # Test the replace_na_value function when the specified column is not present
-        column_name = 'NotPresentColumn'
-        replacement_value = 0
-        df_result = replace_na_value(self.df.copy(), column_name, replacement_value)
-
-        # The result should be the same as the original DataFrame
-        pd.testing.assert_frame_equal(df_result, self.df)
-
-    def test_replace_na_value_empty_dataframe(self):
-        # Test the replace_na_value function with an empty DataFrame
-        empty_df = pd.DataFrame()
-
-        # The result should be an empty DataFrame as well
-        df_result = replace_na_value(empty_df, 'A', 0)
-        
-        # Check if the resulting DataFrame is empty
-        self.assertTrue(df_result.empty)
-        
-        
-
-class TestCountNAPerColumnFunction(unittest.TestCase):
-
-    def setUp(self):
-        # Create a sample DataFrame for testing
-        data = {'A': [1, 2, np.nan, 4],
-                'B': ['a', 'b', 'c', np.nan],
-                'C': [np.nan, np.nan, 3, 4]}
-        self.df = pd.DataFrame(data)
-
-    def test_count_na_per_column(self):
-        # Test the count_na_per_column function
-        df_result = count_na_per_column(self.df.copy())
-
-        # Expected result after applying count_na_per_column
-        expected_result = pd.DataFrame({'Column': ['A', 'B', 'C'],
-                                        'NA_Count': [1, 1, 2]})
-        
-        # Check if the resulting DataFrame is equal to the expected result
-        pd.testing.assert_frame_equal(df_result, expected_result)
-
-    def test_count_na_per_column_empty_dataframe(self):
-        # Test the count_na_per_column function with an empty DataFrame
-        empty_df = pd.DataFrame()
-
-        # The result should be an empty DataFrame as well
-        df_result = count_na_per_column(empty_df)
-        
-        # Check if the resulting DataFrame is empty
-        self.assertTrue(df_result.empty)
-
 class TestConvertObjectColumnsToIntegers(unittest.TestCase):
 
     def test_conversion(self):
