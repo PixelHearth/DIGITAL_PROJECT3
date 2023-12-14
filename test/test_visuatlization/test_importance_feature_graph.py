@@ -8,7 +8,7 @@ from src.visualization.importance_feature_graph import plot_feature_importance
 class TestImportanceFeature(unittest.TestCase):
     def setUp(self):
 
-        # Exemple de données
+        # Example of data
         self.data = pd.DataFrame({'Feature': ['Texte 1', 'Texte 2', 'Texte 3', 'Texte 4'],
                 'Importance': [25, 30, 20, 25]})
         
@@ -17,7 +17,7 @@ class TestImportanceFeature(unittest.TestCase):
     def test_plot_feature_importance(self):
         with patch('sys.stdout', new_callable=StringIO) as mock_stdout:
             plot_feature_importance(self.data,self.nb_feature)
-            self.assertEqual(mock_stdout.getvalue(), '')  # Vérifier qu'il n'y a pas de sortie stdout
+            self.assertEqual(mock_stdout.getvalue(), '')  # Checking if there is not output stdout
         
 if __name__ == "__main__":
     unittest.main()

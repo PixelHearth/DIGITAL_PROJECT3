@@ -414,7 +414,7 @@ class TestCountNAPerColumnFunction(unittest.TestCase):
 class TestConvertObjectColumnsToIntegers(unittest.TestCase):
 
     def test_conversion(self):
-        # Créez un DataFrame de test
+        # Create a DataFrame of test
         data = {
             'Column1': [1, '2', '3', '4'],
             'Column2': ['a', None, 'c', 'd'],
@@ -422,13 +422,13 @@ class TestConvertObjectColumnsToIntegers(unittest.TestCase):
         }
         df = pd.DataFrame(data)
 
-        # Appelez la fonction que vous testez
+        # Calling the function to test
         result_df = convert_object_columns_to_integers(df)
         print(result_df)
-        # Vérifiez que les colonnes ont été correctement converties
+        # Checking if columns were converted correctly
         self.assertTrue(result_df['Column1'].dtype == 'float64')
-        self.assertTrue(result_df['Column2'].dtype == 'object')  # Non convertie
-        self.assertTrue(result_df['Column3'].dtype == 'float64')  # Non convertie
+        self.assertTrue(result_df['Column2'].dtype == 'object')  # Not converted
+        self.assertTrue(result_df['Column3'].dtype == 'float64')  # Not converted
 
 if __name__ == '__main__':
     unittest.main()
