@@ -10,7 +10,7 @@ def app():
     properties = clean_df("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/src/data/database/df_clean.csv")
     
     # Import customer desc
-    customer = importation_excel("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/src/formulaire (1).xlsm", "Source")
+    customer = importation_excel("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/src/formulaire_DPE.xlsm", "Source")
     
     # Instance StandardScaler for the models and run
     ScalerProcessor(properties,customer).run_processing_pipeline()

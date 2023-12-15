@@ -130,7 +130,7 @@ class Models:
 
         """
         # Instance of k-neighbors with 3 close individuals
-        best_k,acc_score = self.metric_knn()
+        best_k = self.metric_knn()
         neigh = KNeighborsClassifier(n_neighbors=best_k)
         
         # Training data on the training database

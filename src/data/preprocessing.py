@@ -62,7 +62,6 @@ class CustomProcessing:
         
         # Fit and transform the first column
         df.iloc[:, 0 ] = label_encoder.fit_transform(df.iloc[:, 0 ])
-        print(label_encoder.classes_)
         # Get Int type for first columns
         df = pd.concat([df.iloc[:, 0].astype(int),df.iloc[:,1:]],axis= 1)
 
