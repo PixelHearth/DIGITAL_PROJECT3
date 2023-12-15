@@ -336,11 +336,11 @@ class TestSwitchFirstColumnFunction(unittest.TestCase):
         
         # Check if the resulting DataFrame is empty
         self.assertTrue(df_result.empty)
-        
+
 class TestConvertObjectColumnsToIntegers(unittest.TestCase):
 
     def test_conversion(self):
-        # Create a DataFrame of test
+        # Créez un DataFrame de test
         data = {
             'Column1': [1, '2', '3', '4'],
             'Column2': ['a', None, 'c', 'd'],
@@ -348,13 +348,13 @@ class TestConvertObjectColumnsToIntegers(unittest.TestCase):
         }
         df = pd.DataFrame(data)
 
-        # Calling the function to test
+        # Appelez la fonction que vous testez
         result_df = convert_object_columns_to_integers(df)
         print(result_df)
-        # Checking if columns were converted correctly
+        # Vérifiez que les colonnes ont été correctement converties
         self.assertTrue(result_df['Column1'].dtype == 'float64')
-        self.assertTrue(result_df['Column2'].dtype == 'object')  # Not converted
-        self.assertTrue(result_df['Column3'].dtype == 'float64')  # Not converted
+        self.assertTrue(result_df['Column2'].dtype == 'object')  # Non convertie
+        self.assertTrue(result_df['Column3'].dtype == 'float64')  # Non convertie
 
 if __name__ == '__main__':
     unittest.main()

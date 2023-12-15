@@ -1,11 +1,12 @@
 import pandas as pd
 from pandas.api.types import is_numeric_dtype
-
 import numpy as np
-
+import matplotlib.pyplot as plt
+import seaborn as sns
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
+import shap
 class Models:
 
     """
@@ -41,7 +42,7 @@ class Models:
         if len(df.columns) == 0 or len(df_customer.columns) == 0:
             raise ValueError("Your df is empty.")
 
-        if len(df.columns) != len(df_customer.columns):
+        if len(df.columns) != (len(df_customer.columns) + 1):
             raise ValueError("Databases do not have the same number of variables, use the variable selection algorithm.")
 
         if not all(is_numeric_dtype(df[col]) for col in df.columns):
@@ -55,7 +56,7 @@ class Models:
 
         # Test df
         self.df_customer = df_customer
-        self.customer_features = self.df_customer.iloc[:, 1:].values
+        self.customer_features = self.df_customer.values
 
         # Train df
         self.dependent_variable = self.df.iloc[:, 0].values
@@ -98,7 +99,7 @@ class Models:
             cm = accuracy_score(y_test, y_pred)
             # Stock score in a list
             accuracy_scores.append(cm)
-        print(np.max(accuracy_scores))
+            
         # Get the max value
         best_k_index = np.argmax(accuracy_scores)
 
@@ -108,7 +109,7 @@ class Models:
         return best_k
 
     
-    def k_neighbors(self, best_k):
+    def k_neighbors(self):
         """
         Creates a k_neighbors algorithm based on property data.
 
@@ -129,6 +130,7 @@ class Models:
 
         """
         # Instance of k-neighbors with 3 close individuals
+        best_k = self.metric_knn()
         neigh = KNeighborsClassifier(n_neighbors=best_k)
         
         # Training data on the training database
@@ -144,28 +146,40 @@ class Models:
 
         # Select 3 representatives classes
         top_classes = sorted_class_indices[:3]
+        score = np.sum(proba[:, top_classes], axis=1)
         
-        # Make a list
-        proba = [{"classe": class_index, "probabilite": proba[0][class_index]} for class_index in top_classes]
+        proba_values = proba[0][top_classes].tolist()
 
-        # Returning a df with the prediction and independent variables of the test individual
-        result_ind_test = self.customer_features.flatten()
-        result = np.concatenate([prediction, result_ind_test])
-        # Attribut name for each columns instead of number
-        df_decoded = pd.DataFrame(result).transpose()
-        df_decoded.columns = self.df.columns
-        
-        # # Créer un explainer SHAP
-        # explainer = shap.KernelExplainer(neigh.predict_proba, self.independent_variable)
-        # # Choisissez un échantillon (par exemple, le premier échantillon dans l'ensemble de test)
-        # sample = self.np_individual_features
+        # Créer une liste de dictionnaires pour chaque classe et sa probabilité
+        result_list = [{'classe': int(class_index), 'probabilite': float(prob)} for class_index, prob in zip(top_classes, proba_values)]
 
-        # # Calculer les valeurs SHAP pour l'échantillon choisi
-        # shap_values = explainer.shap_values(sample)
-        #         # Résumé des valeurs SHAP
-        # shap.summary_plot(shap_values, features=df_decoded.iloc[:,1:])
-        
-        if not isinstance(df_decoded, pd.DataFrame):
-            raise TypeError("Must be df")
-        
-        return df_decoded,proba
+        # Create shap explainer
+        explainer = shap.KernelExplainer(neigh.predict_proba, self.independent_variable)
+
+        # Learning on customer's data
+        sample = self.customer_features
+
+        # Compute shap values
+        shap_values = explainer.shap_values(sample)
+        # Chart
+        sns.set(style="white")
+
+        # Create a summary plot with enhanced settings
+        shap.summary_plot(
+            shap_values,
+            features=self.df.iloc[:, 1:],
+            plot_type="bar",  # Use violin plot for better visualization
+            show=False,  # Avoid automatic plt.show() to customize the plot further
+            plot_size=(16, 6)
+        )
+
+        # Customize the plot
+        plt.title('Part de la contribution des variables dans la prédiction de la classe', fontsize=16)
+        plt.xlabel('Part de la contribution ', fontsize=14)
+        plt.ylabel('Variables', fontsize=14)
+        plt.xticks(fontsize=12)
+        plt.yticks(fontsize=12)
+        plt.tight_layout()
+
+        plt.savefig("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/docs/shape_value.png")
+        return result_list,score

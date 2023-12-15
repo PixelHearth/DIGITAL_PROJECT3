@@ -1,5 +1,6 @@
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import StandardScaler
 import pandas as pd
 
 class CustomProcessing:
@@ -22,7 +23,7 @@ class CustomProcessing:
             raise TypeError("input must be a dataframe")
 
         # Loading the encoding model
-        self.encoder = OneHotEncoder(handle_unknown='ignore',sparse=False)
+        self.encoder = OneHotEncoder(handle_unknown='ignore',sparse_output=False)
 
         # Get columns to train
         self.df = df.iloc[:,1:]
@@ -60,8 +61,7 @@ class CustomProcessing:
         label_encoder = LabelEncoder()
         
         # Fit and transform the first column
-        df.iloc[:, 0] = label_encoder.fit_transform(df.iloc[:, 0])
-        
+        df.iloc[:, 0 ] = label_encoder.fit_transform(df.iloc[:, 0 ])
         # Get Int type for first columns
         df = pd.concat([df.iloc[:, 0].astype(int),df.iloc[:,1:]],axis= 1)
 
@@ -95,7 +95,7 @@ class CustomProcessing:
         df = df.drop(self.object_columns,axis=1).reset_index(drop=True)
 
         # Concatenate the encoded DataFrame with the original DataFrame
-        result_df = pd.concat([df, encoded_df], axis=1)
+        result_df = pd.concat([self.label_encoder(df), encoded_df], axis=1)
         
         return result_df
         
@@ -183,4 +183,109 @@ class CustomProcessing:
         # frop duplicate
         list_cols = list(set(list_cols))
         return list_cols
+    
+
+class ScalerProcessor:
+    """
+    A class for scaling properties data and processing customer data using StandardScaler.
+
+    Args:
+    - properties (pd.DataFrame): The properties data to be scaled.
+    - customer (pd.DataFrame): The customer data to be processed.
+
+    Attributes:
+    - properties (pd.DataFrame): The scaled properties data.
+    - customer (pd.DataFrame): The processed customer data.
+    - properties_scaler (StandardScaler): The scaler used for scaling properties data.
+    """
+    def __init__(self, properties, customer):
+        self.properties = properties
+        self.customer = customer
+        self.properties_scaler = None
+
+    def scale_properties(self):
+        """
+        Scale the numeric columns of the properties DataFrame.
+
+        Exemple:
+        >>> properties_data = pd.DataFrame({'Feature1': [10, 20, 30, 40], 'Feature2': [0.1, 0.2, 0.3, 0.4]})
+        >>> customer_data = pd.DataFrame({'Feature1': [15, 25, 35], 'Feature2': [0.15, 0.25, 0.35]})
+        >>> data_processor = ScalerProcessor(properties_data, customer_data)
+
+        >>> data_processor.scale_properties()
+        >>> scaled_properties = data_processor.properties
+        >>> print(scaled_properties)
+           Feature1  Feature2
+        0  -1.341641 -1.341641
+        1  -0.447214 -0.447214
+        2   0.447214  0.447214
+        3   1.341641  1.341641
+        """
+        # Identify numeric columns
+        numeric_columns = self.properties.select_dtypes(include=['number']).columns
+
+        # Create a new StandardScaler
+        self.properties_scaler = StandardScaler()
+
+        # Apply scaler to numeric columns
+        self.properties[numeric_columns] = self.properties_scaler.fit_transform(self.properties[numeric_columns])
+
+    def process_customer_data(self):
+        """
+        Process customer data using the mean and scale values from the properties scaler.
+
+        Raises:
+        - ValueError: If properties scaler has not been initialized.
+
+        Exemple:
+        >>> properties_data = pd.DataFrame({'Feature1': [10, 20, 30, 40], 'Feature2': [0.1, 0.2, 0.3, 0.4]})
+        >>> customer_data = pd.DataFrame({'Feature1': [15, 25, 35], 'Feature2': [0.15, 0.25, 0.35]})
+        >>> data_processor = ScalerProcessor(properties_data, customer_data)
+
+        >>> data_processor.scale_properties()
+        >>> data_processor.process_customer_data()
+        >>> processed_customer = data_processor.customer
+        >>> print(processed_customer)
+           Feature1  Feature2
+        0  -0.447214 -0.447214
+        1   0.447214  0.447214
+        2   1.341641  1.341641
+        """
+        if self.properties_scaler is None:
+            raise ValueError("Properties scaler has not been initialized. Please scale properties first.")
+
+        # Get the mean and scale from the properties scaler
+        mean_values = self.properties_scaler.mean_
+        scale_values = self.properties_scaler.scale_
+
+        # Apply the mean and scale to the customer DataFrame
+        for col, mean, scale in zip(self.customer.select_dtypes(include=['number']).columns, mean_values, scale_values):
+            self.customer[col] = (self.customer[col] - mean) / scale
+
+    def run_processing_pipeline(self):
+        """
+        Run the entire data processing pipeline.
+
+        Exemple:
+        >>> properties_data = pd.DataFrame({'Feature1': [10, 20, 30, 40], 'Feature2': [0.1, 0.2, 0.3, 0.4]})
+        >>> customer_data = pd.DataFrame({'Feature1': [15, 25, 35], 'Feature2': [0.15, 0.25, 0.35]})
+        >>> data_processor = ScalerProcessor(properties_data, customer_data)
+
+        >>> data_processor.run_processing_pipeline()
+        >>> scaled_properties = data_processor.properties
+        >>> processed_customer = data_processor.customer
+        >>> print(scaled_properties)
+           Feature1  Feature2
+        0  -1.341641 -1.341641
+        1  -0.447214 -0.447214
+        2   0.447214  0.447214
+        3   1.341641  1.341641
+        >>> print(processed_customer)
+           Feature1  Feature2
+        0  -0.447214 -0.447214
+        1   0.447214  0.447214
+        2   1.341641  1.341641
+        """
+        self.scale_properties()
+        self.process_customer_data()
 

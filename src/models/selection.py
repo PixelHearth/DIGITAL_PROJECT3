@@ -53,7 +53,7 @@ def select_features(dataframe, num_features):
     independent_variables = dataframe.iloc[:, 1:]
 
     # Training a Random Forest model
-    rf_model = RandomForestClassifier(n_estimators=200, random_state=42)
+    rf_model = RandomForestClassifier(n_estimators=50, random_state=42)
     rf_model.fit(independent_variables.values, dependent_variable.values)
 
     # Calculating feature importances
@@ -76,4 +76,4 @@ def select_features(dataframe, num_features):
     if not isinstance(selected_dataframe, pd.DataFrame):
         raise TypeError("The result must be a DataFrame.")
     
-    return selected_dataframe.columns, importances_df
+    return selected_dataframe, importances_df
