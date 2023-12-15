@@ -29,7 +29,6 @@ class TestDeleteNAFunction(unittest.TestCase):
 
 
 class TestReplaceValueFunction(unittest.TestCase):
-
     def setUp(self):
         # Create a sample DataFrame for testing
         self.df = pd.DataFrame({'A': [1, 2, 3, 4], 'B': ['a', 'b', 'a', 'c']})

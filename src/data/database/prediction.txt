@@ -1,1 +1,1 @@
-([{'classe': 1, 'probabilite': 0.5}, {'classe': 2, 'probabilite': 0.25}, {'classe': 5, 'probabilite': 0.125}], array([0.875]))
+([{'classe': 2, 'probabilite': 0.4}, {'classe': 0, 'probabilite': 0.4}, {'classe': 1, 'probabilite': 0.2}], array([1.]))

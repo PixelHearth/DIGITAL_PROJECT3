@@ -182,4 +182,4 @@ class Models:
         plt.tight_layout()
 
         plt.savefig("C:/Users/Guillaume Baroin/Documents/M2_sep/DIGITAL_PROJECT3/docs/shape_value.png")
-        return result_list,score
+        return result_list
